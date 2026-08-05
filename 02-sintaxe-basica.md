@@ -10,11 +10,11 @@ Esta é a tag **recomendada** e **sempre disponível**:
 
 ```php
 <?php
-echo "Este código é PHP.";
+echo "This is PHP code.";
 ?>
-<p>Este é HTML puro.</p>
+<p>This is plain HTML.</p>
 <?php
-echo "Voltamos ao PHP.";
+echo "Back to PHP.";
 ```
 
 ### Tag de echo curto (`<?= ?>`)
@@ -22,25 +22,12 @@ echo "Voltamos ao PHP.";
 Equivalente a `<?php echo ...; ?>`, sempre disponível a partir do PHP 5.4:
 
 ```php
-<p>Bem-vindo, <?= htmlspecialchars($name) ?>!</p>
-<p>Sua idade: <?= $age ?></p>
+<p>Welcome, <?= htmlspecialchars($name) ?>!</p>
+<p>Your age: <?= $age ?></p>
 ```
 
 > 💡 **Dica**: `<?= ?>` é **sempre habilitado**, não importa a configuração
 > `short_open_tag` no php.ini. Use à vontade em templates!
-
-### Tag curta (`<? ?>`) — EVITE
-
-```php
-<? echo "Isso depende de short_open_tag = On"; ?>
-```
-
-> ⚠️ **Cuidado**: A tag `<? ?>` depende da configuração `short_open_tag` e
-> conflita com a declaração XML `<?xml ?>`. **Não use**.
-
-### Tag ASP (`<% %>`) — REMOVIDA
-
-Removida no PHP 7. Não use de forma alguma.
 
 ### Arquivos só com PHP
 
@@ -58,41 +45,11 @@ class User
     // ...
 }
 
-// Sem tag de fechamento ?>
+// Sem tag de fechamento
 ```
 
 Isso evita que espaços em branco acidentais após `?>` sejam enviados ao navegador,
 o que quebraria headers HTTP e causaria o famoso erro "headers already sent".
-
----
-
-## Instruções e ponto-e-vírgula
-
-Cada instrução PHP termina com **ponto-e-vírgula** (`;`):
-
-```php
-<?php
-
-$name = "João";              // instrução 1
-echo $name;                  // instrução 2
-$age = 25;                 // instrução 3
-```
-
-A última instrução de um bloco PHP pode omitir o `;` **apenas se seguida da tag de fechamento**:
-
-```php
-<?php echo "OK" ?>   <!-- Funciona: o ?> fecha a instrução -->
-<?php echo "OK"; ?>  <!-- Melhor: explícito -->
-```
-
-> 💡 **Dica**: Sempre use `;`. É mais consistente e evita bugs sutis.
-
-### Múltiplas instruções na mesma linha
-
-```php
-<?php
-$x = 5; $y = 10; $z = $x + $y;  // Válido, mas evite por legibilidade
-```
 
 ---
 
@@ -103,11 +60,11 @@ $x = 5; $y = 10; $z = $x + $y;  // Válido, mas evite por legibilidade
 ```php
 <?php
 
-// Este é um comentário de linha única (estilo C++)
+// This is a single-line comment (C++ style)
 
-# Este também é um comentário de linha única (estilo shell/Perl)
+# This is also a single-line comment (shell/Perl style)
 
-$name = "Ana"; // Comentário após código na mesma linha
+$name = "Anna"; // Comment after code on the same line
 ```
 
 ### Múltiplas linhas
@@ -116,27 +73,26 @@ $name = "Ana"; // Comentário após código na mesma linha
 <?php
 
 /*
- * Este é um comentário
- * de múltiplas linhas.
- * Muito útil para documentar funções.
+ * Multi-line comment.
+ * Useful for documenting functions.
  */
 
 /*
-   Outro formato aceito.
-   Pode ter quantas linhas quiser.
+   Another accepted format.
+   Can have as many lines as you want.
 */
 
 /**
- * Comentário de documentação (DocBlock).
- * Usado por ferramentas como phpDocumentor.
+ * DocBlock documentation comment.
+ * Used by tools like phpDocumentor.
  *
- * @param  string $name   Nome do usuário
- * @param  int    $age  Idade do usuário
- * @return string         Mensagem formatada
+ * @param  string $name   Username
+ * @param  int    $age    User age
+ * @return string         Formatted message
  */
 function greeting(string $name, int $age): string
 {
-    return "Olá, {$name}! Você tem {$age} anos.";
+    return "Hello, {$name}! You are {$age} years old.";
 }
 ```
 
@@ -148,7 +104,7 @@ function greeting(string $name, int $age): string
 ```php
 <?php
 /*
-   echo "A";   /* Isto causa erro de parse! */
+   echo "test";   /* This causes a parse error! */
 */
 ```
 
@@ -165,11 +121,11 @@ Comentários `/* */` **não podem ser aninhados**. O interpretador encontra o pr
 
 <?php if ($loggedIn): ?>
     <nav>
-        <a href="/perfil">Meu Perfil</a>
-        <a href="/sair">Sair</a>
+        <a href="/profile">My Profile</a>
+        <a href="/logout">Logout</a>
     </nav>
 <?php else: ?>
-    <a href="/login">Entrar</a>
+    <a href="/login">Login</a>
 <?php endif; ?>
 ```
 
@@ -190,19 +146,23 @@ Comentários `/* */` **não podem ser aninhados**. O interpretador encontra o pr
 
 ```php
 <?php
-// prepare_data.php — apenas lógica
+// prepare_data.php — entry point (run this file)
 declare(strict_types=1);
 
-$title = 'Página Inicial';
+$title = 'Home';
 $users = [
-    ['name' => 'Alice', 'email' => 'alice@exemplo.com'],
-    ['name' => 'Bob',   'email' => 'bob@exemplo.com'],
+    ['name' => 'Alice', 'email' => 'alice@example.com'],
+    ['name' => 'Bob',   'email' => 'bob@example.com'],
 ];
-?>
 
-<!-- template.php — apenas apresentação -->
+require 'template.php';
+```
+
+`template.php` — presentation only, included by the script above
+
+```php
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <title><?= htmlspecialchars($title) ?></title>
@@ -218,6 +178,17 @@ $users = [
 </html>
 ```
 
+Rode no terminal:
+```bash
+php prepare_data.php
+```
+
+Ou com o servidor embutido:
+```bash
+php -S localhost:8080
+# Acesse http://localhost:8080/prepare_data.php
+```
+
 > 💡 **Dica**: Sempre use `htmlspecialchars()` ao exibir dados do usuário ou
 > vindos de banco no HTML. Isso previne ataques XSS (Cross-Site Scripting).
 
@@ -230,32 +201,60 @@ $users = [
 ```php
 <?php
 
-echo "Olá, mundo!\n";
+echo "Hello, world!\n";
 
-echo "Olá", " ", "mundo!";  // Aceita múltiplos argumentos (separados por vírgula)
+echo "Hello", " ", "world!";  // Accepts multiple arguments (comma-separated)
 
-echo "Olá" . " " . "mundo!"; // Ou concatenação
+echo "Hello" . " " . "world!"; // Or concatenation
 
-// Com expressões
+// With expressions
 $name = "Carlos";
-echo "Bem-vindo, " . $name . "!";
-echo "Bem-vindo, {$name}!";        // Interpolação (aspas duplas)
-echo 'Bem-vindo, ' . $name . '!';  // Aspas simples + concatenação
+echo "Welcome, " . $name . "!";
+echo "Welcome, {$name}!";        // Interpolation (double quotes)
+echo 'Welcome, ' . $name . '!';  // Single quotes + concatenation
 ```
 
-`echo` não é uma função — é uma **construção da linguagem**. Por isso aceita múltiplos parâmetros sem parênteses.
+`echo` não é uma função — é uma **construção da linguagem** (*language construct*).
+
+Enquanto funções são blocos registrados na tabela de símbolos (com overhead
+de call stack, podem ser callback, seguem a sintaxe `nome(args)`), construções
+da linguagem são **parte da sintaxe do interpretador** — palavras reservadas que
+o parser reconhece diretamente na compilação, antes da execução.
+
+Algumas portas que isso abre:
+
+1. **Sintaxe especial**. `echo` aceita múltiplos argumentos separados por
+   vírgula (`echo $a, $b, $c`) sem precisar de array. `isset($x)` não dispara
+   warning se `$x` não existe (uma função dispararia, porque o argumento seria
+   avaliado antes da chamada).
+
+2. **Não pode ser callback**. `array_map('echo', $arr)` quebra, mas
+   `array_map('strlen', $arr)` funciona. Você não passa construção da linguagem
+   como `callable`.
+
+3. **Sem overhead de chamada de função**. Irrelevante em 99% dos casos, mas
+   explica por que `echo` é marginalmente mais rápido que `print`.
+
+Outras construções da linguagem: `print`, `include`, `require`,
+`include_once`, `require_once`, `isset`, `empty`, `unset`, `die`, `exit`,
+`list`, `return`, `yield`. Algumas *parecem* função porque aceitam
+parênteses (`isset($x)`), mas não são.
+
+> 💡 Se você já programa, pense nelas como o equivalente a *keywords* ou
+> *built-in statements* de outras linguagens — como `return` ou `yield`,
+> que não são funções, são sintaxe da linguagem.
 
 ### `print`
 
 ```php
 <?php
 
-print "Olá, mundo!\n";
+print "Hello, world!\n";
 
-print("Olá, mundo!\n"); // Aceita parênteses, mas só 1 argumento
+print("Hello, world!\n"); // Accepts parentheses, but only 1 argument
 
-// print retorna 1 (sempre), echo não retorna nada
-$result = print "teste";
+// print returns 1 (always), echo returns nothing
+$result = print "test";
 echo $result; // 1
 ```
 
@@ -273,9 +272,9 @@ Exibe informações detalhadas sobre uma variável: tipo e valor.
 ```php
 <?php
 
-$name = "Ana";
+$name = "Anna";
 var_dump($name);
-// string(3) "Ana"
+// string(4) "Anna"
 
 $age = 30;
 var_dump($age);
@@ -285,12 +284,12 @@ $price = 19.99;
 var_dump($price);
 // float(19.99)
 
-$fruits = ['maçã', 'banana', 'laranja'];
+$fruits = ['apple', 'banana', 'orange'];
 var_dump($fruits);
 // array(3) {
-//   [0]=> string(5) "maçã"
+//   [0]=> string(5) "apple"
 //   [1]=> string(6) "banana"
-//   [2]=> string(7) "laranja"
+//   [2]=> string(6) "orange"
 // }
 
 $active = true;
@@ -304,7 +303,7 @@ var_dump($null);
 
 ```php
 <?php
-// var_dump pode receber múltiplos argumentos:
+// var_dump accepts multiple arguments:
 var_dump($name, $age, $price);
 ```
 
@@ -312,24 +311,27 @@ var_dump($name, $age, $price);
 
 ### `print_r()`
 
-Similar ao `var_dump()`, mas com formatação mais legível para arrays. Por padrão, mostra o resultado na tela; com o segundo parâmetro `true`, retorna como string.
+Exibe variáveis em formato legível, pensado para leitura humana — ao contrário
+do `var_dump()`, ele **esconde tipo e tamanho** e foca só no conteúdo,
+indentando arrays e objetos de forma organizada.
+
+Por padrão, manda pra tela. Com o segundo parâmetro `true`, retorna como
+string (útil pra logging).
 
 ```php
 <?php
 
 $data = [
-    'name'  => 'Beatriz',
+    'name'  => 'Beatrice',
     'age'   => 28,
-    'city'  => 'São Paulo',
-    'hobbies' => ['leitura', 'música', 'corrida'],
+    'city'  => 'New York',
+    'hobbies' => ['reading', 'music', 'running'],
 ];
 
 print_r($data);
 
-// Retornar como string em vez de exibir
+// Return as string instead of displaying
 $text = print_r($data, true);
-// Agora você pode, por exemplo, logar:
-// error_log($text);
 ```
 
 ---
@@ -348,30 +350,22 @@ define('SESSION_TIME', 3600);
 echo APP_NAME;   // MySystem
 echo VERSION;     // 1.0.0
 
-// Constantes não usam $
-// echo $APP_NAME; // Isso NÃO funcionaria (variável não definida)
+// echo $APP_NAME; // Undefined variable — constants don't use $
 ```
 
 ```php
 <?php
-// define() em tempo de execução (runtime)
-// Pode ser definido dentro de if, funções, etc.
+// define() at runtime
 
-$environment = 'producao';
+$environment = 'production';
 
-if ($environment === 'producao') {
+if ($environment === 'production') {
     define('DEBUG_MODE', false);
 } else {
     define('DEBUG_MODE', true);
 }
 
 var_dump(DEBUG_MODE); // bool(false)
-```
-
-```php
-<?php
-// Terceiro parâmetro: case-insensitive (obsoleto desde PHP 7.3, removido no 8.0)
-// NÃO USE: define('CONST', 'valor', true);
 ```
 
 ### `const` (palavra-chave)
@@ -401,18 +395,17 @@ echo SERVICE_RATE * 100 . '%'; // 10%
 
 namespace App\Config;
 
-// const respeita o namespace
-const APP_NAME = 'MeuApp';
-// Acessível como \App\Config\APP_NAME
+// const honors the namespace
+const APP_NAME = 'MyApp';
+// Accessible as \App\Config\APP_NAME
 
-// define sempre é global
+// define is always global
 define('APP_VERSION', '2.0');
-// Acessível como \APP_VERSION (global)
 
-// define com expressão (const não permite isso)
+// define with expression (const doesn't allow this)
 define('TIMESTAMP', time());
 
-// define dentro de função (const não permite)
+// define inside a function (const doesn't allow this)
 function init(): void
 {
     define('INITIALIZED', true);
@@ -428,14 +421,14 @@ O PHP fornece constantes predefinidas que mudam conforme o contexto:
 ```php
 <?php
 
-echo __LINE__;     // Número da linha atual no arquivo
-echo __FILE__;     // Caminho completo do arquivo
-echo __DIR__;      // Diretório do arquivo (PHP 5.3+)
-echo __FUNCTION__; // Nome da função atual
-echo __CLASS__;    // Nome da classe atual (inclui namespace)
-echo __METHOD__;   // Nome do método atual (Classe::metodo)
-echo __NAMESPACE__;// Namespace atual
-echo __TRAIT__;    // Nome do trait atual (PHP 5.4+)
+echo __LINE__;     // Current line number in the file
+echo __FILE__;     // Full path of the file
+echo __DIR__;      // Directory of the file (PHP 5.3+)
+echo __FUNCTION__; // Current function name
+echo __CLASS__;    // Current class name (includes namespace)
+echo __METHOD__;   // Current method name (Class::method)
+echo __NAMESPACE__;// Current namespace
+echo __TRAIT__;    // Current trait name (PHP 5.4+)
 ```
 
 ```php
@@ -445,10 +438,10 @@ namespace App\Util;
 
 function whereAmI(): void
 {
-    echo "Função: " . __FUNCTION__ . "\n";    // App\Util\whereAmI
+    echo "Function: " . __FUNCTION__ . "\n";    // App\Util\whereAmI
     echo "Namespace: " . __NAMESPACE__ . "\n"; // App\Util
-    echo "Arquivo: " . __FILE__ . "\n";
-    echo "Linha: " . __LINE__ . "\n";
+    echo "File: " . __FILE__ . "\n";
+    echo "Line: " . __LINE__ . "\n";
 }
 
 whereAmI();
@@ -466,7 +459,7 @@ Inclui e avalia o arquivo. Se o arquivo não for encontrado, **emite um warning*
 
 ```php
 <?php
-include 'header.php';   // Warning se não existir, mas continua
+include 'header.php';
 include 'footer.php';
 ```
 
@@ -476,7 +469,7 @@ Igual ao `include`, mas se o arquivo não for encontrado, **emite um erro fatal*
 
 ```php
 <?php
-require 'config/database.php';  // Erro fatal se não existir
+require 'config/database.php';
 ```
 
 ### `include_once` e `require_once`
@@ -486,8 +479,23 @@ Garantem que o arquivo seja incluído **apenas uma vez**, evitando redefinição
 ```php
 <?php
 require_once 'functions.php';
-require_once 'functions.php';  // Ignorado — já foi incluído
+require_once 'functions.php';  // Already included, skipped
 ```
+
+> `_once` foi adicionado depois para resolver o problema de redeclaração:
+> se `functions.php` define `function connect()` e você der `require` duas
+> vezes, o PHP explode com **"Cannot redeclare function"**. Classes também.
+> O `_once` mantém uma tabela interna de paths já incluídos e pula se já
+> conhece aquele arquivo.
+> 
+> Ainda existem usos para `include`/`require` sem `_once`:
+> 
+> - **Templates de repetição**: renderizar o mesmo card 50 vezes com
+>   `include 'card.php'` — você *quer* que execute a cada loop.
+> - **Micro-otimização histórica**: o `_once` faz lookup em toda chamada.
+>   Era relevante no PHP 4, hoje é irrelevante, mas a API ficou.
+>
+> **Regra prática**: use `require_once` como padrão e não se arrependa.
 
 | Instrução       | Arquivo não encontrado | Comportamento           | Repetição      |
 |-----------------|------------------------|-------------------------|----------------|
@@ -501,16 +509,16 @@ require_once 'functions.php';  // Ignorado — já foi incluído
 ```php
 <?php
 
-// Caminho relativo (em relação ao script atual)
+// Relative path (relative to current script)
 require_once 'config.php';
 
-// Caminho absoluto
+// Absolute path
 require_once '/var/www/app/functions.php';
 
-// Usando __DIR__ para caminho relativo seguro
+// Using __DIR__ for safe relative paths
 require_once __DIR__ . '/../vendor/autoload.php';
 
-// include dentro de função
+// include inside a function
 function loadTemplate(string $name): string
 {
     ob_start();
@@ -542,7 +550,7 @@ class User
     ) {}
 }
 
-// Nome completo: \App\Models\User
+// Full name: \App\Models\User
 ```
 
 ```php
@@ -552,8 +560,8 @@ namespace App\Services;
 
 class User
 {
-    // Esta classe NÃO conflita com \App\Models\User
-    // Porque está em outro namespace
+    // This class does NOT conflict with \App\Models\User
+    // because it's in a different namespace
 }
 ```
 
@@ -564,7 +572,7 @@ class User
 
 namespace Project\Module\Submodule;
 
-// Nome completo: \Project\Module\Submodule\MyClass
+// Full name: \Project\Module\Submodule\MyClass
 class MyClass {}
 ```
 
@@ -614,11 +622,11 @@ echo formatCurrency(100 * INTEREST_RATE);
 
 namespace App\Library;
 
-// new \DateTime() — a barra invertida inicial referencia o namespace global
+// \ before class name references the global namespace
 $date = new \DateTime('now');
 echo $date->format('d/m/Y');
 
-// Sem a barra, PHP procuraria \App\Library\DateTime (que não existe)
+// Without the \, PHP would look for \App\Library\DateTime (which doesn't exist)
 ```
 
 > ⚠️ **Cuidado**: Dentro de um namespace, todas as referências a classes são
