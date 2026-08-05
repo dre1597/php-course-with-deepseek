@@ -6,6 +6,7 @@ Criar um blog completo com PHP puro + SQLite + PDO. Suporte a CRUD de posts, upl
 
 ## Estrutura de Diretórios
 
+
 ```
 projetos/blog/
     public/
@@ -23,10 +24,11 @@ projetos/blog/
         layout.php          (layout HTML base + CSS)
         home.php            (listagem de posts)
         post.php            (post individual)
-        criar.php           (formulário de criação)
+        create.php           (formulário de criação)
         editar.php          (formulário de edição)
         login.php           (login admin)
     uploads/                (imagens de capa)
+
 ```
 
 ---
@@ -40,6 +42,7 @@ RewriteEngine On
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^ index.php [L]
+
 ```
 
 ### `public/index.php`
@@ -53,10 +56,10 @@ declare(strict_types=1);
 define('ROOT_DIR', dirname(__DIR__));
 
 // Autoload
-spl_autoload_register(function (string $classe) {
-    $caminho = ROOT_DIR . '/src/' . $classe . '.php';
-    if (file_exists($caminho)) {
-        require_once $caminho;
+spl_autoload_register(function (string $class) {
+    $path = ROOT_DIR . '/src/' . $class . '.php';
+    if (file_exists($path)) {
+        require_once $path;
     }
 });
 
@@ -64,7 +67,7 @@ spl_autoload_register(function (string $classe) {
 require_once ROOT_DIR . '/src/functions.php';
 
 // Inicializa sessão
-Session::iniciar();
+Session::start();
 
 // Inicializa banco
 $pdo = Database::get(ROOT_DIR . '/database.sqlite');
@@ -81,22 +84,22 @@ if (!isset($_SESSION['csrf_token'])) {
 }
 
 // Admin padrão (criado na primeira execução)
-$auth->criarAdminPadrao();
+$auth->createDefaultAdmin();
 
 // ==================== ROTAS PÚBLICAS ====================
 
 $router->get('/', function () use ($postRepo) {
-    $pagina = max(1, (int) ($_GET['pagina'] ?? 1));
-    $porPagina = 6;
-    $posts = $postRepo->buscarTodos($pagina, $porPagina);
-    $total = $postRepo->contar();
-    $totalPaginas = (int) ceil($total / $porPagina);
+    $page = max(1, (int) ($_GET['pagina'] ?? 1));
+    $perPage = 6;
+    $posts = $postRepo->findAll($page, $perPage);
+    $total = $postRepo->count();
+    $totalPages = (int) ceil($total / $perPage);
     require ROOT_DIR . '/templates/home.php';
 });
 
 $router->get('/post', function () use ($postRepo) {
     $id = (int) ($_GET['id'] ?? 0);
-    $post = $postRepo->buscarPorId($id);
+    $post = $postRepo->findById($id);
 
     if (!$post) {
         http_response_code(404);
@@ -110,7 +113,7 @@ $router->get('/post', function () use ($postRepo) {
 // ==================== ROTAS DE ADMIN ====================
 
 $router->get('/admin/login', function () {
-    if (Session::estaLogado()) {
+    if (Session::isLoggedIn()) {
         header('Location: /admin');
         exit;
     }
@@ -119,102 +122,101 @@ $router->get('/admin/login', function () {
 
 $router->post('/admin/login', function () use ($auth) {
     $email = trim($_POST['email'] ?? '');
-    $senha = $_POST['senha'] ?? '';
+    $password = $_POST['password'] ?? '';
 
-    if ($email === '' || $senha === '') {
-        Session::flash('erro', 'Preencha todos os campos.');
+    if ($email === '' || $password === '') {
+        Session::flash('error', 'Preencha todos os campos.');
         Session::flash('email', $email);
         header('Location: /admin/login');
         exit;
     }
 
     if (!hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'] ?? '')) {
-        Session::flash('erro', 'Token de segurança inválido.');
+        Session::flash('error', 'Token de segurança inválido.');
         header('Location: /admin/login');
         exit;
     }
 
-    $resultado = $auth->login($email, $senha);
+    $result = $auth->login($email, $password);
 
-    if (!$resultado['sucesso']) {
-        Session::flash('erro', $resultado['erro']);
+    if (!$result['success']) {
+        Session::flash('error', $result['error']);
         Session::flash('email', $email);
         header('Location: /admin/login');
         exit;
     }
 
-    Session::setUsuario($resultado['usuario']);
+    Session::setUser($result['user']);
     header('Location: /admin');
     exit;
 });
 
 // Painel admin
 $router->get('/admin', function () use ($postRepo) {
-    requerLogin();
-    $posts = $postRepo->buscarTodos(1, 100);
+    requireLogin();
+    $posts = $postRepo->findAll(1, 100);
     require ROOT_DIR . '/templates/admin.php';
 });
 
 // Criar post — GET
-$router->get('/admin/criar', function () {
-    requerLogin();
-    $dados = Session::flash('dados', null) ?? [];
-    $erros = Session::flash('erros', null) ?? [];
-    require ROOT_DIR . '/templates/criar.php';
+$router->get('/admin/create', function () {
+    requireLogin();
+    $data = Session::flash('data', null) ?? [];
+    $errors = Session::flash('errors', null) ?? [];
+    require ROOT_DIR . '/templates/create.php';
 });
 
 // Criar post — POST
-$router->post('/admin/criar', function () use ($postRepo) {
-    requerLogin();
-    verificarCSRF();
+$router->post('/admin/create', function () use ($postRepo) {
+    requireLogin();
+    verifyCSRF();
 
-    $titulo = trim($_POST['titulo'] ?? '');
-    $conteudo = trim($_POST['conteudo'] ?? '');
-    $resumo = trim($_POST['resumo'] ?? '');
+    $title = trim($_POST['title'] ?? '');
+    $content = trim($_POST['content'] ?? '');
+    $summary = trim($_POST['summary'] ?? '');
 
-    $erros = [];
-    if ($titulo === '') $erros[] = 'O título é obrigatório.';
-    if (strlen($titulo) > 200) $erros[] = 'Título deve ter no máximo 200 caracteres.';
-    if ($conteudo === '') $erros[] = 'O conteúdo é obrigatório.';
+    $errors = [];
+    if ($title === '') $errors[] = 'O título é obrigatório.';
+    if (strlen($title) > 200) $errors[] = 'Título deve ter no máximo 200 caracteres.';
+    if ($content === '') $errors[] = 'O conteúdo é obrigatório.';
 
-    if (!empty($erros)) {
-        Session::flash('erros', $erros);
-        Session::flash('dados', $_POST);
-        header('Location: /admin/criar');
+    if (!empty($errors)) {
+        Session::flash('errors', $errors);
+        Session::flash('data', $_POST);
+        header('Location: /admin/create');
         exit;
     }
 
-    // Upload de imagem
-    $capa = null;
-    if (!empty($_FILES['capa']) && $_FILES['capa']['error'] === UPLOAD_ERR_OK) {
-        $resultadoUpload = uploadImagemCapa($_FILES['capa']);
-        if ($resultadoUpload['sucesso']) {
-            $capa = $resultadoUpload['nome_final'];
+    $cover = null;
+    if (!empty($_FILES['cover']) && $_FILES['cover']['error'] === UPLOAD_ERR_OK) {
+        $resultUpload = uploadCoverImage($_FILES['cover']);
+        if ($resultUpload['success']) {
+            $cover = $resultUpload['final_name'];
         } else {
-            Session::flash('erros', $resultadoUpload['erros']);
-            Session::flash('dados', $_POST);
-            header('Location: /admin/criar');
+            Session::flash('errors', $resultUpload['errors']);
+            Session::flash('data', $_POST);
+            header('Location: /admin/create');
             exit;
         }
     }
 
-    $id = $postRepo->inserir([
-        'titulo'   => $titulo,
-        'conteudo' => $conteudo,
-        'resumo'   => $resumo,
-        'capa'     => $capa,
+    $id = $postRepo->insert([
+        'title'   => $title,
+        'content' => $content,
+        'summary' => $summary,
+        'cover'   => $cover,
     ]);
 
-    Session::flash('sucesso', 'Post criado com sucesso!');
+    Session::flash('success', 'Post criado com sucesso!');
     header('Location: /post?id=' . $id);
     exit;
 });
 
 // Editar post — GET
 $router->get('/admin/editar', function () use ($postRepo) {
-    requerLogin();
+    requireLogin();
     $id = (int) ($_GET['id'] ?? 0);
-    $post = $postRepo->buscarPorId($id);
+    $post = $postRepo->findById($id);
 
     if (!$post) {
         http_response_code(404);
@@ -222,18 +224,18 @@ $router->get('/admin/editar', function () use ($postRepo) {
         return;
     }
 
-    $dados = Session::flash('dados', null) ?? $post;
-    $erros = Session::flash('erros', null) ?? [];
+    $data = Session::flash('data', null) ?? $post;
+    $errors = Session::flash('errors', null) ?? [];
     require ROOT_DIR . '/templates/editar.php';
 });
 
 // Editar post — POST
 $router->post('/admin/editar', function () use ($postRepo) {
-    requerLogin();
-    verificarCSRF();
+    requireLogin();
+    verifyCSRF();
 
     $id = (int) ($_POST['id'] ?? 0);
-    $post = $postRepo->buscarPorId($id);
+    $post = $postRepo->findById($id);
 
     if (!$post) {
         http_response_code(404);
@@ -241,63 +243,62 @@ $router->post('/admin/editar', function () use ($postRepo) {
         return;
     }
 
-    $titulo = trim($_POST['titulo'] ?? '');
-    $conteudo = trim($_POST['conteudo'] ?? '');
-    $resumo = trim($_POST['resumo'] ?? '');
+    $title = trim($_POST['title'] ?? '');
+    $content = trim($_POST['content'] ?? '');
+    $summary = trim($_POST['summary'] ?? '');
 
-    $erros = [];
-    if ($titulo === '') $erros[] = 'O título é obrigatório.';
-    if ($conteudo === '') $erros[] = 'O conteúdo é obrigatório.';
+    $errors = [];
+    if ($title === '') $errors[] = 'O título é obrigatório.';
+    if ($content === '') $errors[] = 'O conteúdo é obrigatório.';
 
-    if (!empty($erros)) {
-        Session::flash('erros', $erros);
-        Session::flash('dados', $_POST);
+    if (!empty($errors)) {
+        Session::flash('errors', $errors);
+        Session::flash('data', $_POST);
         header('Location: /admin/editar?id=' . $id);
         exit;
     }
 
-    $dados = [
-        'titulo'   => $titulo,
-        'conteudo' => $conteudo,
-        'resumo'   => $resumo,
+    $data = [
+        'title'   => $title,
+        'content' => $content,
+        'summary' => $summary,
     ];
 
-    // Upload de nova capa
-    if (!empty($_FILES['capa']) && $_FILES['capa']['error'] === UPLOAD_ERR_OK) {
-        $resultadoUpload = uploadImagemCapa($_FILES['capa']);
-        if ($resultadoUpload['sucesso']) {
-            $dados['capa'] = $resultadoUpload['nome_final'];
+    if (!empty($_FILES['cover']) && $_FILES['cover']['error'] === UPLOAD_ERR_OK) {
+        $resultUpload = uploadCoverImage($_FILES['cover']);
+        if ($resultUpload['success']) {
+            $data['cover'] = $resultUpload['final_name'];
         } else {
-            Session::flash('erros', $resultadoUpload['erros']);
-            Session::flash('dados', $_POST);
+            Session::flash('errors', $resultUpload['errors']);
+            Session::flash('data', $_POST);
             header('Location: /admin/editar?id=' . $id);
             exit;
         }
     }
 
-    $postRepo->atualizar($id, $dados);
-    Session::flash('sucesso', 'Post atualizado com sucesso!');
+    $postRepo->update($id, $data);
+    Session::flash('success', 'Post atualizado com sucesso!');
     header('Location: /post?id=' . $id);
     exit;
 });
 
 // Excluir post
 $router->post('/admin/excluir', function () use ($postRepo) {
-    requerLogin();
-    verificarCSRF();
+    requireLogin();
+    verifyCSRF();
 
     $id = (int) ($_POST['id'] ?? 0);
-    $postRepo->deletar($id);
+    $postRepo->delete($id);
 
-    Session::flash('sucesso', 'Post excluído com sucesso!');
-    $_SESSION['flash_tipo'] = 'sucesso';
+    Session::flash('success', 'Post excluído com sucesso!');
+    $_SESSION['flash_type'] = 'success';
     header('Location: /admin');
     exit;
 });
 
 // Logout
 $router->post('/admin/logout', function () {
-    Session::destruir();
+    Session::destroy();
     header('Location: /');
     exit;
 });
@@ -309,7 +310,7 @@ $router->get('/{qualquer}', function () {
 });
 
 // ==================== DISPATCH ====================
-$router->dispatch($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);
+$router->dispatch($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI
 ```
 
 ### `src/Database.php`
@@ -320,10 +321,10 @@ $router->dispatch($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);
 class Database {
     private static ?PDO $instancia = null;
 
-    public static function get(string $caminho): PDO {
+    public static function get(string $path): PDO {
         if (self::$instancia === null) {
             self::$instancia = new PDO(
-                'sqlite:' . $caminho,
+                'sqlite:' . $path,
                 null,
                 null,
                 [
@@ -341,24 +342,23 @@ class Database {
         $pdo->exec("
             CREATE TABLE IF NOT EXISTS posts (
                 id          INTEGER PRIMARY KEY AUTOINCREMENT,
-                titulo      TEXT    NOT NULL,
-                conteudo    TEXT    NOT NULL,
-                resumo      TEXT    DEFAULT '',
-                capa        TEXT,
-                criado_em   TEXT    DEFAULT (datetime('now', 'localtime')),
-                atualizado_em TEXT  DEFAULT (datetime('now', 'localtime'))
+                title       TEXT    NOT NULL,
+                content     TEXT    NOT NULL,
+                summary     TEXT    DEFAULT '',
+                cover       TEXT,
+                created_at  TEXT    DEFAULT (datetime('now', 'localtime')),
+                updated_at  TEXT    DEFAULT (datetime('now', 'localtime'))
             );
 
-            CREATE TABLE IF NOT EXISTS usuarios (
+            CREATE TABLE IF NOT EXISTS users (
                 id       INTEGER PRIMARY KEY AUTOINCREMENT,
-                nome     TEXT    NOT NULL,
+                name     TEXT    NOT NULL,
                 email    TEXT    NOT NULL UNIQUE,
-                senha    TEXT    NOT NULL,
-                criado_em TEXT   DEFAULT (datetime('now', 'localtime'))
+                password    TEXT    NOT NULL,
+                created_at TEXT   DEFAULT (datetime('now', 'localtime'))
             );
         ");
-    }
-}
+   
 ```
 
 ### `src/Router.php`
@@ -367,52 +367,51 @@ class Database {
 <?php
 // src/Router.php
 class Router {
-    private array $rotas = [];
-    private array $padroes = [];
+    private array $routes = [];
+    private array $patterns = [];
 
-    public function get(string $caminho, callable $handler): void {
-        if (str_contains($caminho, '{') && str_contains($caminho, '}')) {
-            $this->padroes['GET'][] = ['padrao' => $caminho, 'handler' => $handler];
+    public function get(string $path, callable $handler): void {
+        if (str_contains($path, '{') && str_contains($path, '}')) {
+            $this->patterns['GET'][] = ['pattern' => $path, 'handler' => $handler];
         } else {
-            $this->rotas['GET'][$caminho] = $handler;
+            $this->routes['GET'][$path] = $handler;
         }
     }
 
-    public function post(string $caminho, callable $handler): void {
-        $this->rotas['POST'][$caminho] = $handler;
+    public function post(string $path, callable $handler): void {
+        $this->routes['POST'][$path] = $handler;
     }
 
-    public function dispatch(string $metodo, string $uri): void {
-        $metodo = strtoupper($metodo);
+    public function dispatch(string $method, string $uri): void {
+        $method = strtoupper($method);
         $uri = parse_url($uri, PHP_URL_PATH);
         $uri = rtrim($uri, '/') ?: '/';
 
-        if (isset($this->rotas[$metodo][$uri])) {
-            call_user_func($this->rotas[$metodo][$uri]);
+        if (isset($this->routes[$method][$uri])) {
+            call_user_func($this->routes[$method][$uri]);
             return;
         }
 
-        if ($metodo === 'POST' && isset($_POST['_method'])) {
-            $metodo = strtoupper($_POST['_method']);
-            if (isset($this->rotas[$metodo][$uri])) {
-                call_user_func($this->rotas[$metodo][$uri]);
+        if ($method === 'POST' && isset($_POST['_method'])) {
+            $method = strtoupper($_POST['_method']);
+            if (isset($this->routes[$method][$uri])) {
+                call_user_func($this->routes[$method][$uri]);
                 return;
             }
         }
 
-        foreach ($this->padroes[$metodo] ?? [] as $rota) {
-            $regex = '#^' . preg_replace('/\{[^}]+\}/', '([^/]+)', $rota['padrao']) . '$#';
+        foreach ($this->patterns[$method] ?? [] as $route) {
+            $regex = '#^' . preg_replace('/\{[^}]+\}/', '([^/]+)', $route['pattern']) . '$#';
             if (preg_match($regex, $uri, $matches)) {
                 array_shift($matches);
-                call_user_func($rota['handler'], ...$matches);
+                call_user_func($route['handler'], ...$matches);
                 return;
             }
         }
 
         http_response_code(404);
         echo "<h1>404 — Página não encontrada</h1>";
-    }
-}
+   
 ```
 
 ### `src/Session.php`
@@ -421,7 +420,7 @@ class Router {
 <?php
 // src/Session.php
 class Session {
-    public static function iniciar(): void {
+    public static function start(): void {
         if (session_status() === PHP_SESSION_NONE) {
             session_set_cookie_params([
                 'lifetime' => 0,
@@ -434,29 +433,29 @@ class Session {
         }
     }
 
-    public static function set(string $chave, mixed $valor): void {
-        $_SESSION[$chave] = $valor;
+    public static function set(string $key, mixed $value): void {
+        $_SESSION[$key] = $value;
     }
 
-    public static function get(string $chave, mixed $padrao = null): mixed {
-        return $_SESSION[$chave] ?? $padrao;
+    public static function get(string $key, mixed $default = null): mixed {
+        return $_SESSION[$key] ?? $default;
     }
 
-    public static function remover(string $chave): void {
-        unset($_SESSION[$chave]);
+    public static function remove(string $key): void {
+        unset($_SESSION[$key]);
     }
 
-    public static function flash(string $chave, mixed $valor = null): mixed {
+    public static function flash(string $key, mixed $value = null): mixed {
         if (func_num_args() === 2) {
-            $_SESSION['_flash'][$chave] = $valor;
+            $_SESSION['_flash'][$key] = $value;
             return null;
         }
-        $v = $_SESSION['_flash'][$chave] ?? null;
-        unset($_SESSION['_flash'][$chave]);
+        $v = $_SESSION['_flash'][$key] ?? null;
+        unset($_SESSION['_flash'][$key]);
         return $v;
     }
 
-    public static function destruir(): void {
+    public static function destroy(): void {
         $_SESSION = [];
         if (ini_get('session.use_cookies')) {
             $params = session_get_cookie_params();
@@ -467,20 +466,19 @@ class Session {
         session_destroy();
     }
 
-    public static function setUsuario(array $usuario): void {
-        self::set('usuario_id', $usuario['id']);
-        self::set('usuario_nome', $usuario['nome']);
+    public static function setUser(array $user): void {
+        self::set('user_id', $user['id']);
+        self::set('user_name', $user['name']);
         session_regenerate_id(true);
     }
 
-    public static function estaLogado(): bool {
-        return self::get('usuario_id') !== null;
+    public static function isLoggedIn(): bool {
+        return self::get('user_id') !== null;
     }
 
-    public static function usuarioNome(): ?string {
-        return self::get('usuario_nome');
-    }
-}
+    public static function userName(): ?string {
+        return self::get('user_name');
+   
 ```
 
 ### `src/Auth.php`
@@ -491,29 +489,28 @@ class Session {
 class Auth {
     public function __construct(private PDO $pdo) {}
 
-    public function login(string $email, string $senha): array {
-        $stmt = $this->pdo->prepare('SELECT id, nome, email, senha FROM usuarios WHERE email = :email');
+    public function login(string $email, string $password): array {
+        $stmt = $this->pdo->prepare('SELECT id, name, email, password FROM users WHERE email = :email');
         $stmt->execute([':email' => $email]);
-        $usuario = $stmt->fetch();
+        $user = $stmt->fetch();
 
-        if (!$usuario || !password_verify($senha, $usuario['senha'])) {
-            return ['sucesso' => false, 'erro' => 'Email ou senha incorretos.'];
+        if (!$user || !password_verify($password, $user['password'])) {
+            return ['success' => false, 'error' => 'Email ou password incorretos.'];
         }
 
-        unset($usuario['senha']);
-        return ['sucesso' => true, 'usuario' => $usuario];
+        unset($user['password']);
+        return ['success' => true, 'user' => $user];
     }
 
-    public function criarAdminPadrao(): void {
-        $stmt = $this->pdo->query('SELECT COUNT(*) FROM usuarios');
+    public function createDefaultAdmin(): void {
+        $stmt = $this->pdo->query('SELECT COUNT(*) FROM users');
         if ($stmt->fetchColumn() == 0) {
             $hash = password_hash('admin123', PASSWORD_DEFAULT);
             $this->pdo->prepare(
-                'INSERT INTO usuarios (nome, email, senha) VALUES (?, ?, ?)'
+                'INSERT INTO users (name, email, password) VALUES (?, ?, ?)'
             )->execute(['Administrador', 'admin@blog.com', $hash]);
         }
-    }
-}
+   
 ```
 
 ### `src/PostRepository.php`
@@ -524,64 +521,63 @@ class Auth {
 class PostRepository {
     public function __construct(private PDO $pdo) {}
 
-    public function buscarTodos(int $pagina = 1, int $porPagina = 10): array {
-        $offset = ($pagina - 1) * $porPagina;
+    public function findAll(int $page = 1, int $perPage = 10): array {
+        $offset = ($page - 1) * $perPage;
         $stmt = $this->pdo->prepare(
-            'SELECT * FROM posts ORDER BY criado_em DESC LIMIT :limite OFFSET :offset'
+            'SELECT * FROM posts ORDER BY created_at DESC LIMIT :limite OFFSET :offset'
         );
-        $stmt->bindValue(':limite', $porPagina, PDO::PARAM_INT);
+        $stmt->bindValue(':limite', $perPage, PDO::PARAM_INT);
         $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetchAll();
     }
 
-    public function buscarPorId(int $id): ?array {
+    public function findById(int $id): ?array {
         $stmt = $this->pdo->prepare('SELECT * FROM posts WHERE id = :id');
         $stmt->execute([':id' => $id]);
-        $resultado = $stmt->fetch();
-        return $resultado ?: null;
+        $result = $stmt->fetch();
+        return $result ?: null;
     }
 
-    public function inserir(array $dados): int {
+    public function insert(array $data): int {
         $stmt = $this->pdo->prepare(
-            'INSERT INTO posts (titulo, conteudo, resumo, capa) VALUES (:titulo, :conteudo, :resumo, :capa)'
+            'INSERT INTO posts (title, content, summary, cover) VALUES (:title, :content, :summary, :cover)'
         );
         $stmt->execute([
-            ':titulo'   => $dados['titulo'],
-            ':conteudo' => $dados['conteudo'],
-            ':resumo'   => $dados['resumo'] ?? '',
-            ':capa'     => $dados['capa'] ?? null,
+            ':title'   => $data['title'],
+            ':content' => $data['content'],
+            ':summary'   => $data['summary'] ?? '',
+            ':cover'     => $data['cover'] ?? null,
         ]);
         return (int) $this->pdo->lastInsertId();
     }
 
-    public function atualizar(int $id, array $dados): void {
+    public function update(int $id, array $data): void {
         $sets = [];
         $params = [':id' => $id];
 
-        foreach (['titulo', 'conteudo', 'resumo', 'capa'] as $campo) {
-            if (array_key_exists($campo, $dados)) {
-                $sets[] = "{$campo} = :{$campo}";
-                $params[":{$campo}"] = $dados[$campo];
+        foreach (['title', 'content', 'summary', 'cover'] as $field) {
+            if (array_key_exists($field, $data)) {
+                $sets[] = "{$field} = :{$field}";
+                $params[":{$field}"] = $data[$field];
             }
         }
 
-        $sets[] = "atualizado_em = datetime('now', 'localtime')";
+        $sets[] = "updated_at = datetime('now', 'localtime')";
         $sql = 'UPDATE posts SET ' . implode(', ', $sets) . ' WHERE id = :id';
 
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($params);
     }
 
-    public function deletar(int $id): void {
+    public function delete(int $id): void {
         $stmt = $this->pdo->prepare('DELETE FROM posts WHERE id = :id');
         $stmt->execute([':id' => $id]);
     }
 
-    public function contar(): int {
+    public function count(): int {
         return (int) $this->pdo->query('SELECT COUNT(*) FROM posts')->fetchColumn();
-    }
-}
+   
 ```
 
 ### `src/functions.php`
@@ -590,84 +586,83 @@ class PostRepository {
 <?php
 // src/functions.php
 
-function h(string $texto): string {
-    return htmlspecialchars($texto, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+function h(string $text): string {
+    return htmlspecialchars($text, ENT_QUOTES | ENT_HTML5, 'UTF-8');
 }
 
-function verificarCSRF(): void {
+function verifyCSRF(): void {
     if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
         http_response_code(403);
         die('Token CSRF inválido.');
     }
 }
 
-function campoCSRF(): string {
+function csrfField(): string {
     return '<input type="hidden" name="csrf_token" value="' . $_SESSION['csrf_token'] . '">';
 }
 
-function requerLogin(): void {
-    if (!Session::estaLogado()) {
-        Session::flash('erro', 'Faça login para acessar.');
+function requireLogin(): void {
+    if (!Session::isLoggedIn()) {
+        Session::flash('error', 'Faça login para acessar.');
         header('Location: /admin/login');
         exit;
     }
 }
 
-function uploadImagemCapa(array $arquivo): array {
-    $tamanhoMaximo = 5 * 1024 * 1024; // 5 MB
-    $tiposPermitidos = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+function uploadCoverImage(array $file): array {
+    $maxFileSize = 5 * 1024 * 1024;
+    $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 
-    if ($arquivo['error'] !== UPLOAD_ERR_OK) {
-        return ['sucesso' => false, 'erros' => ['Erro no upload.']];
+    if ($file['error'] !== UPLOAD_ERR_OK) {
+        return ['success' => false, 'errors' => ['Erro no upload.']];
     }
 
-    if ($arquivo['size'] > $tamanhoMaximo) {
-        return ['sucesso' => false, 'erros' => ['Imagem maior que 5 MB.']];
+    if ($file['size'] > $maxFileSize) {
+        return ['success' => false, 'errors' => ['Imagem maior que 5 MB.']];
     }
 
     $finfo = finfo_open(FILEINFO_MIME_TYPE);
-    $mime = finfo_file($finfo, $arquivo['tmp_name']);
+    $mime = finfo_file($finfo, $file['tmp_name']);
     finfo_close($finfo);
 
-    if (!in_array($mime, $tiposPermitidos)) {
-        return ['sucesso' => false, 'erros' => ['Tipo de imagem não permitido.']];
+    if (!in_array($mime, $allowedTypes)) {
+        return ['success' => false, 'errors' => ['Tipo de imagem não permitido.']];
     }
 
-    $extensao = strtolower(pathinfo($arquivo['name'], PATHINFO_EXTENSION));
-    $nomeFinal = bin2hex(random_bytes(16)) . '.' . $extensao;
-    $destino = ROOT_DIR . '/uploads/' . $nomeFinal;
+    $extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+    $fileName = bin2hex(random_bytes(16)) . '.' . $extension;
+    $destination = ROOT_DIR . '/uploads/' . $fileName;
 
     $dirUploads = ROOT_DIR . '/uploads';
     if (!is_dir($dirUploads)) {
         mkdir($dirUploads, 0755, true);
     }
 
-    if (move_uploaded_file($arquivo['tmp_name'], $destino)) {
-        return ['sucesso' => true, 'nome_final' => $nomeFinal];
+    if (move_uploaded_file($file['tmp_name'], $destination)) {
+        return ['success' => true, 'final_name' => $fileName];
     }
 
-    return ['sucesso' => false, 'erros' => ['Falha ao salvar imagem.']];
+    return ['success' => false, 'errors' => ['Falha ao salvar imagem.']];
 }
 
-function resumirTexto(string $texto, int $limite = 200): string {
-    $texto = strip_tags($texto);
-    if (mb_strlen($texto) <= $limite) {
-        return $texto;
+function truncateText(string $text, int $limit = 200): string {
+    $text = strip_tags($text);
+    if (mb_strlen($text) <= $limit) {
+        return $text;
     }
-    return mb_substr($texto, 0, $limite) . '...';
+    return mb_substr($text, 0, $limit) . '...';
 }
 
-function formatarData(string $data): string {
-    $timestamp = strtotime($data);
+function formatDate(string $date): string {
+    $timestamp = strtotime($date);
     return date('d/m/Y \à\s H:i', $timestamp);
 }
 
-function urlCapa(?string $capa): string {
-    if ($capa && file_exists(ROOT_DIR . '/uploads/' . $capa)) {
-        return '/uploads/' . $capa;
+function coverUrl(?string $cover): string {
+    if ($cover && file_exists(ROOT_DIR . '/uploads/' . $cover)) {
+        return '/uploads/' . $cover;
     }
-    return ''; // sem imagem
-}
+    return ''; // sem imag
 ```
 
 ### `src/upload.php`
@@ -675,7 +670,7 @@ function urlCapa(?string $capa): string {
 ```php
 <?php
 // src/upload.php — placeholder (a lógica está em functions.php)
-// Este arquivo existe para organização, mas o upload é tratado em functions.php:uploadImagemCapa()
+// Este arquivo existe para organização, mas o upload é tratado em functions.php:uploadCoverIma
 ```
 
 ### `templates/layout.php`
@@ -683,8 +678,8 @@ function urlCapa(?string $capa): string {
 ```php
 <?php
 // templates/layout.php
-function layout(string $titulo, string $conteudo, bool $logado = false): string {
-    $adminLink = $logado
+function layout(string $title, string $content, bool $loggedIn = false): string {
+    $adminLink = $loggedIn
         ? '<a href="/admin">Painel</a> | <a href="/admin/logout" onclick="document.getElementById(\'logout-form\').submit();return false;">Sair</a>'
         : '<a href="/admin/login">Admin</a>';
 
@@ -696,7 +691,7 @@ function layout(string $titulo, string $conteudo, bool $logado = false): string 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{$titulo} — Blog PHP</title>
+    <title>{$title} — Blog PHP</title>
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         body {
@@ -829,7 +824,7 @@ function layout(string $titulo, string $conteudo, bool $logado = false): string 
         </nav>
     </header>
     <main>
-        {$conteudo}
+        {$content}
     </main>
     <footer>
         Blog construído com PHP Puro + SQLite &mdash; 2026
@@ -840,40 +835,39 @@ function layout(string $titulo, string $conteudo, bool $logado = false): string 
     </form>
 </body>
 </html>
-HTML;
-}
+HTM
 ```
 
 ### `templates/home.php`
 
 ```php
 <?php
-// templates/home.php (já com $posts, $pagina, $totalPaginas)
+// templates/home.php (já com $posts, $page, $totalPages)
 
-$conteudo = '';
-$logado = Session::estaLogado();
+$content = '';
+$loggedIn = Session::isLoggedIn();
 
 // Mensagem flash
-$sucesso = Session::flash('sucesso');
-if ($sucesso) {
-    $conteudo .= '<div class="alert alert-sucesso">' . h($sucesso) . '</div>';
+$success = Session::flash('success');
+if ($success) {
+    $content .= '<div class="alert alert-sucesso">' . h($success) . '</div>';
 }
 
 if (empty($posts)) {
-    $conteudo .= '<div class="vazio"><h2>Nenhum post ainda.</h2><p>O administrador ainda não publicou conteúdo.</p></div>';
+    $content .= '<div class="vazio"><h2>Nenhum post ainda.</h2><p>O administrador ainda não publicou conteúdo.</p></div>';
 } else {
     foreach ($posts as $post) {
-        $capaUrl = urlCapa($post['capa']);
-        $capaHtml = $capaUrl ? '<img src="' . h($capaUrl) . '" alt="' . h($post['titulo']) . '" class="capa">' : '';
-        $resumo = h($post['resumo'] ?: resumirTexto($post['conteudo']));
+        $coverUrl = coverUrl($post['cover']);
+        $coverHtml = $coverUrl ? '<img src="' . h($coverUrl) . '" alt="' . h($post['title']) . '" class="capa">' : '';
+        $summary = h($post['summary'] ?: truncateText($post['content']));
 
-        $conteudo .= <<<POST
+        $content .= <<<POST
         <article class="post-card">
-            {$capaHtml}
+            {$coverHtml}
             <div class="corpo">
-                <h2><a href="/post?id={$post['id']}">{$post['titulo']}</a></h2>
-                <div class="meta">Publicado em {$post['criado_em']}</div>
-                <p class="resumo">{$resumo}</p>
+                <h2><a href="/post?id={$post['id']}">{$post['title']}</a></h2>
+                <div class="meta">Publicado em {$post['created_at']}</div>
+                <p class="resumo">{$summary}</p>
                 <a href="/post?id={$post['id']}" style="color:#6366f1;font-weight:600;text-decoration:none;font-size:0.9rem;margin-top:8px;display:inline-block;">Ler mais →</a>
             </div>
         </article>
@@ -881,17 +875,17 @@ if (empty($posts)) {
     }
 
     // Paginação
-    if ($totalPaginas > 1) {
-        $conteudo .= '<div class="paginacao">';
-        for ($i = 1; $i <= $totalPaginas; $i++) {
-            $classe = ($i === $pagina) ? 'ativo' : '';
-            $conteudo .= "<a href='/?pagina={$i}' class='{$classe}'>{$i}</a>";
+    if ($totalPages > 1) {
+        $content .= '<div class="paginacao">';
+        for ($i = 1; $i <= $totalPages; $i++) {
+            $class = ($i === $page) ? 'ativo' : '';
+            $content .= "<a href='/?pagina={$i}' class='{$class}'>{$i}</a>";
         }
-        $conteudo .= '</div>';
+        $content .= '</div>';
     }
 }
 
-echo layout('Home', $conteudo, $logado);
+echo layout('Home', $content, $logged
 ```
 
 ### `templates/post.php`
@@ -899,16 +893,16 @@ echo layout('Home', $conteudo, $logado);
 ```php
 <?php
 // templates/post.php (já com $post definido)
-$logado = Session::estaLogado();
-$capaUrl = urlCapa($post['capa']);
-$capaHtml = $capaUrl ? "<img src='" . h($capaUrl) . "' alt='" . h($post['titulo']) . "' class='capa-full'>" : '';
-$data = formatarData($post['criado_em']);
-$conteudoPost = nl2br(h($post['conteudo']));
+$loggedIn = Session::isLoggedIn();
+$coverUrl = coverUrl($post['cover']);
+$coverHtml = $coverUrl ? "<img src='" . h($coverUrl) . "' alt='" . h($post['title']) . "' class='capa-full'>" : '';
+$date = formatDate($post['created_at']);
+$postContent = nl2br(h($post['content']));
 
-$adminBotoes = '';
-if ($logado) {
+$adminButtons = '';
+if ($loggedIn) {
     $csrfToken = $_SESSION['csrf_token'];
-    $adminBotoes = <<<BTN
+    $adminButtons = <<<BTN
     <div class="acoes mt-16">
         <a href="/admin/editar?id={$post['id']}" class="btn btn-secondary btn-sm">Editar</a>
         <form method="post" action="/admin/excluir" style="display:inline"
@@ -921,51 +915,51 @@ if ($logado) {
     BTN;
 }
 
-$conteudo = <<<HTML
+$content = <<<HTML
 <article>
     <div class="card">
         <a href="/" style="color:#6366f1;text-decoration:none;font-size:0.9rem;">← Voltar</a>
 
         <div class="post-header">
-            <h1>{$post['titulo']}</h1>
+            <h1>{$post['title']}</h1>
             <div class="meta">Publicado em {$data}</div>
-            {$capaHtml}
+            {$coverHtml}
         </div>
 
         <div class="post-content">
-            {$conteudoPost}
+            {$postContent}
         </div>
 
-        {$adminBotoes}
+        {$adminButtons}
     </div>
 </article>
 HTML;
 
-echo layout('Post: ' . $post['titulo'], $conteudo, $logado);
+echo layout('Post: ' . $post['title'], $content, $logged
 ```
 
-### `templates/criar.php`
+### `templates/create.php`
 
 ```php
 <?php
-// templates/criar.php
-$dados = $dados ?? [];
-$erros = $erros ?? [];
-$logado = Session::estaLogado();
+// templates/create.php
+$data = $data ?? [];
+$errors = $errors ?? [];
+$loggedIn = Session::isLoggedIn();
 
-$erroHtml = '';
-if (!empty($erros)) {
-    $erroHtml = '<div class="alert alert-erro"><ul>';
-    foreach ($erros as $erro) {
-        $erroHtml .= '<li>' . h($erro) . '</li>';
+$errorHtml = '';
+if (!empty($errors)) {
+    $errorHtml = '<div class="alert alert-erro"><ul>';
+    foreach ($errors as $error) {
+        $errorHtml .= '<li>' . h($error) . '</li>';
     }
-    $erroHtml .= '</ul></div>';
+    $errorHtml .= '</ul></div>';
 }
 
 $csrfToken = $_SESSION['csrf_token'];
-$titulo = h($dados['titulo'] ?? '');
-$resumo = h($dados['resumo'] ?? '');
-$conteudoPost = h($dados['conteudo'] ?? '');
+$title = h($data['title'] ?? '');
+$summary = h($data['summary'] ?? '');
+$postContent = h($data['content'] ?? '');
 
 $html = <<<HTML
 <div class="card">
@@ -973,32 +967,32 @@ $html = <<<HTML
         <h1>Novo Post</h1>
         <a href="/admin" class="btn btn-secondary btn-sm">← Voltar</a>
     </div>
-    {$erroHtml}
-    <form method="post" action="/admin/criar" enctype="multipart/form-data">
+    {$errorHtml}
+    <form method="post" action="/admin/create" enctype="multipart/form-data">
         {$csrfToken}
         <input type="hidden" name="csrf_token" value="{$csrfToken}">
         <div class="form-group">
-            <label for="titulo">Título</label>
-            <input type="text" id="titulo" name="titulo" value="{$titulo}" required maxlength="200">
+            <label for="title">Título</label>
+            <input type="text" id="title" name="title" value="{$title}" required maxlength="200">
         </div>
         <div class="form-group">
-            <label for="resumo">Resumo (opcional)</label>
-            <input type="text" id="resumo" name="resumo" value="{$resumo}" maxlength="500">
+            <label for="summary">Resumo (opcional)</label>
+            <input type="text" id="summary" name="summary" value="{$summary}" maxlength="500">
         </div>
         <div class="form-group">
-            <label for="capa">Imagem de Capa (opcional)</label>
-            <input type="file" id="capa" name="capa" accept="image/*">
+            <label for="cover">Imagem de Capa (opcional)</label>
+            <input type="file" id="cover" name="cover" accept="image/*">
         </div>
         <div class="form-group">
-            <label for="conteudo">Conteúdo</label>
-            <textarea id="conteudo" name="conteudo" required>{$conteudoPost}</textarea>
+            <label for="content">Conteúdo</label>
+            <textarea id="content" name="content" required>{$postContent}</textarea>
         </div>
         <button type="submit" class="btn btn-primary">Publicar Post</button>
     </form>
 </div>
 HTML;
 
-echo layout('Novo Post', $html, $logado);
+echo layout('Novo Post', $html, $logged
 ```
 
 ### `templates/editar.php`
@@ -1006,24 +1000,24 @@ echo layout('Novo Post', $html, $logado);
 ```php
 <?php
 // templates/editar.php
-$erros = $erros ?? [];
-$logado = Session::estaLogado();
+$errors = $errors ?? [];
+$loggedIn = Session::isLoggedIn();
 
-$erroHtml = '';
-if (!empty($erros)) {
-    $erroHtml = '<div class="alert alert-erro"><ul>';
-    foreach ($erros as $erro) {
-        $erroHtml .= '<li>' . h($erro) . '</li>';
+$errorHtml = '';
+if (!empty($errors)) {
+    $errorHtml = '<div class="alert alert-erro"><ul>';
+    foreach ($errors as $error) {
+        $errorHtml .= '<li>' . h($error) . '</li>';
     }
-    $erroHtml .= '</ul></div>';
+    $errorHtml .= '</ul></div>';
 }
 
 $csrfToken = $_SESSION['csrf_token'];
-$titulo = h($dados['titulo'] ?? $post['titulo'] ?? '');
-$resumo = h($dados['resumo'] ?? $post['resumo'] ?? '');
-$conteudoPost = h($dados['conteudo'] ?? $post['conteudo'] ?? '');
-$capaAtual = urlCapa($post['capa'] ?? null);
-$capaInfo = $capaAtual ? "<p style='font-size:0.85rem;color:#64748b;margin-top:4px'>Capa atual: " . h($post['capa']) . "</p>" : '';
+$title = h($data['title'] ?? $post['title'] ?? '');
+$summary = h($data['summary'] ?? $post['summary'] ?? '');
+$postContent = h($data['content'] ?? $post['content'] ?? '');
+$currentCover = coverUrl($post['cover'] ?? null);
+$coverInfo = $currentCover ? "<p style='font-size:0.85rem;color:#64748b;margin-top:4px'>Capa atual: " . h($post['cover']) . "</p>" : '';
 
 $html = <<<HTML
 <div class="card">
@@ -1031,33 +1025,33 @@ $html = <<<HTML
         <h1>Editar Post</h1>
         <a href="/post?id={$post['id']}" class="btn btn-secondary btn-sm">← Cancelar</a>
     </div>
-    {$erroHtml}
+    {$errorHtml}
     <form method="post" action="/admin/editar" enctype="multipart/form-data">
         <input type="hidden" name="csrf_token" value="{$csrfToken}">
         <input type="hidden" name="id" value="{$post['id']}">
         <div class="form-group">
-            <label for="titulo">Título</label>
-            <input type="text" id="titulo" name="titulo" value="{$titulo}" required maxlength="200">
+            <label for="title">Título</label>
+            <input type="text" id="title" name="title" value="{$title}" required maxlength="200">
         </div>
         <div class="form-group">
-            <label for="resumo">Resumo (opcional)</label>
-            <input type="text" id="resumo" name="resumo" value="{$resumo}" maxlength="500">
+            <label for="summary">Resumo (opcional)</label>
+            <input type="text" id="summary" name="summary" value="{$summary}" maxlength="500">
         </div>
         <div class="form-group">
-            <label for="capa">Imagem de Capa (substituir)</label>
-            <input type="file" id="capa" name="capa" accept="image/*">
-            {$capaInfo}
+            <label for="cover">Imagem de Capa (substituir)</label>
+            <input type="file" id="cover" name="cover" accept="image/*">
+            {$coverInfo}
         </div>
         <div class="form-group">
-            <label for="conteudo">Conteúdo</label>
-            <textarea id="conteudo" name="conteudo" required>{$conteudoPost}</textarea>
+            <label for="content">Conteúdo</label>
+            <textarea id="content" name="content" required>{$postContent}</textarea>
         </div>
         <button type="submit" class="btn btn-primary">Salvar Alterações</button>
     </form>
 </div>
 HTML;
 
-echo layout('Editar Post', $html, $logado);
+echo layout('Editar Post', $html, $logged
 ```
 
 ### `templates/login.php`
@@ -1065,25 +1059,25 @@ echo layout('Editar Post', $html, $logado);
 ```php
 <?php
 // templates/login.php
-$erro = Session::flash('erro');
-$emailVal = h(Session::flash('email', null) ?? '');
+$error = Session::flash('error');
+$emailValue = h(Session::flash('email', null) ?? '');
 $csrfToken = $_SESSION['csrf_token'];
 
-$erroHtml = $erro ? '<div class="alert alert-erro">' . h($erro) . '</div>' : '';
+$errorHtml = $error ? '<div class="alert alert-erro">' . h($error) . '</div>' : '';
 
-$conteudo = <<<HTML
+$content = <<<HTML
 <div class="card" style="max-width:420px;margin:40px auto;">
     <h1>Login — Administração</h1>
-    {$erroHtml}
+    {$errorHtml}
     <form method="post" action="/admin/login">
         <input type="hidden" name="csrf_token" value="{$csrfToken}">
         <div class="form-group">
             <label for="email">Email</label>
-            <input type="email" id="email" name="email" value="{$emailVal}" required autofocus>
+            <input type="email" id="email" name="email" value="{$emailValue}" required autofocus>
         </div>
         <div class="form-group">
-            <label for="senha">Senha</label>
-            <input type="password" id="senha" name="senha" required>
+            <label for="password">Senha</label>
+            <input type="password" id="password" name="password" required>
         </div>
         <button type="submit" class="btn btn-primary">Entrar</button>
     </form>
@@ -1093,7 +1087,7 @@ $conteudo = <<<HTML
 </div>
 HTML;
 
-echo layout('Login Admin', $conteudo, Session::estaLogado());
+echo layout('Login Admin', $content, Session::isLoggedIn()
 ```
 
 ### `templates/admin.php` (Painel)
@@ -1101,20 +1095,20 @@ echo layout('Login Admin', $conteudo, Session::estaLogado());
 ```php
 <?php
 // templates/admin.php (já com $posts)
-$logado = Session::estaLogado();
+$loggedIn = Session::isLoggedIn();
 $csrfToken = $_SESSION['csrf_token'];
 
-$sucesso = Session::flash('sucesso');
-$flashHtml = $sucesso ? '<div class="alert alert-sucesso">' . h($sucesso) . '</div>' : '';
+$success = Session::flash('success');
+$flashHtml = $success ? '<div class="alert alert-sucesso">' . h($success) . '</div>' : '';
 
-$linhas = '';
+$lines = '';
 foreach ($posts as $post) {
-    $data = formatarData($post['criado_em']);
-    $titulo = h($post['titulo']);
-    $linhas .= <<<ROW
+    $date = formatDate($post['created_at']);
+    $title = h($post['title']);
+    $lines .= <<<ROW
     <tr>
         <td>{$post['id']}</td>
-        <td><a href="/post?id={$post['id']}" style="color:#1e293b;text-decoration:none;">{$titulo}</a></td>
+        <td><a href="/post?id={$post['id']}" style="color:#1e293b;text-decoration:none;">{$title}</a></td>
         <td>{$data}</td>
         <td>
             <div class="acoes">
@@ -1131,11 +1125,11 @@ foreach ($posts as $post) {
     ROW;
 }
 
-$conteudo = <<<HTML
+$content = <<<HTML
 <div class="card">
     <div class="flex-between mb-16">
         <h1>Painel de Administração</h1>
-        <a href="/admin/criar" class="btn btn-primary">+ Novo Post</a>
+        <a href="/admin/create" class="btn btn-primary">+ Novo Post</a>
     </div>
     {$flashHtml}
     <table class="tabela">
@@ -1143,7 +1137,7 @@ $conteudo = <<<HTML
             <tr><th>ID</th><th>Título</th><th>Data</th><th>Ações</th></tr>
         </thead>
         <tbody>
-            {$linhas}
+            {$lines}
         </tbody>
     </table>
     <p style="text-align:center;color:#94a3b8;margin-top:16px;">
@@ -1152,7 +1146,7 @@ $conteudo = <<<HTML
 </div>
 HTML;
 
-echo layout('Painel Admin', $conteudo, $logado);
+echo layout('Painel Admin', $content, $logged
 ```
 
 ---
@@ -1166,7 +1160,7 @@ cd /caminho/para/projetos/blog/public
 # 2. Inicie o servidor PHP
 php -S localhost:8080
 
-# 3. Acesse http://localhost:8080
+# 3. Acesse http://localhost:
 ```
 
 **Credenciais do admin (criadas na primeira execução):**
@@ -1185,7 +1179,7 @@ php -S localhost:8080
 - **CSRF** em todos os formulários POST
 - **SQLite + PDO** com prepared statements
 - **Templates PHP puro** (sem engine de template)
-- **Roteador manual** com suporte a parâmetros dinâmicos
+- **Router manual** com suporte a parâmetros dinâmicos
 - **Flash messages** para feedback
 - **Design responsivo** com CSS puro
 

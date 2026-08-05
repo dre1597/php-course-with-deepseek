@@ -31,11 +31,11 @@ Usam índices numéricos sequenciais, começando de `0`:
 ```php
 <?php
 
-$frutas = ['Maçã', 'Banana', 'Laranja', 'Uva'];
+$fruits = ['Maçã', 'Banana', 'Laranja', 'Uva'];
 
-echo $frutas[0];   // Maçã
-echo $frutas[1];   // Banana
-echo $frutas[2];   // Laranja
+echo $fruits[0];   // Maçã
+echo $fruits[1];   // Banana
+echo $fruits[2];   // Laranja
 ```
 
 ### Arrays Associativos
@@ -45,15 +45,15 @@ Usam chaves personalizadas (strings) para mapear valores:
 ```php
 <?php
 
-$usuario = [
-    'nome'   => 'Maria Silva',
+$user = [
+    'name'   => 'Maria Silva',
     'email'  => 'maria@email.com',
-    'idade'  => 28,
-    'ativo'  => true,
+    'age'    => 28,
+    'active' => true,
 ];
 
-echo $usuario['nome'];   // Maria Silva
-echo $usuario['email'];  // maria@email.com
+echo $user['name'];   // Maria Silva
+echo $user['email'];  // maria@email.com
 ```
 
 ### Arrays Mistos
@@ -63,16 +63,16 @@ echo $usuario['email'];  // maria@email.com
 ```php
 <?php
 
-$dados = [
+$data = [
     'id'      => 42,
-    'nome'    => 'Produto X',
+    'name'    => 'Product X',
     0         => 'primeiro',
     1         => 'segundo',
-    'preco'   => 99.90,
+    'price'   => 99.90,
 ];
 
-echo $dados[0];        // primeiro
-echo $dados['preco'];  // 99.9
+echo $data[0];        // primeiro
+echo $data['price'];  // 99.9
 ```
 
 💡 **Dica:** Em PHP, `$array['1']` e `$array[1]` referenciam **a mesma chave**, pois o PHP converte chaves numéricas em string para inteiro.
@@ -87,10 +87,10 @@ Prefira **sempre** a short syntax `[]`, introduzida no PHP 5.4. Ambas são idên
 <?php
 
 // Sintaxe antiga (evitar):
-$lista = array(1, 2, 3);
+$list = array(1, 2, 3);
 
 // Sintaxe moderna (preferida):
-$lista = [1, 2, 3];
+$list = [1, 2, 3];
 ```
 
 ### Chaves Automáticas
@@ -100,9 +100,9 @@ Se você não especificar uma chave, o PHP atribui a chave como o maior índice 
 ```php
 <?php
 
-$itens = ['a', 'b', 7 => 'c', 'd', 'e'];
+$items = ['a', 'b', 7 => 'c', 'd', 'e'];
 
-print_r($itens);
+print_r($items);
 /*
 Array
 (
@@ -127,7 +127,7 @@ Array
 $config = [
     'debug' => true,
     'host'  => 'localhost',
-    'porta' => 3306,
+    'port'  => 3306,
 ];
 
 echo $config['host'];                // localhost
@@ -136,7 +136,7 @@ echo $config['host'];                // localhost
 echo $config['timeout'] ?? 30;       // 30 (chave não existe, usa default)
 
 // null coalescing em cadeia
-echo $config['banco']['mysql']['porta'] ?? 5432; // 5432
+echo $config['database']['mysql']['port'] ?? 5432; // 5432
 ```
 
 ### Escrita e Atualização
@@ -144,18 +144,18 @@ echo $config['banco']['mysql']['porta'] ?? 5432; // 5432
 ```php
 <?php
 
-$pessoa = ['nome' => 'João'];
+$person = ['name' => 'João'];
 
-$pessoa['idade'] = 25;         // adiciona nova chave
-$pessoa['nome']  = 'João S.';  // atualiza valor existente
-$pessoa[]        = 'extra';     // adiciona com índice automático (0)
+$person['age']  = 25;         // adiciona nova chave
+$person['name'] = 'João S.';  // atualiza valor existente
+$person[]       = 'extra';     // adiciona com índice automático (0)
 
-print_r($pessoa);
+print_r($person);
 /*
 Array
 (
-    [nome] => João S.
-    [idade] => 25
+    [name] => João S.
+    [age] => 25
     [0] => extra
 )
 */
@@ -166,10 +166,10 @@ Array
 ```php
 <?php
 
-$cores = ['vermelho', 'verde', 'azul', 'amarelo'];
-unset($cores[1]);                         // remove 'verde'
+$colors = ['vermelho', 'verde', 'azul', 'amarelo'];
+unset($colors[1]);                         // remove 'verde'
 
-print_r($cores);
+print_r($colors);
 /*
 Array
 (
@@ -185,8 +185,8 @@ Para reindexar após `unset`, use `array_values()`:
 ```php
 <?php
 
-$cores = array_values($cores);
-print_r($cores);
+$colors = array_values($colors);
+print_r($colors);
 /*
 Array
 (
@@ -208,13 +208,13 @@ PHP fornece funções para tratar arrays como **pilhas** (LIFO) e **filas** (FIF
 ```php
 <?php
 
-$pilha = ['A', 'B'];
-array_push($pilha, 'C', 'D', 'E');
+$stack = ['A', 'B'];
+array_push($stack, 'C', 'D', 'E');
 
-print_r($pilha); // ['A', 'B', 'C', 'D', 'E']
+print_r($stack); // ['A', 'B', 'C', 'D', 'E']
 
 // Equivalente mais performático:
-$pilha[] = 'F';
+$stack[] = 'F';
 ```
 
 💡 **Dica:** Para adicionar um único elemento, `$arr[] = $valor` é mais rápido que `array_push()`, pois não envolve overhead de chamada de função.
@@ -224,11 +224,11 @@ $pilha[] = 'F';
 ```php
 <?php
 
-$pilha = ['A', 'B', 'C'];
-$ultimo = array_pop($pilha);  // remove e retorna 'C'
+$stack = ['A', 'B', 'C'];
+$last = array_pop($stack);  // remove e retorna 'C'
 
-echo $ultimo;                 // C
-print_r($pilha);              // ['A', 'B']
+echo $last;                 // C
+print_r($stack);              // ['A', 'B']
 ```
 
 ### `array_shift()` — Remover do Início
@@ -236,11 +236,11 @@ print_r($pilha);              // ['A', 'B']
 ```php
 <?php
 
-$fila = ['primeiro', 'segundo', 'terceiro'];
-$atendido = array_shift($fila);  // remove e retorna 'primeiro'
+$queue = ['primeiro', 'segundo', 'terceiro'];
+$served = array_shift($queue);  // remove e retorna 'primeiro'
 
-echo $atendido;                   // primeiro
-print_r($fila);                   // ['segundo', 'terceiro']
+echo $served;                   // primeiro
+print_r($queue);                   // ['segundo', 'terceiro']
 ```
 
 ⚠️ **Cuidado:** `array_shift()` reindexa todas as chaves numéricas, o que é custoso para arrays grandes (O(n)).
@@ -250,10 +250,10 @@ print_r($fila);                   // ['segundo', 'terceiro']
 ```php
 <?php
 
-$fila = ['B', 'C'];
-array_unshift($fila, 'A');
+$queue = ['B', 'C'];
+array_unshift($queue, 'A');
 
-print_r($fila); // ['A', 'B', 'C']
+print_r($queue); // ['A', 'B', 'C']
 ```
 
 ---
@@ -267,8 +267,8 @@ Combina dois ou mais arrays. Chaves string são sobrescritas; chaves numéricas 
 ```php
 <?php
 
-$defaults = ['host' => 'localhost', 'porta' => 3306, 'timeout' => 30];
-$userConfig = ['host' => '192.168.1.10', 'usuario' => 'admin', 'timeout' => 60];
+$defaults = ['host' => 'localhost', 'port' => 3306, 'timeout' => 30];
+$userConfig = ['host' => '192.168.1.10', 'user' => 'admin', 'timeout' => 60];
 
 $final = array_merge($defaults, $userConfig);
 print_r($final);
@@ -276,9 +276,9 @@ print_r($final);
 Array
 (
     [host] => 192.168.1.10    <- sobrescrito
-    [porta] => 3306
+    [port] => 3306
     [timeout] => 60           <- sobrescrito
-    [usuario] => admin
+    [user] => admin
 )
 */
 ```
@@ -287,11 +287,11 @@ Array
 <?php
 
 // Merge de arrays indexados
-$a = [10, 20, 30];
-$b = [40, 50];
-$c = array_merge($a, $b);
+$array1 = [10, 20, 30];
+$array2 = [40, 50];
+$merged = array_merge($array1, $array2);
 
-print_r($c); // [10, 20, 30, 40, 50]
+print_r($merged); // [10, 20, 30, 40, 50]
 ```
 
 ### `array_combine()` — Combinar Chaves e Valores
@@ -301,17 +301,17 @@ Cria um array associativo usando um array para chaves e outro para valores:
 ```php
 <?php
 
-$chaves = ['nome', 'email', 'idade'];
-$valores = ['Carlos', 'carlos@email.com', 32];
+$keys = ['name', 'email', 'age'];
+$values = ['Carlos', 'carlos@email.com', 32];
 
-$usuario = array_combine($chaves, $valores);
-print_r($usuario);
+$user = array_combine($keys, $values);
+print_r($user);
 /*
 Array
 (
-    [nome] => Carlos
+    [name] => Carlos
     [email] => carlos@email.com
-    [idade] => 32
+    [age] => 32
 )
 */
 ```
@@ -325,13 +325,13 @@ Extrai uma porção do array **sem modificar o original**:
 ```php
 <?php
 
-$numeros = [10, 20, 30, 40, 50, 60];
+$numbers = [10, 20, 30, 40, 50, 60];
 
-$fatia = array_slice($numeros, 2, 3);     // a partir do índice 2, pega 3 elementos
+$fatia = array_slice($numbers, 2, 3);     // a partir do índice 2, pega 3 elementos
 print_r($fatia);                           // [30, 40, 50]
 
-print_r(array_slice($numeros, -2));        // últimos 2: [50, 60]
-print_r(array_slice($numeros, 0, 4));      // primeiros 4: [10, 20, 30, 40]
+print_r(array_slice($numbers, -2));        // últimos 2: [50, 60]
+print_r(array_slice($numbers, 0, 4));      // primeiros 4: [10, 20, 30, 40]
 ```
 
 O quarto parâmetro (`preserve_keys`) mantém as chaves originais:
@@ -339,8 +339,8 @@ O quarto parâmetro (`preserve_keys`) mantém as chaves originais:
 ```php
 <?php
 
-$dados = [5 => 'a', 10 => 'b', 15 => 'c'];
-print_r(array_slice($dados, 1, 2, true));
+$date = [5 => 'a', 10 => 'b', 15 => 'c'];
+print_r(array_slice($date, 1, 2, true));
 /*
 Array
 (
@@ -357,12 +357,12 @@ Remove ou substitui elementos **modificando o array original**:
 ```php
 <?php
 
-$cores = ['vermelho', 'verde', 'azul', 'amarelo', 'roxo'];
+$colors = ['vermelho', 'verde', 'azul', 'amarelo', 'roxo'];
 
 // Remove 2 elementos a partir do índice 2
-$removidos = array_splice($cores, 2, 2);
+$removidos = array_splice($colors, 2, 2);
 print_r($removidos); // ['azul', 'amarelo']
-print_r($cores);     // ['vermelho', 'verde', 'roxo']
+print_r($colors);     // ['vermelho', 'verde', 'roxo']
 ```
 
 Inserir elementos:
@@ -370,10 +370,10 @@ Inserir elementos:
 ```php
 <?php
 
-$frutas = ['maçã', 'banana', 'laranja'];
-array_splice($frutas, 1, 0, ['uva', 'pera']);  // insere na posição 1, remove 0
+$fruits = ['maçã', 'banana', 'laranja'];
+array_splice($fruits, 1, 0, ['uva', 'pera']);  // insere na posição 1, remove 0
 
-print_r($frutas); // ['maçã', 'uva', 'pera', 'banana', 'laranja']
+print_r($fruits); // ['maçã', 'uva', 'pera', 'banana', 'laranja']
 ```
 
 ---
@@ -385,15 +385,15 @@ print_r($frutas); // ['maçã', 'uva', 'pera', 'banana', 'laranja']
 ```php
 <?php
 
-$frutas = ['maçã', 'banana', 'laranja'];
+$fruits = ['maçã', 'banana', 'laranja'];
 
-var_dump(in_array('banana', $frutas));   // bool(true)
-var_dump(in_array('uva', $frutas));      // bool(false)
+var_dump(in_array('banana', $fruits));   // bool(true)
+var_dump(in_array('uva', $fruits));      // bool(false)
 
 // Com verificação estrita de tipo (terceiro parâmetro):
-$numeros = [1, 2, '3'];
-var_dump(in_array(3, $numeros));         // bool(true)  — coerção!
-var_dump(in_array(3, $numeros, true));   // bool(false) — estrito
+$numbers = [1, 2, '3'];
+var_dump(in_array(3, $numbers));         // bool(true)  — coerção!
+var_dump(in_array(3, $numbers, true));   // bool(false) — estrito
 ```
 
 ### `array_key_exists()` — Verificar se Chave Existe
@@ -401,15 +401,15 @@ var_dump(in_array(3, $numeros, true));   // bool(false) — estrito
 ```php
 <?php
 
-$usuario = ['nome' => 'Ana', 'email' => 'ana@email.com'];
+$user = ['name' => 'Ana', 'email' => 'ana@email.com'];
 
-var_dump(array_key_exists('nome', $usuario));    // bool(true)
-var_dump(array_key_exists('idade', $usuario));   // bool(false)
+var_dump(array_key_exists('name', $user));    // bool(true)
+var_dump(array_key_exists('age', $user));   // bool(false)
 
 // Diferente de isset():
-$dados = ['valor' => null];
-var_dump(array_key_exists('valor', $dados)); // bool(true)
-var_dump(isset($dados['valor']));            // bool(false) — NULL é considerado "não setado"
+$data = ['value' => null];
+var_dump(array_key_exists('value', $data)); // bool(true)
+var_dump(isset($data['value']));            // bool(false) — NULL é considerado "não setado"
 ```
 
 ### `array_search()` — Encontrar Chave por Valor
@@ -417,18 +417,18 @@ var_dump(isset($dados['valor']));            // bool(false) — NULL é consider
 ```php
 <?php
 
-$cores = [
+$colors = [
     'primaria'   => 'vermelho',
     'secundaria' => 'azul',
     'terciaria'  => 'verde',
 ];
 
-$chave = array_search('azul', $cores);
-echo $chave; // secundaria
+$key = array_search('azul', $colors);
+echo $key; // secundaria
 
 // Se não encontrar:
-$naoExiste = array_search('roxo', $cores);
-var_dump($naoExiste); // bool(false)
+$notFound = array_search('roxo', $colors);
+var_dump($notFound); // bool(false)
 ```
 
 ⚠️ **Cuidado:** `array_search()` retorna `false` se não encontrar, mas também pode retornar `0` (índice zero, que é falsy). Sempre compare com `=== false`:
@@ -436,13 +436,13 @@ var_dump($naoExiste); // bool(false)
 ```php
 <?php
 
-$valores = [0 => 'primeiro', 1 => 'segundo'];
-$resultado = array_search('primeiro', $valores);
+$values = [0 => 'primeiro', 1 => 'segundo'];
+$result = array_search('primeiro', $values);
 
-if ($resultado === false) {
+if ($result === false) {
     echo 'Não encontrado';
 } else {
-    echo "Encontrado no índice: {$resultado}"; // Encontrado no índice: 0
+    echo "Encontrado no índice: {$result}"; // Encontrado no índice: 0
 }
 ```
 
@@ -457,21 +457,21 @@ Aplica uma função callback a cada elemento e retorna um novo array:
 ```php
 <?php
 
-$numeros = [1, 2, 3, 4, 5];
+$numbers = [1, 2, 3, 4, 5];
 
-$dobrados = array_map(fn(int $n): int => $n * 2, $numeros);
-print_r($dobrados); // [2, 4, 6, 8, 10]
+$doubled = array_map(fn(int $n): int => $n * 2, $numbers);
+print_r($doubled); // [2, 4, 6, 8, 10]
 
 // Com múltiplos arrays (PHP processa em paralelo):
-$a = [10, 20, 30];
-$b = [1, 2, 3];
-$somas = array_map(fn(int $x, int $y): int => $x + $y, $a, $b);
-print_r($somas); // [11, 22, 33]
+$array1 = [10, 20, 30];
+$array2 = [1, 2, 3];
+$sums = array_map(fn(int $first, int $second): int => $first + $second, $array1, $array2);
+print_r($sums); // [11, 22, 33]
 
 // Com first-class callable (PHP 8.1+):
-$nomes = [' ana ', ' Carlos ', ' BIA '];
-$limpos = array_map(trim(...), $nomes);
-print_r($limpos); // ['ana', 'Carlos', 'BIA']
+$names = [' ana ', ' Carlos ', ' BIA '];
+$clean = array_map(trim(...), $names);
+print_r($clean); // ['ana', 'Carlos', 'BIA']
 ```
 
 💡 **Dica:** Se o callback for `null`, `array_map()` junta os arrays passados em um array multidimensional (comportamento similar a `array_merge` nas posições).
@@ -483,15 +483,15 @@ Filtra elementos com base em um callback que retorna `true`:
 ```php
 <?php
 
-$numeros = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+$numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
-$pares = array_filter($numeros, fn(int $n): bool => $n % 2 === 0);
-print_r($pares); // [1 => 2, 3 => 4, 5 => 6, 7 => 8, 9 => 10]
+$evens = array_filter($numbers, fn(int $number): bool => $number % 2 === 0);
+print_r($evens); // [1 => 2, 3 => 4, 5 => 6, 7 => 8, 9 => 10]
 
 // Manter apenas strings não vazias:
-$dados = ['PHP', '', '8.5', false, null, '2026'];
-$validos = array_filter($dados);
-print_r($dados); // ['PHP', '8.5', '2026']
+$data = ['PHP', '', '8.5', false, null, '2026'];
+$valid = array_filter($data);
+print_r($data); // ['PHP', '8.5', '2026']
 ```
 
 Sem callback, `array_filter()` remove valores falsy (`false`, `null`, `0`, `''`, `[]`).
@@ -503,34 +503,34 @@ Acumula valores:
 ```php
 <?php
 
-$numeros = [1, 2, 3, 4, 5];
+$numbers = [1, 2, 3, 4, 5];
 
-$soma = array_reduce($numeros, fn(int $acumulador, int $atual): int => $acumulador + $atual, 0);
-echo $soma; // 15
+$sum = array_reduce($numbers, fn(int $accumulator, int $current): int => $accumulator + $current, 0);
+echo $sum; // 15
 
 // Calcular o produto de todos os elementos:
-$produto = array_reduce($numeros, fn(int $acc, int $n): int => $acc * $n, 1);
-echo $produto; // 120 (5!)
+$product = array_reduce($numbers, fn(int $acc, int $number): int => $acc * $number, 1);
+echo $product; // 120 (5!)
 
 // Construir uma estrutura complexa (ex: agrupamento):
-$pedidos = [
-    ['cliente' => 'Ana',  'total' => 150.00],
-    ['cliente' => 'João', 'total' => 200.00],
-    ['cliente' => 'Ana',  'total' => 75.00],
-    ['cliente' => 'João', 'total' => 50.00],
+$orders = [
+    ['client' => 'Ana',  'total' => 150.00],
+    ['client' => 'João', 'total' => 200.00],
+    ['client' => 'Ana',  'total' => 75.00],
+    ['client' => 'João', 'total' => 50.00],
 ];
 
-$porCliente = array_reduce(
-    $pedidos,
-    function (array $acc, array $pedido): array {
-        $cliente = $pedido['cliente'];
-        $acc[$cliente] = ($acc[$cliente] ?? 0) + $pedido['total'];
+$byClient = array_reduce(
+    $orders,
+    function (array $acc, array $order): array {
+        $client = $order['client'];
+        $acc[$client] = ($acc[$client] ?? 0) + $order['total'];
         return $acc;
     },
     [],
 );
 
-print_r($porCliente);
+print_r($byClient);
 /*
 Array
 (
@@ -547,13 +547,13 @@ Aplica um callback a cada elemento, podendo modificar o array original (se passa
 ```php
 <?php
 
-$valores = [10.5, 20.3, 30.7, 40.1];
+$values = [10.5, 20.3, 30.7, 40.1];
 
-array_walk($valores, function (float &$valor, int $indice): void {
-    $valor = round($valor);
+array_walk($values, function (float &$value, int $index): void {
+    $value = round($value);
 });
 
-print_r($valores); // [11, 20, 31, 40]
+print_r($values); // [11, 20, 31, 40]
 ```
 
 Com callback que recebe argumento adicional:
@@ -561,14 +561,14 @@ Com callback que recebe argumento adicional:
 ```php
 <?php
 
-$precos = [100, 200, 300];
-$imposto = 0.1; // 10%
+$prices = [100, 200, 300];
+$tax = 0.1; // 10%
 
-array_walk($precos, function (float &$preco, int $indice, float $taxa): void {
-    $preco += $preco * $taxa;
-}, $imposto);
+array_walk($prices, function (float &$price, int $index, float $rate): void {
+    $price += $price * $rate;
+}, $tax);
 
-print_r($precos); // [110, 220, 330]
+print_r($prices); // [110, 220, 330]
 ```
 
 ---
@@ -582,27 +582,27 @@ Retorna o **primeiro elemento** que satisfaz o callback:
 ```php
 <?php
 
-$usuarios = [
-    ['nome' => 'Ana',   'ativo' => true,  'pontos' => 120],
-    ['nome' => 'João',  'ativo' => false, 'pontos' => 200],
-    ['nome' => 'Maria', 'ativo' => true,  'pontos' => 85],
-    ['nome' => 'Pedro', 'ativo' => true,  'pontos' => 150],
+$users = [
+    ['name' => 'Ana',   'active' => true,  'points' => 120],
+    ['name' => 'João',  'active' => false, 'points' => 200],
+    ['name' => 'Maria', 'active' => true,  'points' => 85],
+    ['name' => 'Pedro', 'active' => true,  'points' => 150],
 ];
 
-$primeiroInativo = array_find($usuarios, fn(array $u): bool => !$u['ativo']);
-print_r($primeiroInativo);
+$firstInactive = array_find($users, fn(array $user): bool => !$user['active']);
+print_r($firstInactive);
 /*
 Array
 (
-    [nome] => João
-    [ativo] => false
-    [pontos] => 200
+    [name] => João
+    [active] => false
+    [points] => 200
 )
 */
 
 // Se nenhum elemento for encontrado, retorna null
-$inexistente = array_find($usuarios, fn(array $u): bool => $u['pontos'] > 999);
-var_dump($inexistente); // NULL
+$notFound = array_find($users, fn(array $user): bool => $user['points'] > 999);
+var_dump($notFound); // NULL
 ```
 
 ### `array_find_key()` — PHP 8.4+
@@ -612,19 +612,19 @@ Retorna a **chave** do primeiro elemento que satisfaz o callback:
 ```php
 <?php
 
-$estoque = [
-    'P001' => ['nome' => 'Notebook',   'qtd' => 0],
-    'P002' => ['nome' => 'Mouse',      'qtd' => 45],
-    'P003' => ['nome' => 'Teclado',    'qtd' => 0],
-    'P004' => ['nome' => 'Monitor',    'qtd' => 12],
+$stock = [
+    'P001' => ['name' => 'Notebook',   'qty' => 0],
+    'P002' => ['name' => 'Mouse',      'qty' => 45],
+    'P003' => ['name' => 'Teclado',    'qty' => 0],
+    'P004' => ['name' => 'Monitor',    'qty' => 12],
 ];
 
-$primeiroZerado = array_find_key($estoque, fn(array $p): bool => $p['qtd'] === 0);
-echo $primeiroZerado; // P001
+$firstZero = array_find_key($stock, fn(array $product): bool => $product['qty'] === 0);
+echo $firstZero; // P001
 
 // Não encontrado retorna null
-$chave = array_find_key($estoque, fn(array $p): bool => $p['qtd'] > 100);
-var_dump($chave); // NULL
+$key = array_find_key($stock, fn(array $product): bool => $product['qty'] > 100);
+var_dump($key); // NULL
 ```
 
 ### `array_any()` — PHP 8.4+
@@ -634,23 +634,23 @@ Verifica se **pelo menos um** elemento satisfaz o callback (semelhante a `some()
 ```php
 <?php
 
-$valores = [2, 4, 6, 7, 8, 10];
+$values = [2, 4, 6, 7, 8, 10];
 
-$temImpar = array_any($valores, fn(int $n): bool => $n % 2 !== 0);
-var_dump($temImpar); // bool(true)
+$hasOdd = array_any($values, fn(int $number): bool => $number % 2 !== 0);
+var_dump($hasOdd); // bool(true)
 
-$todosNegativos = array_any($valores, fn(int $n): bool => $n < 0);
-var_dump($todosNegativos); // bool(false)
+$allNegative = array_any($values, fn(int $number): bool => $number < 0);
+var_dump($allNegative); // bool(false)
 
-// Exemplo prático: verificar se há usuários premium
-$usuarios = [
-    ['plano' => 'basic'],
-    ['plano' => 'basic'],
-    ['plano' => 'premium'],
+// Exemplo prático: check se há usuários premium
+$users = [
+    ['plan' => 'basic'],
+    ['plan' => 'basic'],
+    ['plan' => 'premium'],
 ];
 
-$temPremium = array_any($usuarios, fn(array $u): bool => $u['plano'] === 'premium');
-var_dump($temPremium); // bool(true)
+$hasPremium = array_any($users, fn(array $user): bool => $user['plan'] === 'premium');
+var_dump($hasPremium); // bool(true)
 ```
 
 ### `array_all()` — PHP 8.4+
@@ -660,21 +660,21 @@ Verifica se **todos** os elementos satisfazem o callback (semelhante a `every()`
 ```php
 <?php
 
-$idades = [18, 25, 30, 22, 19];
+$ages = [18, 25, 30, 22, 19];
 
-$todosMaiores = array_all($idades, fn(int $idade): bool => $idade >= 18);
-var_dump($todosMaiores); // bool(true)
+$allAdults = array_all($ages, fn(int $age): bool => $age >= 18);
+var_dump($allAdults); // bool(true)
 
-$todosPares = array_all($idades, fn(int $idade): bool => $idade % 2 === 0);
-var_dump($todosPares); // bool(false)
+$allEven = array_all($ages, fn(int $age): bool => $age % 2 === 0);
+var_dump($allEven); // bool(false)
 
 // Exemplo prático: todas as senhas atendem ao critério mínimo
-$senhas = ['ABcd1234!', 'XYzw5678@', 'PQrs9012#'];
-$todasSeguras = array_all(
-    $senhas,
-    fn(string $s): bool => strlen($s) >= 8 && preg_match('/[A-Z]/', $s) && preg_match('/\d/', $s),
+$passwords = ['ABcd1234!', 'XYzw5678@', 'PQrs9012#'];
+$allSecure = array_all(
+    $passwords,
+    fn(string $string): bool => strlen($string) >= 8 && preg_match('/[A-Z]/', $string) && preg_match('/\d/', $string),
 );
-var_dump($todasSeguras); // bool(true)
+var_dump($allSecure); // bool(true)
 ```
 
 💡 **Dica:** `array_any()` e `array_all()` são **short-circuit** — param de percorrer o array assim que a condição é determinada.
@@ -688,13 +688,13 @@ var_dump($todasSeguras); // bool(true)
 ```php
 <?php
 
-$dados = ['a' => 1, 'b' => 2, 'c' => 3];
+$data = ['a' => 1, 'b' => 2, 'c' => 3];
 
-echo array_key_first($dados); // a
-echo array_key_last($dados);  // c
+echo array_key_first($data); // a
+echo array_key_last($data);  // c
 
 // Equivalente sem a função (menos eficiente):
-// array_key_first: array_keys($dados)[0] ?? null
+// array_key_first: array_keys($data)[0] ?? null
 ```
 
 ### `array_first()` e `array_last()` — PHP 8.5 NOVIDADE!
@@ -704,18 +704,18 @@ echo array_key_last($dados);  // c
 ```php
 <?php
 
-$numeros = ['a' => 10, 'b' => 20, 'c' => 30, 'd' => 40];
+$numbers = ['a' => 10, 'b' => 20, 'c' => 30, 'd' => 40];
 
-$primeiro = array_first($numeros);
-$ultimo   = array_last($numeros);
+$first = array_first($numbers);
+$last   = array_last($numbers);
 
-echo $primeiro; // 10
-echo $ultimo;   // 40
+echo $first; // 10
+echo $last;   // 40
 
 // Com array vazio, retornam null:
-$vazio = [];
-var_dump(array_first($vazio)); // NULL
-var_dump(array_last($vazio));  // NULL
+$empty = [];
+var_dump(array_first($empty)); // NULL
+var_dump(array_last($empty));  // NULL
 ```
 
 Comparação com abordagens anteriores:
@@ -740,18 +740,18 @@ $last  = array_last($arr);                               // 300, não modifica o
 ```php
 <?php
 
-$usuario = ['nome' => 'Ana', 'email' => 'ana@email.com', 'idade' => 28];
+$user = ['name' => 'Ana', 'email' => 'ana@email.com', 'age' => 28];
 
-$chaves = array_keys($usuario);
-print_r($chaves); // ['nome', 'email', 'idade']
+$keys = array_keys($user);
+print_r($keys); // ['name', 'email', 'age']
 
-$valores = array_values($usuario);
-print_r($valores); // ['Ana', 'ana@email.com', 28]
+$values = array_values($user);
+print_r($values); // ['Ana', 'ana@email.com', 28]
 
 // array_keys com filtro de valor:
-$numeros = [10, 20, 10, 30, 10, 40];
-$indicesDo10 = array_keys($numeros, 10);
-print_r($indicesDo10); // [0, 2, 4]
+$numbers = [10, 20, 10, 30, 10, 40];
+$indicesOf10 = array_keys($numbers, 10);
+print_r($indicesOf10); // [0, 2, 4]
 ```
 
 ---
@@ -770,13 +770,13 @@ print_r($indicesDo10); // [0, 2, 4]
 ```php
 <?php
 
-$numeros = [30, 10, 50, 20, 40];
+$numbers = [30, 10, 50, 20, 40];
 
-sort($numeros);
-print_r($numeros); // [10, 20, 30, 40, 50]
+sort($numbers);
+print_r($numbers); // [10, 20, 30, 40, 50]
 
-rsort($numeros);
-print_r($numeros); // [50, 40, 30, 20, 10]
+rsort($numbers);
+print_r($numbers); // [50, 40, 30, 20, 10]
 ```
 
 ```php
@@ -824,15 +824,15 @@ Array
 ```php
 <?php
 
-$dados = [
+$date = [
     'zebra' => 1,
     'alpha' => 2,
     'gama'  => 3,
     'beta'  => 4,
 ];
 
-ksort($dados);
-print_r($dados);
+ksort($date);
+print_r($date);
 /*
 Array
 (
@@ -851,17 +851,17 @@ Array
 ```php
 <?php
 
-$produtos = [
-    ['nome' => 'Notebook',  'preco' => 3500.00],
-    ['nome' => 'Mouse',     'preco' => 89.90],
-    ['nome' => 'Teclado',   'preco' => 199.90],
-    ['nome' => 'Monitor',   'preco' => 1200.00],
+$products = [
+    ['name' => 'Notebook',  'price' => 3500.00],
+    ['name' => 'Mouse',     'price' => 89.90],
+    ['name' => 'Teclado',   'price' => 199.90],
+    ['name' => 'Monitor',   'price' => 1200.00],
 ];
 
 // Ordenar por preço crescente
-usort($produtos, fn(array $a, array $b): int => $a['preco'] <=> $b['preco']);
+usort($products, fn(array $firstProduct, array $secondProduct): int => $firstProduct['price'] <=> $secondProduct['price']);
 
-print_r($produtos);
+print_r($products);
 /*
 Array
 (
@@ -880,20 +880,20 @@ Exemplo de ordenação por múltiplos critérios:
 ```php
 <?php
 
-$pessoas = [
-    ['nome' => 'Ana',   'idade' => 30],
-    ['nome' => 'João',  'idade' => 25],
-    ['nome' => 'Maria', 'idade' => 30],
-    ['nome' => 'Pedro', 'idade' => 25],
+$people = [
+    ['name' => 'Ana',   'age' => 30],
+    ['name' => 'João',  'age' => 25],
+    ['name' => 'Maria', 'age' => 30],
+    ['name' => 'Pedro', 'age' => 25],
 ];
 
-usort($pessoas, function (array $a, array $b): int {
+usort($people, function (array $first, array $second): int {
     // Primeiro por idade, depois por nome
-    return $a['idade'] <=> $b['idade']
-        ?: $a['nome'] <=> $b['nome'];
+    return $first['age'] <=> $second['age']
+        ?: $first['name'] <=> $second['name'];
 });
 
-print_r($pessoas);
+print_r($people);
 /*
 [0] => [João, 25]
 [1] => [Pedro, 25]
@@ -911,14 +911,14 @@ print_r($pessoas);
 ```php
 <?php
 
-$coordenadas = [10, 20, 30];
+$coordinates = [10, 20, 30];
 
-[$x, $y, $z] = $coordenadas;
-echo "x={$x}, y={$y}, z={$z}"; // x=10, y=20, z=30
+[$coordX, $coordY, $coordZ] = $coordinates;
+echo "x={$coordX}, y={$coordY}, z={$coordZ}"; // x=10, y=20, z=30
 
 // Pular elementos:
-[,, $terceiro] = $coordenadas;
-echo $terceiro; // 30
+[,, $third] = $coordinates;
+echo $third; // 30
 ```
 
 ### Destructuring Associativo (PHP 7.1+)
@@ -926,14 +926,14 @@ echo $terceiro; // 30
 ```php
 <?php
 
-$usuario = [
-    'nome'    => 'Carlos',
+$user = [
+    'name'    => 'Carlos',
     'email'   => 'carlos@email.com',
-    'cidade'  => 'São Paulo',
+    'city'  => 'São Paulo',
 ];
 
-['nome' => $nome, 'email' => $email] = $usuario;
-echo $nome;  // Carlos
+['name' => $name, 'email' => $email] = $user;
+echo $name;  // Carlos
 echo $email; // carlos@email.com
 ```
 
@@ -942,14 +942,14 @@ echo $email; // carlos@email.com
 ```php
 <?php
 
-$alunos = [
-    ['id' => 1, 'nome' => 'Ana',  'nota' => 9.5],
-    ['id' => 2, 'nome' => 'João', 'nota' => 7.0],
-    ['id' => 3, 'nome' => 'Bia',  'nota' => 8.5],
+$students = [
+    ['id' => 1, 'name' => 'Ana',  'grade' => 9.5],
+    ['id' => 2, 'name' => 'João', 'grade' => 7.0],
+    ['id' => 3, 'name' => 'Bia',  'grade' => 8.5],
 ];
 
-foreach ($alunos as ['nome' => $nome, 'nota' => $nota]) {
-    echo "{$nome}: {$nota}" . PHP_EOL;
+foreach ($students as ['name' => $name, 'grade' => $grade]) {
+    echo "{$name}: {$grade}" . PHP_EOL;
 }
 // Ana: 9.5
 // João: 7.0
@@ -965,18 +965,18 @@ O operador spread `...` desempacota arrays dentro de novas declarações:
 ```php
 <?php
 
-$admin = ['nome' => 'Admin', 'role' => 'admin'];
-$dados = ['email' => 'admin@site.com', 'ativo' => true];
+$admin = ['name' => 'Admin', 'role' => 'admin'];
+$data = ['email' => 'admin@site.com', 'active' => true];
 
-$usuario = [...$admin, ...$dados];
-print_r($usuario);
+$user = [...$admin, ...$data];
+print_r($user);
 /*
 Array
 (
-    [nome] => Admin
+    [name] => Admin
     [role] => admin
     [email] => admin@site.com
-    [ativo] => 1
+    [active] => 1
 )
 */
 ```
@@ -986,12 +986,12 @@ Array
 ```php
 <?php
 
-$turmaA = ['Ana', 'João', 'Maria'];
-$turmaB = ['Pedro', 'Bia'];
-$turmaC = ['Carlos'];
+$classA = ['Ana', 'João', 'Maria'];
+$classB = ['Pedro', 'Bia'];
+$classC = ['Carlos'];
 
-$todas = [...$turmaA, ...$turmaB, ...$turmaC];
-print_r($todas); // ['Ana', 'João', 'Maria', 'Pedro', 'Bia', 'Carlos']
+$all = [...$classA, ...$classB, ...$classC];
+print_r($all); // ['Ana', 'João', 'Maria', 'Pedro', 'Bia', 'Carlos']
 ```
 
 ### Adicionando Elementos no Meio
@@ -1000,11 +1000,9 @@ print_r($todas); // ['Ana', 'João', 'Maria', 'Pedro', 'Bia', 'Carlos']
 <?php
 
 $original = ['primeiro', 'quarto'];
-$novo = [$original[0], 'segundo', 'terceiro', $original[1]];
-// alternativa com spread:
-$novo = [$original[0], ...['segundo', 'terceiro'], $original[1]];
+$new = [$original[0], ...['segundo', 'terceiro'], $original[1]];
 
-print_r($novo); // ['primeiro', 'segundo', 'terceiro', 'quarto']
+print_r($new); // ['primeiro', 'segundo', 'terceiro', 'quarto']
 ```
 
 ⚠️ **Cuidado:** Para arrays associativos, se houver chaves duplicadas, a **última** prevalece (comportamento similar a `array_merge`):
@@ -1012,11 +1010,11 @@ print_r($novo); // ['primeiro', 'segundo', 'terceiro', 'quarto']
 ```php
 <?php
 
-$a = ['x' => 1, 'y' => 2];
-$b = ['y' => 200, 'z' => 3];
+$array1 = ['x' => 1, 'y' => 2];
+$array2 = ['y' => 200, 'z' => 3];
 
-$c = [...$a, ...$b];
-print_r($c); // ['x' => 1, 'y' => 200, 'z' => 3]
+$mergedResult = [...$array1, ...$array2];
+print_r($mergedResult); // ['x' => 1, 'y' => 200, 'z' => 3]
 ```
 
 ---
@@ -1028,18 +1026,18 @@ Arrays podem conter outros arrays como valores, criando **matrizes** ou estrutur
 ```php
 <?php
 
-$matriz = [
+$matrix = [
     [1, 2, 3],
     [4, 5, 6],
     [7, 8, 9],
 ];
 
-echo $matriz[1][2]; // 6 (linha 1, coluna 2)
+echo $matrix[1][2]; // 6 (linha 1, coluna 2)
 
 // Percorrendo com foreach aninhado:
-foreach ($matriz as $linha => $valores) {
-    foreach ($valores as $coluna => $valor) {
-        echo "[{$linha}][{$coluna}] = {$valor}" . PHP_EOL;
+foreach ($matrix as $row => $values) {
+    foreach ($values as $column => $value) {
+        echo "[{$row}][{$column}] = {$value}" . PHP_EOL;
     }
 }
 ```
@@ -1050,33 +1048,33 @@ foreach ($matriz as $linha => $valores) {
 <?php
 
 $ecommerce = [
-    'categorias' => [
+    'categories' => [
         [
             'id'     => 1,
-            'nome'   => 'Eletrônicos',
-            'produtos' => [
-                ['id' => 101, 'nome' => 'Smartphone',   'preco' => 2500.00, 'estoque' => 50],
-                ['id' => 102, 'nome' => 'Notebook',     'preco' => 4500.00, 'estoque' => 20],
+            'name'   => 'Eletrônicos',
+            'products' => [
+                ['id' => 101, 'name' => 'Smartphone',   'price' => 2500.00, 'stock' => 50],
+                ['id' => 102, 'name' => 'Notebook',     'price' => 4500.00, 'stock' => 20],
             ],
         ],
         [
             'id'     => 2,
-            'nome'   => 'Livros',
-            'produtos' => [
-                ['id' => 201, 'nome' => 'PHP Moderno',  'preco' => 89.90,  'estoque' => 100],
-                ['id' => 202, 'nome' => 'Clean Code',   'preco' => 120.00, 'estoque' => 75],
+            'name'   => 'Livros',
+            'products' => [
+                ['id' => 201, 'name' => 'PHP Moderno',  'price' => 89.90,  'stock' => 100],
+                ['id' => 202, 'name' => 'Clean Code',   'price' => 120.00, 'stock' => 75],
             ],
         ],
     ],
 ];
 
 // Valor total do estoque de Eletrônicos
-$totalEletronicos = array_reduce(
-    $ecommerce['categorias'][0]['produtos'],
-    fn(float $soma, array $p): float => $soma + ($p['preco'] * $p['estoque']),
+$totalElectronics = array_reduce(
+    $ecommerce['categories'][0]['products'],
+    fn(float $sum, array $product): float => $sum + ($product['price'] * $product['stock']),
     0.0,
 );
-echo "Total em estoque (Eletrônicos): R$ " . number_format($totalEletronicos, 2, ',', '.');
+echo "Total em estoque (Eletrônicos): R$ " . number_format($totalElectronics, 2, ',', '.');
 // Total em estoque (Eletrônicos): R$ 215.000,00
 ```
 
@@ -1085,14 +1083,14 @@ echo "Total em estoque (Eletrônicos): R$ " . number_format($totalEletronicos, 2
 ```php
 <?php
 
-$aninhado = [[1, 2], [3, 4], [5, 6]];
+$nested = [[1, 2], [3, 4], [5, 6]];
 
-$plano = array_merge(...$aninhado);
-print_r($plano); // [1, 2, 3, 4, 5, 6]
+$flat = array_merge(...$nested);
+print_r($flat); // [1, 2, 3, 4, 5, 6]
 
 // Alternativa funcional com array_reduce:
-$plano2 = array_reduce($aninhado, fn(array $acc, array $sub): array => [...$acc, ...$sub], []);
-print_r($plano2); // [1, 2, 3, 4, 5, 6]
+$flat2 = array_reduce($nested, fn(array $acc, array $sub): array => [...$acc, ...$sub], []);
+print_r($flat2); // [1, 2, 3, 4, 5, 6]
 ```
 
 ---
@@ -1105,15 +1103,15 @@ print_r($plano2); // [1, 2, 3, 4, 5, 6]
 <?php
 
 // Apenas valores
-$cores = ['vermelho', 'verde', 'azul'];
-foreach ($cores as $cor) {
-    echo $cor . PHP_EOL;
+$colors = ['vermelho', 'verde', 'azul'];
+foreach ($colors as $color) {
+    echo $color . PHP_EOL;
 }
 
 // Chave e valor
-$usuario = ['nome' => 'Maria', 'email' => 'maria@email.com', 'idade' => 28];
-foreach ($usuario as $chave => $valor) {
-    echo "{$chave}: {$valor}" . PHP_EOL;
+$user = ['name' => 'Maria', 'email' => 'maria@email.com', 'age' => 28];
+foreach ($user as $key => $value) {
+    echo "{$key}: {$value}" . PHP_EOL;
 }
 /*
 nome: Maria
@@ -1127,14 +1125,14 @@ idade: 28
 ```php
 <?php
 
-$numeros = [1, 2, 3, 4, 5];
+$numbers = [1, 2, 3, 4, 5];
 
-foreach ($numeros as &$valor) {
-    $valor *= 2;
+foreach ($numbers as &$value) {
+    $value *= 2;
 }
-unset($valor); // IMPORTANTE: liberar a referência
+unset($value); // IMPORTANTE: liberar a referência
 
-print_r($numeros); // [2, 4, 6, 8, 10]
+print_r($numbers); // [2, 4, 6, 8, 10]
 ```
 
 ⚠️ **Cuidado:** Sempre faça `unset($valor)` após modificar por referência em `foreach`. Caso contrário, a variável `$valor` permanece como referência para o último elemento, causando bugs sutis:
@@ -1142,15 +1140,15 @@ print_r($numeros); // [2, 4, 6, 8, 10]
 ```php
 <?php
 
-$itens = [1, 2, 3];
-foreach ($itens as &$v) { $v *= 10; }
-// unset($v); // esquecido!
+$items = [1, 2, 3];
+foreach ($items as &$value) { $value *= 10; }
+// unset($value); // esquecido!
 
-foreach ($itens as $v) {
-    // $v ainda é referência para $itens[2]!
+foreach ($items as $value) {
+    // $value ainda é referência para $items[2]!
     // Isso corrompe o array original.
 }
-print_r($itens); // resultado inesperado sem o unset
+print_r($items); // resultado inesperado sem o unset
 ```
 
 ### Uso de `else` com `foreach`
@@ -1158,9 +1156,9 @@ print_r($itens); // resultado inesperado sem o unset
 ```php
 <?php
 
-$vazio = [];
+$empty = [];
 
-foreach ($vazio as $item) {
+foreach ($empty as $item) {
     echo $item;
 } else {
     echo 'Array está vazio!';
@@ -1172,10 +1170,10 @@ foreach ($vazio as $item) {
 ```php
 <?php
 
-$dados = new ArrayIterator(['a' => 1, 'b' => 2, 'c' => 3]);
+$date = new ArrayIterator(['a' => 1, 'b' => 2, 'c' => 3]);
 
-foreach ($dados as $chave => $valor) {
-    echo "{$chave} => {$valor}" . PHP_EOL;
+foreach ($date as $key => $value) {
+    echo "{$key} => {$value}" . PHP_EOL;
 }
 ```
 

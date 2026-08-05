@@ -20,7 +20,7 @@ Crie um script que gere a tabuada de um número `$n` de 1 a 10, exibindo no form
 
 **Requisitos:** Use `for`. O número base deve ser uma variável que você possa alterar.
 
-### Exercício 1.3 — Validador de CPF Simplificado (Médio)
+### Exercício 1.3 — Validator de CPF Simplificado (Médio)
 Crie uma função que receba uma string com o CPF (apenas números ou formatado `XXX.XXX.XXX-XX`) e valide se os dígitos verificadores estão corretos.
 
 **Requisitos:** Remova caracteres não numéricos. Implemente o algoritmo dos dois dígitos verificadores. Retorne `true` ou `false`.
@@ -39,12 +39,11 @@ Dado um array associativo multidmensional de vendas, calcule e exiba:
 
 ```php
 $vendas = [
-    ['vendedor' => 'João',  'mes' => 'Janeiro',  'valor' => 1500.00],
-    ['vendedor' => 'Maria', 'mes' => 'Janeiro',  'valor' => 2300.50],
-    ['vendedor' => 'João',  'mes' => 'Fevereiro','valor' => 1800.00],
-    ['vendedor' => 'Pedro', 'mes' => 'Janeiro',  'valor' => 1200.75],
-    ['vendedor' => 'Maria', 'mes' => 'Fevereiro','valor' => 3100.00],
-];
+    ['seller' => 'João',  'month' => 'Janeiro',  'amount' => 1500.00],
+    ['seller' => 'Maria', 'month' => 'Janeiro',  'amount' => 2300.50],
+    ['seller' => 'João',  'month' => 'Fevereiro','amount' => 1800.00],
+    ['seller' => 'Pedro', 'month' => 'Janeiro',  'amount' => 1200.75],
+    ['seller' => 'Maria', 'month' => 'Fevereiro','amount' => 3100.00
 ```
 
 ---
@@ -55,7 +54,7 @@ $vendas = [
 Crie uma função que converta uma string em um slug de URL: minúsculas, sem acentos, espaços viram hífens, apenas letras, números e hífens.
 
 ```php
-echo slug('Curso de PHP 8 — Avançado!'); // curso-de-php-8-avancado
+echo slug('Curso de PHP 8 — Avançado!'); // curso-de-php-8-ava
 ```
 
 ### Exercício 2.2 — Extrator de Emails (Médio)
@@ -65,8 +64,8 @@ Crie uma função que receba um texto e retorne um array com todos os endereços
 Crie uma função que receba uma string com placeholders `{{variavel}}` e um array associativo, e substitua os placeholders pelos valores correspondentes. Use regex.
 
 ```php
-$template = 'Olá {{nome}}, seu pedido #{{pedido}} está {{status}}.';
-echo render($template, ['nome' => 'João', 'pedido' => 1234, 'status' => 'entregue']);
+$template = 'Olá {{name}}, seu pedido #{{pedido}} está {{status}}.';
+echo render($template, ['name' => 'João', 'pedido' => 1234, 'status' => 'entregu
 ```
 
 ### Exercício 2.4 — Formatador de Telefone (Fácil)
@@ -81,7 +80,7 @@ Se o número for inválido, lance uma exceção.
 ## Módulo 8–10: OOP, Tratamento de Erros e Namespaces
 
 ### Exercício 3.1 — Classe Conta Bancária (Fácil)
-Crie a classe `ContaBancaria` com propriedades privadas: `$titular`, `$saldo`, `$numero`. Métodos: `depositar($valor)`, `sacar($valor)`, `getSaldo()`. Validações: não pode sacar mais que o saldo, não pode depositar/sacar valores negativos.
+Crie a classe `ContaBancaria` com propriedades privadas: `$titular`, `$saldo`, `$numero`. Métodos: `depositar($value)`, `sacar($value)`, `getSaldo()`. Validações: não pode sacar mais que o saldo, não pode depositar/sacar valores negativos.
 
 ### Exercício 3.2 — Sistema Simples de Eventos (Médio)
 Crie uma classe `EventDispatcher` que permita registrar listeners para eventos e dispará-los. Use closure/callable.
@@ -89,7 +88,7 @@ Crie uma classe `EventDispatcher` que permita registrar listeners para eventos e
 ```php
 $dispatcher = new EventDispatcher();
 $dispatcher->on('user.created', function ($user) { echo "Usuário {$user} criado."; });
-$dispatcher->dispatch('user.created', 'João');
+$dispatcher->dispatch('user.created', 'Jo
 ```
 
 ### Exercício 3.3 — Exceções Personalizadas (Médio)
@@ -124,14 +123,14 @@ Crie um script que monitore um diretório e detecte arquivos novos, modificados 
 ### Exercício 5.1 — Formulário de Busca com GET (Fácil)
 Crie uma página com um formulário de busca via GET. Quando o usuário pesquisa, filtre um array de dados em memória e exiba os resultados na mesma página, preservando o termo no campo de busca.
 
-### Exercício 5.2 — Validador de Formulário Reutilizável (Médio)
+### Exercício 5.2 — Validator de Formulário Reutilizável (Médio)
 Crie uma classe `FormValidator` que aceite regras encadeáveis:
 
 ```php
 $validator = new FormValidator($_POST);
-$validator->required('nome')->minLength('nome', 3)
+$validator->required('name')->minLength('name', 3)
           ->required('email')->email('email')
-          ->required('senha')->minLength('senha', 8);
+          ->required('password')->minLength('password'
 ```
 
 ### Exercício 5.3 — Formulário Multi-etapas (Médio)
@@ -170,8 +169,8 @@ Use cookies e arquivos para persistência. Retorne `429 Too Many Requests` quand
 
 ## Módulo 14: Banco de Dados com PDO
 
-### Exercício 7.1 — CRUD de Produtos com SQLite (Fácil)
-Crie uma tabela `produtos` (id, nome, preco, estoque, criado_em) e implemente todas as operações CRUD usando PDO + SQLite. Crie um script de teste que insira 3 produtos, liste todos, atualize um e delete outro.
+### Exercício 7.1 — CRUD de Products com SQLite (Fácil)
+Crie uma tabela `produtos` (id, nome, preco, estoque, criado_em) e implemente todas as operações CRUD usando PDO + SQLite. Crie um script de teste que insira 3 produtos, liste todos, atualize um e deletar outro.
 
 ### Exercício 7.2 — Sistema de Busca com Filtros (Médio)
 Crie um formulário de busca de produtos com filtros:
@@ -182,20 +181,20 @@ Crie um formulário de busca de produtos com filtros:
 Construa a query dinamicamente, mas SEMPRE com prepared statements.
 
 ### Exercício 7.3 — Migração de Schema Automatizada (Médio)
-Crie um sistema simples de migrations: uma tabela `migrations` armazena quais scripts já foram executados. Scripts na pasta `migrations/` são executados em ordem (001_criar_tabela_x.sql, 002_adicionar_coluna_y.sql, etc.).
+Crie um sistema simples de migrations: uma tabela `migrations` armazena quais scripts já foram executados. Scripts na pasta `migrations/` são executados em ordem (001_create_tabela_x.sql, 002_adicionar_coluna_y.sql, etc.).
 
 ### Exercício 7.4 — Repositório Genérico com Query Builder (Difícil)
 Crie uma classe `QueryBuilder` fluente que permita construir queries SQL de forma segura:
 
 ```php
 $qb = new QueryBuilder($pdo);
-$usuarios = $qb->select(['id', 'nome', 'email'])
-               ->from('usuarios')
+$users = $qb->select(['id', 'name', 'email'])
+               ->from('users')
                ->where('ativo', '=', 1)
-               ->where('nome', 'LIKE', '%João%')
-               ->orderBy('nome', 'ASC')
+               ->where('name', 'LIKE', '%João%')
+               ->orderBy('name', 'ASC')
                ->limit(10)
-               ->get();
+               ->g
 ```
 
 **Requisitos:** Todas as cláusulas `where` devem usar prepared statements. Métodos encadeáveis: `select()`, `from()`, `where()`, `whereIn()`, `orderBy()`, `limit()`, `offset()`, `get()`, `first()`, `count()`, `insert()`, `update()`, `delete()`.
@@ -242,7 +241,7 @@ Crie um micro blog que use apenas arquivos (sem banco de dados):
 - Página inicial lista todos os posts (lê com `glob` + `file_get_contents`)
 - Formulário cria novos posts (gera arquivo JSON com `file_put_contents` + `LOCK_EX`)
 
-### Exercício 9.2 — API de Tarefas RESTful (Difícil)
+### Exercício 9.2 — API de Tasks RESTful (Difícil)
 Crie uma API RESTful completa para o To-Do List do Projeto 2, usando JSON para comunicação:
 
 | Método | Endpoint | Ação |
@@ -263,7 +262,7 @@ Adicione ao Blog do Projeto 4 um sistema de comentários:
 - Visitantes podem comentar (nome + texto)
 - Admin pode aprovar/rejeitar comentários
 - Anti-spam: limite de 3 comentários por IP a cada 10 minutos
-- Anti-XSS: remover tags, escapar output
+- Anti-XSS: remover tags, escape output
 - Os comentários aparecem abaixo do post, ordenados por data
 
 ---
@@ -272,29 +271,27 @@ Adicione ao Blog do Projeto 4 um sistema de comentários:
 
 ### Exercício 1.1 (IMC)
 ```php
-$imc = round($peso / ($altura ** 2), 1);
-$classificacao = match (true) {
+$imc = round($weight / ($height ** 2), 1);
+$classification = match (true) {
     $imc < 18.5  => 'Abaixo do peso',
     $imc < 25    => 'Peso normal',
     $imc < 30    => 'Sobrepeso',
-    default      => 'Obesidade',
-};
+    default      => 'Obesidade
 ```
 
 ### Exercício 1.3 (CPF)
 Dica: remova não dígitos com `preg_replace('/[^0-9]/', '', $cpf)`. O primeiro dígito usa pesos 10 a 2; o segundo usa pesos 11 a 2. Soma cada dígito × peso, calcula `(soma * 10) % 11 % 10`.
 
 ### Exercício 1.4 (Senha)
-Dica: use `implode('', array_intersect_key($chars, array_flip(array_rand($chars, $tamanho))))` ou construa manualmente garantindo cada classe de caractere.
+Dica: use `implode('', array_intersect_key($chars, array_flip(array_rand($chars, $length))))` ou construa manualmente garantindo cada classe de caractere.
 
 ### Exercício 2.1 (Slug)
 ```php
-function slug(string $texto): string {
-    $texto = iconv('UTF-8', 'ASCII//TRANSLIT', $texto);
-    $texto = preg_replace('/[^a-zA-Z0-9\s-]/', '', $texto);
-    $texto = preg_replace('/[\s]+/', '-', trim($texto));
-    return strtolower($texto);
-}
+function slug(string $text): string {
+    $text = iconv('UTF-8', 'ASCII//TRANSLIT', $text);
+    $text = preg_replace('/[^a-zA-Z0-9\s-]/', '', $text);
+    $text = preg_replace('/[\s]+/', '-', trim($text));
+    return strtolower($tex
 ```
 
 ### Exercício 2.2 (Emails)
@@ -305,10 +302,10 @@ Dica: Lance `InvalidArgumentException` para valores negativos e `RuntimeExceptio
 
 ### Exercício 4.1 (Contador)
 ```php
-$contador = (int) file_get_contents('contador.txt');
-$contador++;
-file_put_contents('contador.txt', $contador, LOCK_EX);
-echo "Visitas: {$contador}";
+$counter = (int) file_get_contents('contador.txt');
+$counter++;
+file_put_contents('contador.txt', $counter, LOCK_EX);
+echo "Visitas: {$count
 ```
 
 ### Exercício 4.3 (Upload Center)
@@ -318,36 +315,35 @@ Dica: Use `$_FILES['arquivos']` com `name="arquivos[]" multiple`. Itere com `for
 ```php
 header('Content-Type: application/json');
 $json = file_get_contents('php://input');
-$dados = json_decode($json, true);
+$data = json_decode($json, true);
 if (json_last_error() !== JSON_ERROR_NONE) {
     http_response_code(400);
-    echo json_encode(['erro' => 'JSON inválido']);
-    exit;
-}
+    echo json_encode(['error' => 'JSON inválido']);
+    ex
 ```
 
 ### Exercício 6.1 (Tema)
 ```php
-setcookie('tema', $_POST['tema'], time() + 86400 * 30, '/', '', false, false);
+setcookie('theme', $_POST['theme'], time() + 86400 * 30, '/', '', false, fa
 ```
 
 ### Exercício 6.4 (Rate Limiter)
-Dica: Armazene um array `['tentativas' => [], 'bloqueado_ate' => null]` em arquivo JSON por chave. Verifique timestamps a cada requisição.
+Dica: Armazene um array `['attempts' => [], 'blocked_until' => null]` em arquivo JSON por chave. Verifique timestamps a cada requisição.
 
-### Exercício 7.1 (CRUD Produtos)
+### Exercício 7.1 (CRUD Products)
 ```php
-$pdo = new PDO('sqlite:produtos.sqlite');
-$pdo->exec("CREATE TABLE IF NOT EXISTS produtos (id INTEGER PRIMARY KEY AUTOINCREMENT, nome TEXT, preco REAL, estoque INTEGER, criado_em TEXT DEFAULT (datetime('now')))");
+$pdo = new PDO('sqlite:products.sqlite');
+$pdo->exec("CREATE TABLE IF NOT EXISTS products (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, price REAL, stock INTEGER, created_at TEXT DEFAULT (datetime('now')
 ```
 
 ### Exercício 7.2 (Busca com Filtros)
 Dica: Construa o WHERE incrementalmente com array de condições e array de parâmetros. Jamais concatene valores.
 
 ```php
-$condicoes = [];
+$conditions = [];
 $params = [];
-if (!empty($nome)) { $condicoes[] = 'nome LIKE :nome'; $params[':nome'] = "%{$nome}%"; }
-$sql = 'SELECT * FROM produtos' . ($condicoes ? ' WHERE ' . implode(' AND ', $condicoes) : '');
+if (!empty($name)) { $conditions[] = 'name LIKE :name'; $params[':name'] = "%{$name}%"; }
+$sql = 'SELECT * FROM products' . ($conditions ? ' WHERE ' . implode(' AND ', $conditions) :
 ```
 
 ### Exercício 7.4 (QueryBuilder)
@@ -355,21 +351,20 @@ Dica: Cada método retorna `$this`. O `get()` monta a SQL final e executa com `p
 
 ### Exercício 8.1 (Sanitizador)
 ```php
-function safe(mixed $valor, string $contexto = 'html'): string {
-    return match ($contexto) {
-        'html' => htmlspecialchars((string) $valor, ENT_QUOTES | ENT_HTML5, 'UTF-8'),
-        'js'   => json_encode($valor, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT),
-        'url'  => urlencode((string) $valor),
-        default => htmlspecialchars((string) $valor, ENT_QUOTES, 'UTF-8'),
-    };
-}
+function safe(mixed $amount, string $context = 'html'): string {
+    return match ($context) {
+        'html' => htmlspecialchars((string) $amount, ENT_QUOTES | ENT_HTML5, 'UTF-8'),
+        'js'   => json_encode($amount, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT),
+        'url'  => urlencode((string) $amount),
+        default => htmlspecialchars((string) $amount, ENT_QUOTES, 'UTF-8'),
+   
 ```
 
 ### Exercício 8.4 (Remember Me)
 Dica: Use `bin2hex(random_bytes(32))` para gerar o token. Armazene no banco: `hash('sha256', $token)`. Na validação: `hash_equals($hashBanco, hash('sha256', $tokenDoCookie))`.
 
 ### Exercício 9.1 (Micro Blog)
-Dica: `glob('posts/*.json')` para listar, `file_get_contents` para ler, `file_put_contents("posts/{$slug}.json", json_encode($dados, JSON_PRETTY_PRINT), LOCK_EX)` para criar.
+Dica: `glob('posts/*.json')` para listar, `file_get_contents` para ler, `file_put_contents("posts/{$slug}.json", json_encode($data, JSON_PRETTY_PRINT), LOCK_EX)` para criar.
 
 ### Exercício 9.2 (API REST)
 Dica: Use `parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH)` e `explode('/', trim($path, '/'))` para extrair parâmetros da URL. Token: compare `hash_equals($tokenBanco, $_SERVER['HTTP_AUTHORIZATION'])` após remover "Bearer ".

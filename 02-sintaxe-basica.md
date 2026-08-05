@@ -22,8 +22,8 @@ echo "Voltamos ao PHP.";
 Equivalente a `<?php echo ...; ?>`, sempre disponível a partir do PHP 5.4:
 
 ```php
-<p>Bem-vindo, <?= htmlspecialchars($nome) ?>!</p>
-<p>Sua idade: <?= $idade ?></p>
+<p>Bem-vindo, <?= htmlspecialchars($name) ?>!</p>
+<p>Sua idade: <?= $age ?></p>
 ```
 
 > 💡 **Dica**: `<?= ?>` é **sempre habilitado**, não importa a configuração
@@ -53,7 +53,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-class Usuario
+class User
 {
     // ...
 }
@@ -73,9 +73,9 @@ Cada instrução PHP termina com **ponto-e-vírgula** (`;`):
 ```php
 <?php
 
-$nome = "João";              // instrução 1
-echo $nome;                  // instrução 2
-$idade = 25;                 // instrução 3
+$name = "João";              // instrução 1
+echo $name;                  // instrução 2
+$age = 25;                 // instrução 3
 ```
 
 A última instrução de um bloco PHP pode omitir o `;` **apenas se seguida da tag de fechamento**:
@@ -107,7 +107,7 @@ $x = 5; $y = 10; $z = $x + $y;  // Válido, mas evite por legibilidade
 
 # Este também é um comentário de linha única (estilo shell/Perl)
 
-$nome = "Ana"; // Comentário após código na mesma linha
+$name = "Ana"; // Comentário após código na mesma linha
 ```
 
 ### Múltiplas linhas
@@ -130,13 +130,13 @@ $nome = "Ana"; // Comentário após código na mesma linha
  * Comentário de documentação (DocBlock).
  * Usado por ferramentas como phpDocumentor.
  *
- * @param  string $nome   Nome do usuário
- * @param  int    $idade  Idade do usuário
+ * @param  string $name   Nome do usuário
+ * @param  int    $age  Idade do usuário
  * @return string         Mensagem formatada
  */
-function saudacao(string $nome, int $idade): string
+function greeting(string $name, int $age): string
 {
-    return "Olá, {$nome}! Você tem {$idade} anos.";
+    return "Olá, {$name}! Você tem {$age} anos.";
 }
 ```
 
@@ -161,9 +161,9 @@ Comentários `/* */` **não podem ser aninhados**. O interpretador encontra o pr
 ### Blocos condicionais
 
 ```php
-<?php $logado = true; ?>
+<?php $loggedIn = true; ?>
 
-<?php if ($logado): ?>
+<?php if ($loggedIn): ?>
     <nav>
         <a href="/perfil">Meu Perfil</a>
         <a href="/sair">Sair</a>
@@ -177,10 +177,10 @@ Comentários `/* */` **não podem ser aninhados**. O interpretador encontra o pr
 
 ```php
 <ul>
-    <?php foreach ($produtos as $produto): ?>
+    <?php foreach ($products as $product): ?>
         <li>
-            <strong><?= htmlspecialchars($produto['nome']) ?></strong>
-            — R$ <?= number_format($produto['preco'], 2, ',', '.') ?>
+            <strong><?= htmlspecialchars($product['name']) ?></strong>
+            — R$ <?= number_format($product['price'], 2, ',', '.') ?>
         </li>
     <?php endforeach; ?>
 </ul>
@@ -190,13 +190,13 @@ Comentários `/* */` **não podem ser aninhados**. O interpretador encontra o pr
 
 ```php
 <?php
-// prepara_dados.php — apenas lógica
+// prepare_data.php — apenas lógica
 declare(strict_types=1);
 
-$titulo = 'Página Inicial';
-$usuarios = [
-    ['nome' => 'Alice', 'email' => 'alice@exemplo.com'],
-    ['nome' => 'Bob',   'email' => 'bob@exemplo.com'],
+$title = 'Página Inicial';
+$users = [
+    ['name' => 'Alice', 'email' => 'alice@exemplo.com'],
+    ['name' => 'Bob',   'email' => 'bob@exemplo.com'],
 ];
 ?>
 
@@ -205,13 +205,13 @@ $usuarios = [
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title><?= htmlspecialchars($titulo) ?></title>
+    <title><?= htmlspecialchars($title) ?></title>
 </head>
 <body>
-    <h1><?= htmlspecialchars($titulo) ?></h1>
+    <h1><?= htmlspecialchars($title) ?></h1>
     <ul>
-    <?php foreach ($usuarios as $usuario): ?>
-        <li><?= htmlspecialchars($usuario['nome']) ?></li>
+    <?php foreach ($users as $user): ?>
+        <li><?= htmlspecialchars($user['name']) ?></li>
     <?php endforeach; ?>
     </ul>
 </body>
@@ -237,10 +237,10 @@ echo "Olá", " ", "mundo!";  // Aceita múltiplos argumentos (separados por vír
 echo "Olá" . " " . "mundo!"; // Ou concatenação
 
 // Com expressões
-$nome = "Carlos";
-echo "Bem-vindo, " . $nome . "!";
-echo "Bem-vindo, {$nome}!";        // Interpolação (aspas duplas)
-echo 'Bem-vindo, ' . $nome . '!';  // Aspas simples + concatenação
+$name = "Carlos";
+echo "Bem-vindo, " . $name . "!";
+echo "Bem-vindo, {$name}!";        // Interpolação (aspas duplas)
+echo 'Bem-vindo, ' . $name . '!';  // Aspas simples + concatenação
 ```
 
 `echo` não é uma função — é uma **construção da linguagem**. Por isso aceita múltiplos parâmetros sem parênteses.
@@ -255,8 +255,8 @@ print "Olá, mundo!\n";
 print("Olá, mundo!\n"); // Aceita parênteses, mas só 1 argumento
 
 // print retorna 1 (sempre), echo não retorna nada
-$resultado = print "teste";
-echo $resultado; // 1
+$result = print "teste";
+echo $result; // 1
 ```
 
 | Característica   | `echo`                 | `print`                 |
@@ -273,39 +273,39 @@ Exibe informações detalhadas sobre uma variável: tipo e valor.
 ```php
 <?php
 
-$nome = "Ana";
-var_dump($nome);
+$name = "Ana";
+var_dump($name);
 // string(3) "Ana"
 
-$idade = 30;
-var_dump($idade);
+$age = 30;
+var_dump($age);
 // int(30)
 
-$preco = 19.99;
-var_dump($preco);
+$price = 19.99;
+var_dump($price);
 // float(19.99)
 
-$frutas = ['maçã', 'banana', 'laranja'];
-var_dump($frutas);
+$fruits = ['maçã', 'banana', 'laranja'];
+var_dump($fruits);
 // array(3) {
 //   [0]=> string(5) "maçã"
 //   [1]=> string(6) "banana"
 //   [2]=> string(7) "laranja"
 // }
 
-$ativo = true;
-var_dump($ativo);
+$active = true;
+var_dump($active);
 // bool(true)
 
-$nulo = null;
-var_dump($nulo);
+$null = null;
+var_dump($null);
 // NULL
 ```
 
 ```php
 <?php
 // var_dump pode receber múltiplos argumentos:
-var_dump($nome, $idade, $preco);
+var_dump($name, $age, $price);
 ```
 
 > 💡 **Dica**: `var_dump()` é sua melhor amiga na hora de debugar. Use e abuse!
@@ -317,19 +317,19 @@ Similar ao `var_dump()`, mas com formatação mais legível para arrays. Por pad
 ```php
 <?php
 
-$dados = [
-    'nome'  => 'Beatriz',
-    'idade' => 28,
-    'cidade' => 'São Paulo',
+$data = [
+    'name'  => 'Beatriz',
+    'age'   => 28,
+    'city'  => 'São Paulo',
     'hobbies' => ['leitura', 'música', 'corrida'],
 ];
 
-print_r($dados);
+print_r($data);
 
 // Retornar como string em vez de exibir
-$texto = print_r($dados, true);
+$text = print_r($data, true);
 // Agora você pode, por exemplo, logar:
-// error_log($texto);
+// error_log($text);
 ```
 
 ---
@@ -341,15 +341,15 @@ $texto = print_r($dados, true);
 ```php
 <?php
 
-define('NOME_APP', 'MeuSistema');
-define('VERSAO', '1.0.0');
-define('TEMPO_SESSAO', 3600);
+define('APP_NAME', 'MySystem');
+define('VERSION', '1.0.0');
+define('SESSION_TIME', 3600);
 
-echo NOME_APP;   // MeuSistema
-echo VERSAO;     // 1.0.0
+echo APP_NAME;   // MySystem
+echo VERSION;     // 1.0.0
 
 // Constantes não usam $
-// echo $NOME_APP; // Isso NÃO funcionaria (variável não definida)
+// echo $APP_NAME; // Isso NÃO funcionaria (variável não definida)
 ```
 
 ```php
@@ -357,9 +357,9 @@ echo VERSAO;     // 1.0.0
 // define() em tempo de execução (runtime)
 // Pode ser definido dentro de if, funções, etc.
 
-$ambiente = 'producao';
+$environment = 'producao';
 
-if ($ambiente === 'producao') {
+if ($environment === 'producao') {
     define('DEBUG_MODE', false);
 } else {
     define('DEBUG_MODE', true);
@@ -379,10 +379,10 @@ var_dump(DEBUG_MODE); // bool(false)
 ```php
 <?php
 
-const TAXA_SERVICO = 0.10;
+const SERVICE_RATE = 0.10;
 const PI = 3.14159;
 
-echo TAXA_SERVICO * 100 . '%'; // 10%
+echo SERVICE_RATE * 100 . '%'; // 10%
 ```
 
 ### Diferenças entre `define()` e `const`
@@ -443,15 +443,15 @@ echo __TRAIT__;    // Nome do trait atual (PHP 5.4+)
 
 namespace App\Util;
 
-function ondeEstou(): void
+function whereAmI(): void
 {
-    echo "Função: " . __FUNCTION__ . "\n";    // App\Util\ondeEstou
+    echo "Função: " . __FUNCTION__ . "\n";    // App\Util\whereAmI
     echo "Namespace: " . __NAMESPACE__ . "\n"; // App\Util
     echo "Arquivo: " . __FILE__ . "\n";
     echo "Linha: " . __LINE__ . "\n";
 }
 
-ondeEstou();
+whereAmI();
 ```
 
 ---
@@ -466,8 +466,8 @@ Inclui e avalia o arquivo. Se o arquivo não for encontrado, **emite um warning*
 
 ```php
 <?php
-include 'cabecalho.php';   // Warning se não existir, mas continua
-include 'rodape.php';
+include 'header.php';   // Warning se não existir, mas continua
+include 'footer.php';
 ```
 
 ### `require`
@@ -485,8 +485,8 @@ Garantem que o arquivo seja incluído **apenas uma vez**, evitando redefinição
 
 ```php
 <?php
-require_once 'funcoes.php';
-require_once 'funcoes.php';  // Ignorado — já foi incluído
+require_once 'functions.php';
+require_once 'functions.php';  // Ignorado — já foi incluído
 ```
 
 | Instrução       | Arquivo não encontrado | Comportamento           | Repetição      |
@@ -505,16 +505,16 @@ require_once 'funcoes.php';  // Ignorado — já foi incluído
 require_once 'config.php';
 
 // Caminho absoluto
-require_once '/var/www/app/funcoes.php';
+require_once '/var/www/app/functions.php';
 
 // Usando __DIR__ para caminho relativo seguro
 require_once __DIR__ . '/../vendor/autoload.php';
 
 // include dentro de função
-function carregarTemplate(string $nome): string
+function loadTemplate(string $name): string
 {
     ob_start();
-    include __DIR__ . "/templates/{$nome}.php";
+    include __DIR__ . "/templates/{$name}.php";
     return ob_get_clean();
 }
 ```
@@ -535,14 +535,14 @@ Namespaces organizam classes, funções e constantes em grupos lógicos, evitand
 
 namespace App\Models;
 
-class Usuario
+class User
 {
     public function __construct(
-        public string $nome
+        public string $name
     ) {}
 }
 
-// Nome completo: \App\Models\Usuario
+// Nome completo: \App\Models\User
 ```
 
 ```php
@@ -550,9 +550,9 @@ class Usuario
 
 namespace App\Services;
 
-class Usuario
+class User
 {
-    // Esta classe NÃO conflita com \App\Models\Usuario
+    // Esta classe NÃO conflita com \App\Models\User
     // Porque está em outro namespace
 }
 ```
@@ -562,10 +562,10 @@ class Usuario
 ```php
 <?php
 
-namespace Projeto\Modulo\Submodulo;
+namespace Project\Module\Submodule;
 
-// Nome completo: \Projeto\Modulo\Submodulo\MinhaClasse
-class MinhaClasse {}
+// Nome completo: \Project\Module\Submodule\MyClass
+class MyClass {}
 ```
 
 ### `use` — importando namespaces
@@ -575,21 +575,21 @@ class MinhaClasse {}
 
 namespace App\Controllers;
 
-use App\Models\Usuario;
+use App\Models\User;
 use App\Services\EmailService;
-use App\Util\Validacao as Val;
+use App\Util\Validation as Val;
 
-class UsuarioController
+class UserController
 {
-    public function cadastrar(string $nome, string $email): Usuario
+    public function register(string $name, string $email): User
     {
         Val::email($email);
 
-        $usuario = new Usuario($nome);
+        $user = new User($name);
         $emailService = new EmailService();
-        $emailService->enviarBoasVindas($email);
+        $emailService->sendWelcome($email);
 
-        return $usuario;
+        return $user;
     }
 }
 ```
@@ -599,12 +599,12 @@ class UsuarioController
 ```php
 <?php
 
-namespace App\Exemplo;
+namespace App\Example;
 
-use function App\Util\formatarMoeda;
-use const App\Config\TAXA_JUROS;
+use function App\Util\formatCurrency;
+use const App\Config\INTEREST_RATE;
 
-echo formatarMoeda(100 * TAXA_JUROS);
+echo formatCurrency(100 * INTEREST_RATE);
 ```
 
 ### Namespace global
@@ -612,13 +612,13 @@ echo formatarMoeda(100 * TAXA_JUROS);
 ```php
 <?php
 
-namespace App\Biblioteca;
+namespace App\Library;
 
 // new \DateTime() — a barra invertida inicial referencia o namespace global
-$data = new \DateTime('now');
-echo $data->format('d/m/Y');
+$date = new \DateTime('now');
+echo $date->format('d/m/Y');
 
-// Sem a barra, PHP procuraria \App\Biblioteca\DateTime (que não existe)
+// Sem a barra, PHP procuraria \App\Library\DateTime (que não existe)
 ```
 
 > ⚠️ **Cuidado**: Dentro de um namespace, todas as referências a classes são
@@ -635,32 +635,32 @@ Seguindo os padrões PSR-1 e PSR-12:
 <?php
 
 // Classes: PascalCase
-class ControladorDeProdutos {}
+class ProductController {}
 class EmailService {}
 class HttpClient {}
 
 // Métodos e funções: camelCase
-public function calcularTotal(): float {}
-public function buscarPorId(int $id): ?object {}
-function formatarTelefone(string $tel): string {}
+public function calculateTotal(): float {}
+public function findById(int $id): ?object {}
+function formatPhone(string $tel): string {}
 
 // Variáveis: camelCase
-$nomeCompleto = 'Maria Silva';
-$quantidadeEmEstoque = 42;
-$estaAtivo = true;
+$fullName = 'Maria Silva';
+$stockQuantity = 42;
+$isActive = true;
 
 // Constantes: UPPER_SNAKE_CASE
-const LIMITE_PADRAO = 100;
-const URL_BASE = 'https://api.exemplo.com';
-define('MAX_TENTATIVAS', 3);
+const DEFAULT_LIMIT = 100;
+const BASE_URL = 'https://api.example.com';
+define('MAX_ATTEMPTS', 3);
 
 // Propriedades: camelCase
-private string $dataNascimento;
-public float $precoUnitario;
+private string $birthDate;
+public float $unitPrice;
 
 // Namespaces: PascalCase com vendor prefix
-namespace MeuApp\Services\Pagamento;
-namespace Acme\Util\Formatacao;
+namespace MyApp\Services\Payment;
+namespace Acme\Util\Formatting;
 ```
 
 ### Nomes de arquivos
@@ -669,9 +669,9 @@ namespace Acme\Util\Formatacao;
 # Uma classe por arquivo. Nome do arquivo = nome da classe
 src/
 ├── Models/
-│   ├── Usuario.php          # class Usuario
-│   ├── Produto.php          # class Produto
-│   └── CarrinhoItem.php     # class CarrinhoItem
+│   ├── User.php          # class User
+│   ├── Product.php          # class Product
+│   └── CartItem.php     # class CartItem
 ├── Controllers/
 │   └── HomeController.php   # class HomeController
 └── Services/

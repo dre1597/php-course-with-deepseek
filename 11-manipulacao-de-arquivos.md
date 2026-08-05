@@ -24,38 +24,38 @@ A função `fopen()` é o ponto de partida para trabalhar com arquivos em PHP. E
 ```php
 <?php
 // Modo 'r' — somente leitura
-$arquivo = fopen('dados.txt', 'r');
-if ($arquivo === false) {
+$file = fopen('dados.txt', 'r');
+if ($file === false) {
     die('Não foi possível abrir o arquivo.');
 }
 // Trabalha com o arquivo...
-fclose($arquivo);
+fclose($file);
 
 // Modo 'w' — escrita (sobrescreve)
-$arquivo = fopen('log.txt', 'w');
-fwrite($arquivo, "Linha 1\n");
-fwrite($arquivo, "Linha 2\n");
-fclose($arquivo);
+$file = fopen('log.txt', 'w');
+fwrite($file, "Linha 1\n");
+fwrite($file, "Linha 2\n");
+fclose($file);
 
 // Modo 'a' — adiciona ao final
-$arquivo = fopen('log.txt', 'a');
-fwrite($arquivo, "Linha 3 (append)\n");
-fclose($arquivo);
+$file = fopen('log.txt', 'a');
+fwrite($file, "Linha 3 (append)\n");
+fclose($file);
 
 // Modo 'r+' — leitura e escrita (arquivo deve existir)
-$arquivo = fopen('log.txt', 'r+');
-$conteudo = fread($arquivo, 1024);
-fwrite($arquivo, "\nAdicionado via r+\n");
-fclose($arquivo);
+$file = fopen('log.txt', 'r+');
+$content = fread($file, 1024);
+fwrite($file, "\nAdicionado via r+\n");
+fclose($fi
 ```
 
 ### `fclose()` — Sempre feche o arquivo
 
 ```php
 <?php
-$arquivo = fopen('dados.txt', 'r');
+$file = fopen('dados.txt', 'r');
 // ... operações ...
-fclose($arquivo); // libera o recurso e o lock
+fclose($file); // libera o recurso e o 
 ```
 
 > 💡 **Dica:** Se você esquecer de chamar `fclose()`, o PHP fecha ao final da execução do script. Porém, é boa prática fechar explicitamente, ao trabalhar com locks.
@@ -68,77 +68,79 @@ fclose($arquivo); // libera o recurso e o lock
 
 ```php
 <?php
-$arquivo = fopen('texto.txt', 'r');
-$conteudo = fread($arquivo, filesize('texto.txt'));
-fclose($arquivo);
-echo $conteudo;
+$file = fopen('texto.txt', 'r');
+$content = fread($file, filesize('texto.txt'));
+fclose($file);
+echo $content
 ```
 
 ### `fgets()` — Leitura linha por linha
 
 ```php
 <?php
-$arquivo = fopen('texto.txt', 'r');
-while (($linha = fgets($arquivo)) !== false) {
-    echo rtrim($linha) . "<br>\n";
+$file = fopen('texto.txt', 'r');
+while (($line = fgets($file)) !== false) {
+    echo rtrim($line) . "<br>\n";
 }
-fclose($arquivo);
+fclose($fi
 ```
 
 ### `fgetcsv()` — Leitura de CSV
 
 ```php
 <?php
-$arquivo = fopen('dados.csv', 'r');
+$file = fopen('dados.csv', 'r');
 
-// Lê o cabeçalho
-$cabecalho = fgetcsv($arquivo);
+$header = fgetcsv($file);
 
-// Lê cada linha como array associativo
-while (($linha = fgetcsv($arquivo)) !== false) {
-    $registro = array_combine($cabecalho, $linha);
-    echo "Nome: {$registro['nome']}, Email: {$registro['email']}<br>\n";
+while (($line = fgetcsv($file)) !== false) {
+    $record = array_combine($header, $line);
+    echo "Nome: {$record['name']}, Email: {$record['email']}<br>\n";
 }
-fclose($arquivo);
+fclose($fi
 ```
 
 Suponha que `dados.csv` contenha:
+
 ```
 nome,email,idade
 João,joao@email.com,28
 Maria,maria@email.com,34
+
 ```
 
 Saída:
+
 ```
 Nome: João, Email: joao@email.com
 Nome: Maria, Email: maria@email.com
+
 ```
 
 ### `fgetcsv()` com delimitador personalizado
 
 ```php
 <?php
-$arquivo = fopen('dados.tsv', 'r');
-while (($linha = fgetcsv($arquivo, 0, "\t")) !== false) {
-    print_r($linha);
+$file = fopen('dados.tsv', 'r');
+while (($line = fgetcsv($file, 0, "\t")) !== false) {
+    print_r($line);
 }
-fclose($arquivo);
+fclose($fi
 ```
 
 ### `fwrite()` — Escrita
 
 ```php
 <?php
-$arquivo = fopen('saida.txt', 'w');
-fwrite($arquivo, "Primeira linha\n");
-fwrite($arquivo, "Segunda linha\n");
+$file = fopen('saida.txt', 'w');
+fwrite($file, "Primeira linha\n");
+fwrite($file, "Segunda linha\n");
 
-$linhas = ['Linha 3', 'Linha 4', 'Linha 5'];
-foreach ($linhas as $linha) {
-    fwrite($arquivo, $linha . "\n");
+$lines = ['Linha 3', 'Linha 4', 'Linha 5'];
+foreach ($lines as $line) {
+    fwrite($file, $line . "\n");
 }
-fclose($arquivo);
+fclose($fi
 ```
 
 ---
@@ -152,23 +154,23 @@ Estas funções simplificam drasticamente a leitura e escrita de arquivos inteir
 ```php
 <?php
 // Leitura simples
-$conteudo = file_get_contents('texto.txt');
-if ($conteudo === false) {
+$content = file_get_contents('texto.txt');
+if ($content === false) {
     die('Erro ao ler o arquivo.');
 }
-echo nl2br($conteudo);
+echo nl2br($content);
 
 // Leitura de URL (se allow_url_fopen estiver habilitado)
 $html = file_get_contents('https://www.example.com');
 
 // Leitura com contexto de stream (headers customizados)
-$contexto = stream_context_create([
+$context = stream_context_create([
     'http' => [
         'method' => 'GET',
         'header' => "User-Agent: PHP Script\r\n"
     ]
 ]);
-$html = file_get_contents('https://api.example.com/dados', false, $contexto);
+$html = file_get_contents('https://api.example.com/dados', false, $conte
 ```
 
 ### `file_put_contents()` — Escreve uma string em um arquivo
@@ -188,11 +190,11 @@ file_put_contents('arquivo.txt', 'Conteúdo seguro', LOCK_EX);
 file_put_contents('arquivo.txt', "Conteúdo\n", FILE_APPEND | LOCK_EX);
 
 // Verificar retorno
-$resultado = file_put_contents('dados.json', json_encode(['nome' => 'João']));
-if ($resultado === false) {
+$result = file_put_contents('dados.json', json_encode(['name' => 'João']));
+if ($result === false) {
     die('Erro ao escrever no arquivo.');
 }
-echo "{$resultado} bytes escritos.";
+echo "{$result} bytes escrito
 ```
 
 > 💡 **Dica:** `file_get_contents()` e `file_put_contents()` são atalhos convenientes. Para arquivos muito grandes, prefira `fopen()` + leitura incremental para não estourar a memória.
@@ -203,15 +205,15 @@ echo "{$resultado} bytes escritos.";
 
 ```php
 <?php
-$caminho = '/var/www/html/index.php';
+$path = '/var/www/html/index.php';
 
 // Existe?
-if (file_exists($caminho)) {
+if (file_exists($path)) {
     echo "O caminho existe!<br>\n";
 }
 
 // É arquivo?
-if (is_file($caminho)) {
+if (is_file($path)) {
     echo "É um arquivo!<br>\n";
 }
 
@@ -221,30 +223,29 @@ if (is_dir('/var/www/html')) {
 }
 
 // Permissões
-if (is_readable($caminho)) {
+if (is_readable($path)) {
     echo "Tem permissão de leitura<br>\n";
 }
 
-if (is_writable($caminho)) {
+if (is_writable($path)) {
     echo "Tem permissão de escrita<br>\n";
 }
 
-// Função utilitária: verificar arquivo antes de processar
-function validarArquivo(string $caminho): bool {
-    if (!file_exists($caminho)) {
-        echo "Erro: arquivo '{$caminho}' não encontrado.<br>\n";
+// Função utilitária: check arquivo antes de process
+function validateFile(string $path): bool {
+    if (!file_exists($path)) {
+        echo "Erro: arquivo '{$path}' não encontrado.<br>\n";
         return false;
     }
-    if (!is_file($caminho)) {
-        echo "Erro: '{$caminho}' não é um arquivo.<br>\n";
+    if (!is_file($path)) {
+        echo "Erro: '{$path}' não é um arquivo.<br>\n";
         return false;
     }
-    if (!is_readable($caminho)) {
+    if (!is_readable($path)) {
         echo "Erro: sem permissão de leitura.<br>\n";
         return false;
     }
-    return true;
-}
+    return tru
 ```
 
 ---
@@ -255,14 +256,14 @@ function validarArquivo(string $caminho): bool {
 
 ```php
 <?php
-$linhas = file('texto.txt', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+$lines = file('texto.txt', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 
-foreach ($linhas as $numero => $linha) {
-    echo ($numero + 1) . ": {$linha}<br>\n";
+foreach ($lines as $number => $line) {
+    echo ($number + 1) . ": {$line}<br>\n";
 }
 
 // Contar linhas rapidamente
-echo "Total de linhas: " . count(file('texto.txt'));
+echo "Total de linhas: " . count(file('texto.txt
 ```
 
 ### `readfile()` — Lê e envia para o buffer de saída
@@ -270,15 +271,14 @@ echo "Total de linhas: " . count(file('texto.txt'));
 ```php
 <?php
 // Útil para forçar download de arquivos
-$arquivo = 'documento.pdf';
+$file = 'documento.pdf';
 
-if (file_exists($arquivo)) {
+if (file_exists($file)) {
     header('Content-Type: application/pdf');
-    header('Content-Disposition: attachment; filename="' . basename($arquivo) . '"');
-    header('Content-Length: ' . filesize($arquivo));
-    readfile($arquivo);
-    exit;
-}
+    header('Content-Disposition: attachment; filename="' . basename($file) . '"');
+    header('Content-Length: ' . filesize($file));
+    readfile($file);
+    exi
 ```
 
 ---
@@ -287,32 +287,33 @@ if (file_exists($arquivo)) {
 
 ```php
 <?php
-$arquivo = 'texto.txt';
+$file = 'texto.txt';
 
 // Último acesso (timestamp Unix)
-$acesso = fileatime($arquivo);
-echo "Último acesso: " . date('d/m/Y H:i:s', $acesso) . "<br>\n";
+$accessed = fileatime($file);
+echo "Último acesso: " . date('d/m/Y H:i:s', $accessed) . "<br>\n";
 
 // Última modificação
-$modificacao = filemtime($arquivo);
-echo "Última modificação: " . date('d/m/Y H:i:s', $modificacao) . "<br>\n";
+$modified = filemtime($file);
+echo "Última modificação: " . date('d/m/Y H:i:s', $modified) . "<br>\n";
 
 // Tamanho em bytes
-$tamanho = filesize($arquivo);
-echo "Tamanho: {$tamanho} bytes<br>\n";
+$fileSize = filesize($file);
+echo "Tamanho: {$fileSize} bytes<br>\n";
 
 // Formatação amigável de tamanho
-function formatarTamanho(int $bytes): string {
-    $unidades = ['B', 'KB', 'MB', 'GB', 'TB'];
+function formatFileSize(int $bytes): string {
+    $units = ['B', 'KB', 'MB', 'GB', 'TB'];
     $i = 0;
-    while ($bytes >= 1024 && $i < count($unidades) - 1) {
+    while ($bytes >= 1024 && $i < count($units) - 1) {
         $bytes /= 1024;
         $i++;
     }
-    return round($bytes, 2) . ' ' . $unidades[$i];
+    return round($bytes, 2) . ' ' . $units[$i];
 }
 
-echo "Tamanho formatado: " . formatarTamanho($tamanho) . "<br>\n";
+echo "Tamanho formatado: " . formatFileSize($fileSize) . "<br>
+
 ```
 
 ---
@@ -323,15 +324,14 @@ echo "Tamanho formatado: " . formatarTamanho($tamanho) . "<br>\n";
 
 ```php
 <?php
-$arquivo = 'temporario.txt';
+$file = 'temporario.txt';
 
-if (file_exists($arquivo)) {
-    if (unlink($arquivo)) {
+if (file_exists($file)) {
+    if (unlink($file)) {
         echo "Arquivo deletado com sucesso.";
     } else {
         echo "Erro ao deletar o arquivo.";
-    }
-}
+   
 ```
 
 > ⚠️ **Cuidado:** `unlink()` deleta o arquivo permanentemente. Não vai para uma lixeira. Sempre verifique antes de deletar.
@@ -346,22 +346,21 @@ rename('antigo.txt', 'novo.txt');
 // Mover para outro diretório
 rename('documento.txt', 'backup/documento.txt');
 
-// Mover com nome diferente
-rename('rascunho.txt', 'finalizados/rascunho-2024.txt');
+// Mover com name diferente
+rename('rascunho.txt', 'finalizados/rascunho-2024.tx
 ```
 
 ### `copy()` — Copiar arquivo
 
 ```php
 <?php
-$origem = 'foto-original.jpg';
-$destino = 'backup/foto-copia.jpg';
+$source = 'foto-original.jpg';
+$destination = 'backup/foto-copia.jpg';
 
-if (copy($origem, $destino)) {
+if (copy($source, $destination)) {
     echo "Arquivo copiado com sucesso.";
 } else {
-    echo "Erro ao copiar o arquivo.";
-}
+    echo "Erro ao copiar o arquivo.
 ```
 
 ---
@@ -379,43 +378,41 @@ mkdir('nova-pasta');
 mkdir('projeto/src/controllers', 0755, true);
 
 // Verificar antes de criar
-$pasta = 'uploads/2024';
-if (!is_dir($pasta)) {
-    mkdir($pasta, 0755, true);
-    echo "Diretório '{$pasta}' criado.<br>\n";
-}
+$directory = 'uploads/2024';
+if (!is_dir($directory)) {
+    mkdir($directory, 0755, true);
+    echo "Diretório '{$directory}' criado.<br>\n
 ```
 
 ### `rmdir()` — Remover diretório (deve estar vazio)
 
 ```php
 <?php
-$pasta = 'temp';
+$directory = 'temp';
 
-if (is_dir($pasta)) {
-    rmdir($pasta);
-    echo "Diretório '{$pasta}' removido.<br>\n";
+if (is_dir($directory)) {
+    rmdir($directory);
+    echo "Diretório '{$directory}' removido.<br>\n";
 }
 
 // Função para remover diretório com todo conteúdo
-function removerDiretorio(string $caminho): bool {
-    if (!is_dir($caminho)) {
+function removeDirectory(string $path): bool {
+    if (!is_dir($path)) {
         return false;
     }
-    $itens = scandir($caminho);
-    foreach ($itens as $item) {
+    $items = scandir($path);
+    foreach ($items as $item) {
         if ($item === '.' || $item === '..') {
             continue;
         }
-        $caminhoCompleto = $caminho . '/' . $item;
-        if (is_dir($caminhoCompleto)) {
-            removerDiretorio($caminhoCompleto);
+        $fullPath = $path . '/' . $item;
+        if (is_dir($fullPath)) {
+            removeDirectory($fullPath);
         } else {
-            unlink($caminhoCompleto);
+            unlink($fullPath);
         }
     }
-    return rmdir($caminho);
-}
+    return rmdir($path
 ```
 
 ---
@@ -426,20 +423,20 @@ function removerDiretorio(string $caminho): bool {
 
 ```php
 <?php
-$itens = scandir('/var/www/html');
+$items = scandir('/var/www/html');
 
 echo "<ul>\n";
-foreach ($itens as $item) {
+foreach ($items as $item) {
     if ($item === '.' || $item === '..') {
         continue;
     }
-    $tipo = is_dir($item) ? '[DIR]' : '[ARQ]';
-    echo "<li>{$tipo} {$item}</li>\n";
+    $type = is_dir($item) ? '[DIR]' : '[ARQ]';
+    echo "<li>{$type} {$item}</li>\n";
 }
 echo "</ul>\n";
 
 // Ordenação reversa
-$itens = scandir('/var/www/html', SCANDIR_SORT_DESCENDING);
+$items = scandir('/var/www/html', SCANDIR_SORT_DESCENDI
 ```
 
 ### `glob()` — Busca com padrão (wildcard)
@@ -447,26 +444,25 @@ $itens = scandir('/var/www/html', SCANDIR_SORT_DESCENDING);
 ```php
 <?php
 // Todos os arquivos .php no diretório
-$arquivosPHP = glob('*.php');
-print_r($arquivosPHP);
+$filesPHP = glob('*.php');
+print_r($filesPHP);
 
 // Todos os arquivos .txt em subdiretórios (recursivo com **)
-$arquivosTXT = glob('**/*.txt');
+$filesTXT = glob('**/*.txt');
 
 // Buscar múltiplos padrões
-$imagens = glob('*.{jpg,jpeg,png,gif}', GLOB_BRACE);
+$images = glob('*.{jpg,jpeg,png,gif}', GLOB_BRACE);
 
-foreach ($imagens as $imagem) {
-    echo "<img src='{$imagem}' alt='Imagem'><br>\n";
+foreach ($images as $image) {
+    echo "<img src='{$image}' alt='Imagem'><br>\n";
 }
 
-// Exemplo prático: listar arquivos de um diretório de uploads
-function listarUploads(string $diretorio): array {
-    if (!is_dir($diretorio)) {
+// Exemplo prático: list arquivos de um diretório de uploads
+function listUploads(string $dir): array {
+    if (!is_dir($dir)) {
         return [];
     }
-    return glob($diretorio . '/*.{jpg,jpeg,png,gif,webp}', GLOB_BRACE);
-}
+    return glob($dir . '/*.{jpg,jpeg,png,gif,webp}', GLOB_BRACE
 ```
 
 ---
@@ -475,22 +471,22 @@ function listarUploads(string $diretorio): array {
 
 ```php
 <?php
-$arquivo = '/var/www/html/imagens/foto-perfil.jpg';
+$file = '/var/www/html/imagens/foto-perfil.jpg';
 
 // pathinfo() — informações completas do caminho
-$info = pathinfo($arquivo);
+$info = pathinfo($file);
 echo "Diretório: {$info['dirname']}<br>\n";     // /var/www/html/imagens
 echo "Nome base: {$info['basename']}<br>\n";    // foto-perfil.jpg
 echo "Extensão: {$info['extension']}<br>\n";    // jpg
 echo "Nome: {$info['filename']}<br>\n";         // foto-perfil
 
 // Ou buscar partes específicas via constante
-echo pathinfo($arquivo, PATHINFO_EXTENSION);    // jpg
-echo pathinfo($arquivo, PATHINFO_FILENAME);     // foto-perfil
-echo pathinfo($arquivo, PATHINFO_DIRNAME);      // /var/www/html/imagens
-echo pathinfo($arquivo, PATHINFO_BASENAME);     // foto-perfil.jpg
+echo pathinfo($file, PATHINFO_EXTENSION);    // jpg
+echo pathinfo($file, PATHINFO_FILENAME);     // foto-perfil
+echo pathinfo($file, PATHINFO_DIRNAME);      // /var/www/html/imagens
+echo pathinfo($file, PATHINFO_BASENAME);     // foto-perfil.jpg
 
-// basename() — apenas o nome do arquivo
+// basename() — apenas o name do arquivo
 echo basename('/var/www/html/index.php');        // index.php
 echo basename('/var/www/html/index.php', '.php'); // index (remove extensão)
 
@@ -502,15 +498,15 @@ echo dirname('/var/www/html');                   // /var/www
 echo realpath('./arquivo.txt');                  // /var/www/html/arquivo.txt
 echo realpath('../../etc/passwd');               // /etc/passwd
 
-// Exemplo prático: sanitizar nome de arquivo de upload
-function sanitizarNomeArquivo(string $nomeOriginal): string {
-    $info = pathinfo($nomeOriginal);
-    $nomeSanitizado = preg_replace('/[^a-zA-Z0-9_-]/', '_', $info['filename']);
-    $extensao = strtolower($info['extension'] ?? '');
-    return $nomeSanitizado . '.' . $extensao;
+// Exemplo prático: sanitize name de arquivo de upload
+function sanitizeFileName(string $originalName): string {
+    $info = pathinfo($originalName);
+    $sanitizedName = preg_replace('/[^a-zA-Z0-9_-]/', '_', $info['filename']);
+    $extension = strtolower($info['extension'] ?? '');
+    return $sanitizedName . '.' . $extension;
 }
 
-echo sanitizarNomeArquivo('Minha Foto (2024)!!!.JPG'); // Minha_Foto__2024____.jpg
+echo sanitizeFileName('Minha Foto (2024)!!!.JPG'); // Minha_Foto__2024____
 ```
 
 ---
@@ -523,9 +519,9 @@ echo sanitizarNomeArquivo('Minha Foto (2024)!!!.JPG'); // Minha_Foto__2024____.j
 <!-- upload.html -->
 <form action="upload.php" method="post" enctype="multipart/form-data">
     <input type="file" name="arquivo" accept="image/*" required>
-    <input type="text" name="descricao" placeholder="Descrição da imagem">
+    <input type="text" name="description" placeholder="Descrição da imagem">
     <button type="submit">Enviar</button>
-</form>
+</form
 ```
 
 ### Processamento do upload
@@ -544,11 +540,11 @@ if (!isset($_FILES['arquivo'])) {
     die('Nenhum arquivo enviado.');
 }
 
-$arquivo = $_FILES['arquivo'];
+$file = $_FILES['arquivo'];
 
 // Verifica erros do upload
-if ($arquivo['error'] !== UPLOAD_ERR_OK) {
-    $mensagensErro = [
+if ($file['error'] !== UPLOAD_ERR_OK) {
+    $errorMessages = [
         UPLOAD_ERR_INI_SIZE   => 'O arquivo excede o tamanho máximo definido no php.ini (upload_max_filesize).',
         UPLOAD_ERR_FORM_SIZE  => 'O arquivo excede o tamanho máximo definido no formulário (MAX_FILE_SIZE).',
         UPLOAD_ERR_PARTIAL    => 'O upload foi feito parcialmente.',
@@ -557,30 +553,30 @@ if ($arquivo['error'] !== UPLOAD_ERR_OK) {
         UPLOAD_ERR_CANT_WRITE => 'Falha ao escrever o arquivo no disco.',
         UPLOAD_ERR_EXTENSION  => 'Uma extensão PHP interrompeu o upload.',
     ];
-    $erro = $arquivo['error'];
-    die('Erro no upload: ' . ($mensagensErro[$erro] ?? "Código de erro {$erro}"));
+    $error = $file['error'];
+    die('Erro no upload: ' . ($errorMessages[$error] ?? "Código de erro {$error}"));
 }
 
 // Valida tamanho (limite: 5 MB)
-$tamanhoMaximo = 5 * 1024 * 1024; // 5 MB
-if ($arquivo['size'] > $tamanhoMaximo) {
+$maxFileSize = 5 * 1024 * 1024; // 5 MB
+if ($file['size'] > $maxFileSize) {
     die('O arquivo é maior que 5 MB.');
 }
 
 // Valida tipo MIME usando finfo (mais seguro que $_FILES['type'])
 $finfo = finfo_open(FILEINFO_MIME_TYPE);
-$tipoReal = finfo_file($finfo, $arquivo['tmp_name']);
+$realType = finfo_file($finfo, $file['tmp_name']);
 finfo_close($finfo);
 
-$tiposPermitidos = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-if (!in_array($tipoReal, $tiposPermitidos)) {
-    die("Tipo de arquivo '{$tipoReal}' não permitido.");
+$allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+if (!in_array($realType, $allowedTypes)) {
+    die("Tipo de arquivo '{$realType}' não permitido.");
 }
 
-// Gera nome único para evitar conflitos
-$extensao = pathinfo($arquivo['name'], PATHINFO_EXTENSION);
-$nomeFinal = uniqid('img_', true) . '.' . $extensao;
-$destino = __DIR__ . '/uploads/' . $nomeFinal;
+// Gera name único para evitar conflitos
+$extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+$fileName = uniqid('img_', true) . '.' . $extension;
+$destination = __DIR__ . '/uploads/' . $fileName;
 
 // Garante que o diretório existe
 if (!is_dir(__DIR__ . '/uploads')) {
@@ -588,15 +584,14 @@ if (!is_dir(__DIR__ . '/uploads')) {
 }
 
 // Move o arquivo do local temporário para o destino final
-if (move_uploaded_file($arquivo['tmp_name'], $destino)) {
+if (move_uploaded_file($file['tmp_name'], $destination)) {
     echo "Upload realizado com sucesso!<br>\n";
-    echo "Nome original: {$arquivo['name']}<br>\n";
-    echo "Tipo: {$tipoReal}<br>\n";
-    echo "Tamanho: " . formatarTamanho($arquivo['size']) . "<br>\n";
-    echo "Salvo como: {$nomeFinal}<br>\n";
+    echo "Nome original: {$file['name']}<br>\n";
+    echo "Tipo: {$realType}<br>\n";
+    echo "Tamanho: " . formatFileSize($file['size']) . "<br>\n";
+    echo "Salvo como: {$fileName}<br>\n";
 } else {
-    die('Erro ao mover o arquivo.');
-}
+    die('Erro ao mover o arquivo.'
 ```
 
 > ⚠️ **Cuidado:** Nunca confie no `$_FILES['arquivo']['type']`, pois é enviado pelo cliente. Sempre valide o tipo real usando `finfo`.
@@ -607,42 +602,41 @@ if (move_uploaded_file($arquivo['tmp_name'], $destino)) {
 <?php
 // Formulário: <input type="file" name="fotos[]" multiple>
 
-function uploadMultiplo(array $fotos, string $diretorioDestino, array $tiposPermitidos, int $tamanhoMaximo): array {
-    $uploadados = [];
+function uploadMultiple(array $photos, string $targetDir, array $allowedTypes, int $maxFileSize): array {
+    $uploadedFiles = [];
 
-    for ($i = 0; $i < count($fotos['name']); $i++) {
-        if ($fotos['error'][$i] !== UPLOAD_ERR_OK) {
+    for ($i = 0; $i < count($photos['name']); $i++) {
+        if ($photos['error'][$i] !== UPLOAD_ERR_OK) {
             continue; // pula arquivos com erro
         }
 
-        if ($fotos['size'][$i] > $tamanhoMaximo) {
+        if ($photos['size'][$i] > $maxFileSize) {
             continue;
         }
 
         $finfo = finfo_open(FILEINFO_MIME_TYPE);
-        $tipoReal = finfo_file($finfo, $fotos['tmp_name'][$i]);
+        $realType = finfo_file($finfo, $photos['tmp_name'][$i]);
         finfo_close($finfo);
 
-        if (!in_array($tipoReal, $tiposPermitidos)) {
+        if (!in_array($realType, $allowedTypes)) {
             continue;
         }
 
-        $extensao = pathinfo($fotos['name'][$i], PATHINFO_EXTENSION);
-        $nomeFinal = uniqid('foto_') . '_' . time() . '.' . $extensao;
-        $destino = $diretorioDestino . '/' . $nomeFinal;
+        $extension = pathinfo($photos['name'][$i], PATHINFO_EXTENSION);
+        $fileName = uniqid('foto_') . '_' . time() . '.' . $extension;
+        $destination = $targetDir . '/' . $fileName;
 
-        if (move_uploaded_file($fotos['tmp_name'][$i], $destino)) {
-            $uploadados[] = [
-                'nome_original' => $fotos['name'][$i],
-                'nome_final'    => $nomeFinal,
-                'tipo'          => $tipoReal,
-                'tamanho'       => $fotos['size'][$i],
+        if (move_uploaded_file($photos['tmp_name'][$i], $destination)) {
+            $uploadedFiles[] = [
+                'original_name' => $photos['name'][$i],
+                'final_name'    => $fileName,
+                'tipo'          => $realType,
+                'tamanho'       => $photos['size'][$i],
             ];
         }
     }
 
-    return $uploadados;
-}
+    return $uploadedFile
 ```
 
 ### PHP Ini Settings Relevantes para Upload
@@ -654,6 +648,7 @@ upload_max_filesize = 10M
 post_max_size = 12M
 max_file_uploads = 20
 upload_tmp_dir = /tmp/php-uploads
+
 ```
 
 > 💡 **Dica:** `post_max_size` deve ser maior que `upload_max_filesize`, pois o POST inclui outros campos do formulário além do arquivo.
@@ -664,39 +659,38 @@ upload_tmp_dir = /tmp/php-uploads
 
 ```php
 <?php
-$arquivo = fopen('texto.txt', 'r');
+$file = fopen('texto.txt', 'r');
 
 // Posição atual (em bytes a partir do início)
-$posicao = ftell($arquivo);
-echo "Posição atual: {$posicao}<br>\n"; // 0
+$position = ftell($file);
+echo "Posição atual: {$position}<br>\n"; // 0
 
 // Move para o byte 10
-fseek($arquivo, 10);
-echo "Posição após fseek: " . ftell($arquivo) . "<br>\n"; // 10
+fseek($file, 10);
+echo "Posição após fseek: " . ftell($file) . "<br>\n"; // 10
 
 // Modos de fseek
 // SEEK_SET — a partir do início (padrão)
-fseek($arquivo, 5, SEEK_SET);
+fseek($file, 5, SEEK_SET);
 
 // SEEK_CUR — a partir da posição atual
-fseek($arquivo, 20, SEEK_CUR); // +20 bytes da posição atual
+fseek($file, 20, SEEK_CUR); // +20 bytes da posição atual
 
 // SEEK_END — a partir do final
-fseek($arquivo, -1, SEEK_END); // último byte do arquivo
+fseek($file, -1, SEEK_END); // último byte do arquivo
 
-// rewind() — volta ao início (equivalente a fseek($arquivo, 0))
-rewind($arquivo);
+// rewind() — volta ao início (equivalente a fseek($file, 0))
+rewind($file);
 
-fclose($arquivo);
+fclose($file);
 
 // Exemplo: ler os últimos N bytes de um arquivo
-function lerUltimosBytes(string $caminho, int $bytes): string {
-    $arquivo = fopen($caminho, 'r');
-    fseek($arquivo, -$bytes, SEEK_END);
-    $dados = fread($arquivo, $bytes);
-    fclose($arquivo);
-    return $dados;
-}
+function readLastBytes(string $path, int $bytes): string {
+    $file = fopen($path, 'r');
+    fseek($file, -$bytes, SEEK_END);
+    $data = fread($file, $bytes);
+    fclose($file);
+    return $dat
 ```
 
 ---
@@ -706,42 +700,42 @@ function lerUltimosBytes(string $caminho, int $bytes): string {
 ```php
 <?php
 // Escrita segura com lock exclusivo
-$arquivo = fopen('contador.txt', 'c+'); // 'c+' abre para leitura/escrita, cria se não existe
+$file = fopen('contador.txt', 'c+'); // 'c+' abre para leitura/escrita, cria se não existe
 
-if (flock($arquivo, LOCK_EX)) { // Lock exclusivo
-    $contador = (int) fread($arquivo, 1024);
-    $contador++;
+if (flock($file, LOCK_EX)) { // Lock exclusivo
+    $counter = (int) fread($file, 1024);
+    $counter++;
 
-    rewind($arquivo);
-    ftruncate($arquivo, 0); // limpa o arquivo
-    fwrite($arquivo, (string) $contador);
+    rewind($file);
+    ftruncate($file, 0); // limpa o arquivo
+    fwrite($file, (string) $counter);
 
-    flock($arquivo, LOCK_UN); // Libera o lock
+    flock($file, LOCK_UN); // Libera o lock
 } else {
-    echo "Não foi possível obter lock.<br>\n";
+    echo "Não foi possível get lock.<br>\n";
 }
 
-fclose($arquivo);
-echo "Contador: {$contador}<br>\n";
+fclose($file);
+echo "Contador: {$counter}<br>
+
 ```
 
 ### Tipos de Lock
 
 ```php
 <?php
-// LOCK_SH — Lock compartilhado (leitura). Vários processos podem obter simultaneamente.
-flock($arquivo, LOCK_SH);
+// LOCK_SH — Lock compartilhado (leitura). Vários processos podem get simultaneamente.
+flock($file, LOCK_SH);
 
 // LOCK_EX — Lock exclusivo (escrita). Apenas um processo por vez.
-flock($arquivo, LOCK_EX);
+flock($file, LOCK_EX);
 
 // LOCK_UN — Libera o lock.
-flock($arquivo, LOCK_UN);
+flock($file, LOCK_UN);
 
 // LOCK_NB — Non-blocking. Retorna na hora se não conseguir o lock.
-if (!flock($arquivo, LOCK_EX | LOCK_NB)) {
-    echo "Arquivo ocupado no momento.<br>\n";
-}
+if (!flock($file, LOCK_EX | LOCK_NB)) {
+    echo "Arquivo ocupado no momento.<br>\n
 ```
 
 > ⚠️ **Cuidado:** `flock()` funciona apenas em sistemas com bloqueio consultivo (advisory locking), como Linux e macOS. No Windows, o comportamento pode variar. `flock()` não funciona com alguns wrappers de stream remotos.
@@ -756,26 +750,26 @@ if (!flock($arquivo, LOCK_EX | LOCK_NB)) {
 <?php
 // Útil para APIs que recebem JSON
 $json = file_get_contents('php://input');
-$dados = json_decode($json, true);
+$data = json_decode($json, true);
 
 if (json_last_error() !== JSON_ERROR_NONE) {
     http_response_code(400);
     die(json_encode(['erro' => 'JSON inválido']));
 }
 
-echo "Nome recebido: " . ($dados['nome'] ?? 'não informado');
+echo "Nome recebido: " . ($data['name'] ?? 'não informad
 ```
 
 ### `php://output` — Escreve na saída
 
 ```php
 <?php
-$saida = fopen('php://output', 'w');
-fputcsv($saida, ['Nome', 'Email', 'Idade']);
-fputcsv($saida, ['João', 'joao@email.com', '28']);
-fputcsv($saida, ['Maria', 'maria@email.com', '34']);
-fclose($saida);
-// Isso gera CSV na resposta HTTP
+$output = fopen('php://output', 'w');
+fputcsv($output, ['Nome', 'Email', 'Idade']);
+fputcsv($output, ['João', 'joao@email.com', '28']);
+fputcsv($output, ['Maria', 'maria@email.com', '34']);
+fclose($output);
+// Isso gera CSV na resposta 
 ```
 
 ### `php://memory` e `php://temp` — Arquivos em memória
@@ -783,13 +777,13 @@ fclose($saida);
 ```php
 <?php
 // php://memory — armazena tudo em RAM
-$memoria = fopen('php://memory', 'r+');
-fwrite($memoria, "Dados temporários em memória\n");
-fwrite($memoria, "Nada é escrito em disco\n");
+$memory = fopen('php://memory', 'r+');
+fwrite($memory, "Dados temporários em memória\n");
+fwrite($memory, "Nada é escrito em disco\n");
 
-rewind($memoria);
-echo fread($memoria, 1024);
-fclose($memoria);
+rewind($memory);
+echo fread($memory, 1024);
+fclose($memory);
 
 // php://temp — armazena em RAM até 2MB, depois usa disco
 $temp = fopen('php://temp', 'r+');
@@ -798,7 +792,7 @@ for ($i = 0; $i < 1000; $i++) {
 }
 rewind($temp);
 echo stream_get_contents($temp);
-fclose($temp);
+fclose($te
 ```
 
 ### Wrappers: lendo arquivos de diferentes fontes
@@ -809,16 +803,16 @@ fclose($temp);
 $local = file_get_contents('/caminho/arquivo.txt');
 
 // URLs HTTP (se allow_url_fopen = On)
-$remoto = file_get_contents('https://jsonplaceholder.typicode.com/todos/1');
+$remote = file_get_contents('https://jsonplaceholder.typicode.com/todos/1');
 
 // FTP
-// $ftp = file_get_contents('ftp://user:senha@servidor/arquivo.txt');
+// $ftp = file_get_contents('ftp://user:password@servidor/arquivo.txt');
 
 // Leitura de stdin (entrada padrão do terminal)
 $stdin = file_get_contents('php://stdin');
 
 // Dados enviados via POST tradicional
-$post = file_get_contents('php://input');
+$post = file_get_contents('php://inpu
 ```
 
 ---
@@ -828,55 +822,55 @@ $post = file_get_contents('php://input');
 ```php
 <?php
 class Logger {
-    private string $arquivo;
+    private string $file;
 
-    public function __construct(string $arquivo) {
-        $this->arquivo = $arquivo;
+    public function __construct(string $file) {
+        $this->file = $file;
     }
 
-    public function log(string $nivel, string $mensagem, array $contexto = []): void {
+    public function log(string $level, string $message, array $context = []): void {
         $timestamp = date('Y-m-d H:i:s');
-        $contextoStr = !empty($contexto) ? ' ' . json_encode($contexto) : '';
-        $linha = "[{$timestamp}] {$nivel}: {$mensagem}{$contextoStr}\n";
-        file_put_contents($this->arquivo, $linha, FILE_APPEND | LOCK_EX);
+        $contextStr = !empty($context) ? ' ' . json_encode($context) : '';
+        $line = "[{$timestamp}] {$level}: {$message}{$contextStr}\n";
+        file_put_contents($this->file, $line, FILE_APPEND | LOCK_EX);
     }
 
-    public function info(string $mensagem, array $contexto = []): void {
-        $this->log('INFO', $mensagem, $contexto);
+    public function info(string $message, array $context = []): void {
+        $this->log('INFO', $message, $context);
     }
 
-    public function erro(string $mensagem, array $contexto = []): void {
-        $this->log('ERROR', $mensagem, $contexto);
+    public function error(string $message, array $context = []): void {
+        $this->log('ERROR', $message, $context);
     }
 
-    public function ler(int $linhas = 50, string $nivel = null): array {
+    public function ler(int $lines = 50, string $level = null): array {
         $logs = [];
-        $arquivo = fopen($this->arquivo, 'r');
-        if ($arquivo === false) {
+        $file = fopen($this->file, 'r');
+        if ($file === false) {
             return $logs;
         }
 
-        while (($linha = fgets($arquivo)) !== false) {
-            if ($nivel !== null && !str_contains($linha, $nivel . ':')) {
+        while (($line = fgets($file)) !== false) {
+            if ($level !== null && !str_contains($line, $level . ':')) {
                 continue;
             }
-            $logs[] = rtrim($linha);
+            $logs[] = rtrim($line);
         }
-        fclose($arquivo);
+        fclose($file);
 
-        return array_slice($logs, -$linhas);
+        return array_slice($logs, -$lines);
     }
 
     public function limpar(): bool {
-        return file_put_contents($this->arquivo, '') !== false;
+        return file_put_contents($this->file, '') !== false;
     }
 }
 
 // Uso
 $logger = new Logger(__DIR__ . '/app.log');
 $logger->info('Sistema iniciado', ['versao' => '2.0']);
-$logger->erro('Falha na conexão com banco', ['erro' => 'timeout']);
-print_r($logger->ler(10, 'ERROR'));
+$logger->error('Falha na conexão com banco', ['erro' => 'timeout']);
+print_r($logger->read(10, 'ERROR
 ```
 
 ---
@@ -885,23 +879,22 @@ print_r($logger->ler(10, 'ERROR'));
 
 > **PHP 8.4+**
 
-A nova função `request_parse_body()` permite processar o corpo da requisição de forma programática, útil para APIs que recebem dados em formatos como JSON.
+A nova função `request_parse_body()` permite process o corpo da requisição de forma programática, útil para APIs que recebem dados em formatos como JSON.
 
 ```php
 <?php
 // PHP 8.4+ — alternativa a $_POST para APIs
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $resultado = request_parse_body();
+    $result = request_parse_body();
 
     // Para JSON, combine com php://input
-    $tipoConteudo = $_SERVER['CONTENT_TYPE'] ?? '';
-    if (str_contains($tipoConteudo, 'application/json')) {
+    $contentType = $_SERVER['CONTENT_TYPE'] ?? '';
+    if (str_contains($contentType, 'application/json')) {
         $json = file_get_contents('php://input');
-        $resultado = json_decode($json, true);
+        $result = json_decode($json, true);
     }
 
-    print_r($resultado);
-}
+    print_r($result
 ```
 
 ---

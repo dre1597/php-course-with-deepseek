@@ -131,8 +131,8 @@ Dentro do modo interativo você pode digitar código PHP linha a linha e ver o r
 ```php
 Interactive shell
 
-php > $nome = "Maria";
-php > echo "Olá, $nome!";
+php > $name = "Maria";
+php > echo "Olá, $name!";
 Olá, Maria!
 php > echo 2 + 2;
 4
@@ -141,32 +141,9 @@ php > exit;
 
 ---
 
-## Editores e IDEs recomendados
-
-### Visual Studio Code (recomendado)
-
-Baixe em: [code.visualstudio.com](https://code.visualstudio.com/)
-
-Extensões essenciais:
-
-| Extensão               | Função                                        |
-|------------------------|-----------------------------------------------|
-| **PHP Intelephense**   | IntelliSense, autocomplete, refatoração       |
-| **PHP Debug**          | Depuração com Xdebug (breakpoints, step into) |
-| **PHP Namespace Resolver** | Import automático de namespaces            |
-| **PHP CS Fixer**       | Formatação automática PSR-12                  |
-| **phpstan**            | Análise estática (via terminal)               |
-| **Error Lens**         | Exibe erros inline no editor                  |
-
-### PhpStorm (JetBrains)
-
-IDE comercial completa. Melhor para projetos grandes. Tem trial de 30 dias: [jetbrains.com/phpstorm](https://www.jetbrains.com/phpstorm/)
-
----
-
 ## Primeiro script PHP
 
-Crie um arquivo chamado `ola.php`:
+Crie um arquivo chamado `hello.php`:
 
 ```php
 <?php
@@ -175,12 +152,12 @@ declare(strict_types=1);
 
 /*
  * Meu primeiro script PHP
- * Execução: php ola.php
+ * Execução: php hello.php
  */
 
-$nome = $argv[1] ?? 'Mundo';
+$name = $argv[1] ?? 'Mundo';
 
-echo "Olá, {$nome}!\n";
+echo "Olá, {$name}!\n";
 echo "PHP versão: " . PHP_VERSION . "\n";
 echo "Sistema: " . PHP_OS . "\n";
 ```
@@ -188,12 +165,12 @@ echo "Sistema: " . PHP_OS . "\n";
 Execute:
 
 ```bash
-php ola.php
+php hello.php
 # Saída: Olá, Mundo!
 #        PHP versão: 8.5.0
 #        Sistema: Linux
 
-php ola.php Maria
+php hello.php Maria
 # Saída: Olá, Maria!
 #        PHP versão: 8.5.0
 #        Sistema: Linux
@@ -350,7 +327,7 @@ php -v
 php -i
 
 # Verifica sintaxe de um arquivo sem executá-lo
-php -l arquivo.php
+php -l file.php
 
 # Lista extensões carregadas
 php -m
@@ -403,18 +380,18 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-class Calculadora
+class Calculator
 {
-    private float $taxa;
+    private float $rate;
 
-    public function __construct(float $taxa)
+    public function __construct(float $rate)
     {
-        $this->taxa = $taxa;
+        $this->rate = $rate;
     }
 
-    public function aplicarTaxa(float $valor): float
+    public function applyRate(float $value): float
     {
-        return $valor * (1 + $this->taxa);
+        return $value * (1 + $this->rate);
     }
 }
 ```

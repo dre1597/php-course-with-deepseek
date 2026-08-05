@@ -28,16 +28,15 @@ PHP disponibiliza variáveis **superglobais** — acessíveis em qualquer escopo
 
 ```php
 <?php
-// URL: http://localhost/pagina.php?nome=João&idade=28&cidade=São+Paulo
+// URL: http://localhost/pagina.php?name=João&idade=28&cidade=São+Paulo
 
-echo "Nome: " . ($_GET['nome'] ?? 'Não informado') . "<br>\n";
+echo "Nome: " . ($_GET['name'] ?? 'Não informado') . "<br>\n";
 echo "Idade: " . ($_GET['idade'] ?? 'Não informado') . "<br>\n";
 echo "Cidade: " . ($_GET['cidade'] ?? 'Não informado') . "<br>\n";
 
 // Iterar todos os parâmetros GET
-foreach ($_GET as $chave => $valor) {
-    echo htmlspecialchars($chave) . ": " . htmlspecialchars($valor) . "<br>\n";
-}
+foreach ($_GET as $key => $value) {
+    echo htmlspecialchars($key) . ": " . htmlspecialchars($value) . "<br>\n
 ```
 
 > ⚠️ **Cuidado:** Dados em `$_GET` ficam visíveis na URL. Nunca envie senhas ou dados sensíveis via GET.
@@ -55,11 +54,10 @@ foreach ($_GET as $chave => $valor) {
 
 <?php
 if (!empty($_GET['q'])) {
-    $termo = htmlspecialchars($_GET['q']);
-    echo "<p>Você buscou por: <strong>{$termo}</strong></p>\n";
+    $searchTerm = htmlspecialchars($_GET['q']);
+    echo "<p>Você buscou por: <strong>{$searchTerm}</strong></p>\n";
 }
-?>
-```
+?```
 
 ---
 
@@ -69,17 +67,16 @@ if (!empty($_GET['q'])) {
 <!-- cadastro.html -->
 <form method="post" action="cadastro.php">
     <label>Nome:</label>
-    <input type="text" name="nome" required>
+    <input type="text" name="name" required>
 
     <label>Email:</label>
     <input type="email" name="email" required>
 
     <label>Senha:</label>
-    <input type="password" name="senha" required minlength="8">
+    <input type="password" name="password" required minlength="8">
 
     <button type="submit">Cadastrar</button>
-</form>
-```
+</form```
 
 ```php
 <?php
@@ -90,34 +87,34 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-$nome  = $_POST['nome']  ?? '';
+$name  = $_POST['name']  ?? '';
 $email = $_POST['email'] ?? '';
-$senha = $_POST['senha'] ?? '';
+$password = $_POST['password'] ?? '';
 
 // Validação básica
-$erros = [];
+$errors = [];
 
-if (trim($nome) === '') {
-    $erros[] = 'O nome é obrigatório.';
+if (trim($name) === '') {
+    $errors[] = 'O name é obrigatório.';
 }
 
 if (trim($email) === '') {
-    $erros[] = 'O email é obrigatório.';
+    $errors[] = 'O email é obrigatório.';
 }
 
-if (strlen($senha) < 8) {
-    $erros[] = 'A senha deve ter no mínimo 8 caracteres.';
+if (strlen($password) < 8) {
+    $errors[] = 'A password deve ter no mínimo 8 caracteres.';
 }
 
-if (!empty($erros)) {
-    foreach ($erros as $erro) {
-        echo "<p style='color:red'>{$erro}</p>\n";
+if (!empty($errors)) {
+    foreach ($errors as $error) {
+        echo "<p style='color:red'>{$error}</p>\n";
     }
     exit;
 }
 
 echo "<p>Cadastro realizado com sucesso!</p>\n";
-echo "<p>Bem-vindo(a), " . htmlspecialchars($nome) . "!</p>\n";
+echo "<p>Bem-vindo(a), " . htmlspecialchars($name) . "!</p>
 ```
 
 ---
@@ -129,10 +126,10 @@ echo "<p>Bem-vindo(a), " . htmlspecialchars($nome) . "!</p>\n";
 ```php
 <?php
 // Evite usar $_REQUEST em produção — não é claro de onde os dados vêm.
-$termo = $_REQUEST['termo'] ?? '';
+$searchTerm = $_REQUEST['searchTerm'] ?? '';
 
 // Prefira ser explícito:
-$termo = $_GET['termo'] ?? $_POST['termo'] ?? '';
+$searchTerm = $_GET['searchTerm'] ?? $_POST['searchTerm'] ??
 ```
 
 > ⚠️ **Cuidado:** `$_REQUEST` pode ser alterado por cookies, o que pode causar comportamentos inesperados. Em código de produção, sempre acesse a superglobal específica.
@@ -168,12 +165,12 @@ echo "Veio de: {$referrer}<br>\n";
 // Protocolo (HTTP ou HTTPS)
 $https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
       || ($_SERVER['SERVER_PORT'] ?? '') == 443;
-$protocolo = $https ? 'https' : 'http';
-echo "Protocolo: {$protocolo}<br>\n";
+$protocol = $https ? 'https' : 'http';
+echo "Protocolo: {$protocol}<br>\n";
 
 // URL completa atual
-$urlAtual = "{$protocolo}://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}";
-echo "URL: {$urlAtual}<br>\n";
+$currentUrl = "{$protocol}://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}";
+echo "URL: {$currentUrl}<br>\n";
 
 // Raiz do documento
 echo "Document Root: {$_SERVER['DOCUMENT_ROOT']}<br>\n";
@@ -183,7 +180,7 @@ echo "Servidor: {$_SERVER['SERVER_ADDR']}:{$_SERVER['SERVER_PORT']}<br>\n";
 
 // Nome e caminho do script atual
 echo "Script: {$_SERVER['SCRIPT_FILENAME']}<br>\n";
-echo "Nome do script: {$_SERVER['SCRIPT_NAME']}<br>\n";
+echo "Nome do script: {$_SERVER['SCRIPT_NAME']}<br>
 ```
 
 ### Chaves Úteis de `$_SERVER`
@@ -209,16 +206,16 @@ echo "Nome do script: {$_SERVER['SCRIPT_NAME']}<br>\n";
 // Definidas no .env, no docker-compose ou no sistema operacional
 // Exemplo: export APP_DEBUG=true && php script.php
 
-$modoDebug = ($_ENV['APP_DEBUG'] ?? 'false') === 'true';
-if ($modoDebug) {
+$debugMode = ($_ENV['APP_DEBUG'] ?? 'false') === 'true';
+if ($debugMode) {
     echo "Modo debug ativo<br>\n";
 }
 
 // Senha do banco NUNCA no código
-$dbSenha = $_ENV['DB_PASSWORD'] ?? '';
+$dbPassword = $_ENV['DB_PASSWORD'] ??
 ```
 
-> 💡 **Dica:** Use bibliotecas como `vlucas/phpdotenv` para carregar variáveis de um arquivo `.env`. Nunca comite o `.env` — adicione ao `.gitignore`.
+> 💡 **Dica:** Use bibliotecas como `vlucas/phpdotenv` para load variáveis de um arquivo `.env`. Nunca comite o `.env` — adicione ao `.gitignore`.
 
 ### `$GLOBALS` — Todas as variáveis do escopo global
 
@@ -232,7 +229,7 @@ echo $GLOBALS['config']['app']; // MeuApp
 echo $GLOBALS['dbHost'];        // localhost
 
 // Também contém as superglobais
-print_r($GLOBALS['_SERVER']);
+print_r($GLOBALS['_SERVER
 ```
 
 ---
@@ -254,14 +251,13 @@ print_r($GLOBALS['_SERVER']);
 // POST: criar, atualizar, deletar — altera estado
 
 // Exemplo de roteamento por método
-$metodo = $_SERVER['REQUEST_METHOD'];
+$method = $_SERVER['REQUEST_METHOD'];
 $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
-if ($metodo === 'GET' && $path === '/usuarios') {
+if ($method === 'GET' && $path === '/users') {
     // Listar usuários
-} elseif ($metodo === 'POST' && $path === '/usuarios') {
-    // Criar usuário
-}
+} elseif ($method === 'POST' && $path === '/users') {
+    // Criar usuár
 ```
 
 ---
@@ -273,30 +269,30 @@ if ($metodo === 'GET' && $path === '/usuarios') {
 ```php
 <?php
 // contato.php — processa o formulário na mesma página
-$enviado = false;
-$erros = [];
-$nome = $email = $mensagem = '';
+$sent = false;
+$errors = [];
+$name = $email = $message = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $nome     = trim($_POST['nome'] ?? '');
+    $name     = trim($_POST['name'] ?? '');
     $email    = trim($_POST['email'] ?? '');
-    $mensagem = trim($_POST['mensagem'] ?? '');
+    $message = trim($_POST['mensagem'] ?? '');
 
-    if ($nome === '') {
-        $erros[] = 'O nome é obrigatório.';
+    if ($name === '') {
+        $errors[] = 'O name é obrigatório.';
     }
 
     if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $erros[] = 'Informe um email válido.';
+        $errors[] = 'Informe um email válido.';
     }
 
-    if (strlen($mensagem) < 10) {
-        $erros[] = 'A mensagem deve ter pelo menos 10 caracteres.';
+    if (strlen($message) < 10) {
+        $errors[] = 'A mensagem deve ter pelo menos 10 caracteres.';
     }
 
-    if (empty($erros)) {
-        $enviado = true;
-        // Aqui você salvaria no banco ou enviaria email
+    if (empty($errors)) {
+        $sent = true;
+        // Aqui você saveia no banco ou sendia email
     }
 }
 ?>
@@ -317,37 +313,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body>
     <h1>Contato</h1>
 
-    <?php if ($enviado): ?>
-        <p class="sucesso">Mensagem enviada com sucesso! Obrigado, <?= htmlspecialchars($nome) ?>.</p>
+    <?php if ($sent): ?>
+        <p class="sucesso">Mensagem enviada com sucesso! Obrigado, <?= htmlspecialchars($name) ?>.</p>
     <?php else: ?>
-        <?php foreach ($erros as $erro): ?>
-            <p class="erro"><?= htmlspecialchars($erro) ?></p>
+        <?php foreach ($errors as $error): ?>
+            <p class="erro"><?= htmlspecialchars($error) ?></p>
         <?php endforeach; ?>
 
         <form method="post" action="contato.php" novalidate>
-            <label for="nome">Nome</label>
-            <input type="text" id="nome" name="nome"
-                   value="<?= htmlspecialchars($nome) ?>">
+            <label for="name">Nome</label>
+            <input type="text" id="name" name="name"
+                   value="<?= htmlspecialchars($name) ?>">
 
             <label for="email">Email</label>
             <input type="email" id="email" name="email"
                    value="<?= htmlspecialchars($email) ?>">
 
             <label for="mensagem">Mensagem</label>
-            <textarea id="mensagem" name="mensagem" rows="5"><?= htmlspecialchars($mensagem) ?></textarea>
+            <textarea id="mensagem" name="mensagem" rows="5"><?= htmlspecialchars($message) ?></textarea>
 
             <button type="submit">Enviar</button>
         </form>
     <?php endif; ?>
 </body>
-</html>
+</h
 ```
 
 ---
 
 ## 9. Filtros: `filter_var()` e `filter_input()`
 
-PHP oferece a extensão **filter** para validar e sanitizar dados de forma consistente.
+PHP oferece a extensão **filter** para validate e sanitize dados de forma consistente.
 
 ### Validação com `filter_var()`
 
@@ -357,19 +353,19 @@ PHP oferece a extensão **filter** para validar e sanitizar dados de forma consi
 $email    = 'teste@exemplo.com';
 $url      = 'https://www.php.net';
 $ip       = '192.168.0.1';
-$inteiro  = '42';
-$booleano = 'yes';
+$integer  = '42';
+$boolean = 'yes';
 
 var_dump(filter_var($email, FILTER_VALIDATE_EMAIL));      // 'teste@exemplo.com' (válido)
 var_dump(filter_var('email-invalido', FILTER_VALIDATE_EMAIL)); // false
 var_dump(filter_var($url, FILTER_VALIDATE_URL));          // 'https://www.php.net'
 var_dump(filter_var($ip, FILTER_VALIDATE_IP));            // '192.168.0.1'
-var_dump(filter_var($inteiro, FILTER_VALIDATE_INT));      // 42
+var_dump(filter_var($integer, FILTER_VALIDATE_INT));      // 42
 var_dump(filter_var('42.5', FILTER_VALIDATE_INT));        // false
 
 // Validar número com range
-$idade = 25;
-var_dump(filter_var($idade, FILTER_VALIDATE_INT, [
+$age = 25;
+var_dump(filter_var($age, FILTER_VALIDATE_INT, [
     'options' => [
         'min_range' => 0,
         'max_range' => 150,
@@ -377,11 +373,11 @@ var_dump(filter_var($idade, FILTER_VALIDATE_INT, [
 ])); // 25
 
 // Validar com flags
-var_dump(filter_var($booleano, FILTER_VALIDATE_BOOL, FILTER_NULL_ON_FAILURE));
+var_dump(filter_var($boolean, FILTER_VALIDATE_BOOL, FILTER_NULL_ON_FAILURE));
 // true ('yes' conta como verdadeiro)
 
 // Valores considerados true: '1', 'true', 'on', 'yes'
-// Valores considerados false: '0', 'false', 'off', 'no', ''
+// Valores considerados false: '0', 'false', 'off', 'no'
 ```
 
 ### Sanitização com `filter_var()`
@@ -393,7 +389,7 @@ var_dump(filter_var($booleano, FILTER_VALIDATE_BOOL, FILTER_NULL_ON_FAILURE));
 $email   = 'joão@@exemplo.com<script>';
 $string  = '<h1>Olá!</h1><script>alert("xss")</script>';
 $url     = 'https://exemplo.com/<script>';
-$numero  = '+55 (11) 99999-8888';
+$number  = '+55 (11) 99999-8888';
 
 // Remove caracteres inválidos de email
 echo filter_var($email, FILTER_SANITIZE_EMAIL);
@@ -408,12 +404,12 @@ echo filter_var($url, FILTER_SANITIZE_URL);
 // https://exemplo.com/script
 
 // Remove tudo exceto dígitos, + e -
-echo filter_var($numero, FILTER_SANITIZE_NUMBER_INT);
+echo filter_var($number, FILTER_SANITIZE_NUMBER_INT);
 // +5511999998888
 
 // Remove tudo exceto dígitos e caracteres de float (.,e,E,+,-)
 echo filter_var('R$ 1.299,90', FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
-// 1.29990
+// 1.2
 ```
 
 ### `filter_input()` — Validar das superglobais
@@ -429,11 +425,11 @@ if ($id === false || $id === null) {
 
 $email = filter_input(INPUT_GET, 'email', FILTER_VALIDATE_EMAIL);
 
-$cor = filter_input(INPUT_GET, 'cor', FILTER_SANITIZE_STRING);
+$color = filter_input(INPUT_GET, 'cor', FILTER_SANITIZE_STRING);
 
-// filter_input_array — validar múltiplos campos de uma vez
-$filtros = [
-    'nome'  => FILTER_SANITIZE_STRING,
+// filter_input_array — validate múltiplos campos de uma vez
+$filters = [
+    'name'  => FILTER_SANITIZE_STRING,
     'email' => FILTER_VALIDATE_EMAIL,
     'idade' => [
         'filter'  => FILTER_VALIDATE_INT,
@@ -441,13 +437,12 @@ $filtros = [
     ],
 ];
 
-$dados = filter_input_array(INPUT_POST, $filtros);
+$data = filter_input_array(INPUT_POST, $filters);
 
-foreach ($dados as $campo => $valor) {
-    if ($valor === false || $valor === null) {
-        echo "Campo '{$campo}' é inválido.<br>\n";
-    }
-}
+foreach ($data as $field => $value) {
+    if ($value === false || $value === null) {
+        echo "Campo '{$field}' é inválido.<br>\n";
+   
 ```
 
 ### Tabela de Filtros Úteis
@@ -470,90 +465,89 @@ foreach ($dados as $campo => $valor) {
 
 ```php
 <?php
-class ValidadorFormulario {
-    private array $erros = [];
+class FormValidator {
+    private array $errors = [];
 
-    public function validar(array $dados, array $regras): array {
-        $dadosLimpos = [];
+    public function validate(array $data, array $rules): array {
+        $cleanData = [];
 
-        foreach ($regras as $campo => $regrasCampo) {
-            $valor = $dados[$campo] ?? '';
+        foreach ($rules as $field => $fieldRules) {
+            $value = $data[$field] ?? '';
 
             // Campo obrigatório
-            if (in_array('required', $regrasCampo) && trim((string) $valor) === '') {
-                $this->erros[$campo] = "O campo '{$campo}' é obrigatório.";
+            if (in_array('required', $fieldRules) && trim((string) $value) === '') {
+                $this->errors[$field] = "O campo '{$field}' é obrigatório.";
                 continue;
             }
 
             // Sanitização padrão: remover tags e espaços extras
-            $valor = trim(strip_tags((string) $valor));
+            $value = trim(strip_tags((string) $value));
 
             // Email
-            if (in_array('email', $regrasCampo) && $valor !== '') {
-                $emailValidado = filter_var($valor, FILTER_VALIDATE_EMAIL);
-                if ($emailValidado === false) {
-                    $this->erros[$campo] = "Email inválido.";
+            if (in_array('email', $fieldRules) && $value !== '') {
+                $validatedEmail = filter_var($value, FILTER_VALIDATE_EMAIL);
+                if ($validatedEmail === false) {
+                    $this->errors[$field] = "Email inválido.";
                 } else {
-                    $valor = $emailValidado;
+                    $value = $validatedEmail;
                 }
             }
 
             // Inteiro
-            if (in_array('int', $regrasCampo)) {
-                $int = filter_var($valor, FILTER_VALIDATE_INT);
+            if (in_array('int', $fieldRules)) {
+                $int = filter_var($value, FILTER_VALIDATE_INT);
                 if ($int === false) {
-                    $this->erros[$campo] = "Deve ser um número inteiro.";
+                    $this->errors[$field] = "Deve ser um número inteiro.";
                 } else {
-                    $valor = $int;
+                    $value = $int;
                 }
             }
 
             // Comprimento mínimo
-            foreach ($regrasCampo as $regra) {
-                if (str_starts_with($regra, 'min:')) {
-                    $min = (int) substr($regra, 4);
-                    if (strlen((string) $valor) < $min) {
-                        $this->erros[$campo] = "Deve ter no mínimo {$min} caracteres.";
+            foreach ($fieldRules as $rule) {
+                if (str_starts_with($rule, 'min:')) {
+                    $min = (int) substr($rule, 4);
+                    if (strlen((string) $value) < $min) {
+                        $this->errors[$field] = "Deve ter no mínimo {$min} caracteres.";
                     }
                 }
-                if (str_starts_with($regra, 'max:')) {
-                    $max = (int) substr($regra, 4);
-                    if (strlen((string) $valor) > $max) {
-                        $this->erros[$campo] = "Deve ter no máximo {$max} caracteres.";
+                if (str_starts_with($rule, 'max:')) {
+                    $max = (int) substr($rule, 4);
+                    if (strlen((string) $value) > $max) {
+                        $this->errors[$field] = "Deve ter no máximo {$max} caracteres.";
                     }
                 }
             }
 
-            $dadosLimpos[$campo] = $valor;
+            $cleanData[$field] = $value;
         }
 
-        return $dadosLimpos;
+        return $cleanData;
     }
 
-    public function temErros(): bool {
-        return !empty($this->erros);
+    public function hasErrors(): bool {
+        return !empty($this->errors);
     }
 
-    public function getErros(): array {
-        return $this->erros;
+    public function getErrors(): array {
+        return $this->errors;
     }
 }
 
 // Uso
-$validador = new ValidadorFormulario();
-$regras = [
-    'nome'  => ['required', 'min:3', 'max:100'],
+$validator = new FormValidator();
+$rules = [
+    'name'  => ['required', 'min:3', 'max:100'],
     'email' => ['required', 'email'],
     'idade' => ['int', 'min:0', 'max:150'],
 ];
-$dados = $validador->validar($_POST, $regras);
+$data = $validator->validate($_POST, $rules);
 
-if ($validador->temErros()) {
-    print_r($validador->getErros());
+if ($validator->hasErrors()) {
+    print_r($validator->getErrors());
 } else {
     echo "Dados válidos!";
-    print_r($dados);
-}
+    print_r($data
 ```
 
 ---
@@ -569,11 +563,11 @@ if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-function gerarCampoCSRF(): string {
+function csrfField(): string {
     return '<input type="hidden" name="csrf_token" value="' . $_SESSION['csrf_token'] . '">';
 }
 
-function verificarCSRF(): void {
+function verifyCSRF(): void {
     if (
         !isset($_POST['csrf_token']) ||
         !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])
@@ -584,7 +578,7 @@ function verificarCSRF(): void {
 
 // Processamento do formulário
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    verificarCSRF();
+    verifyCSRF();
 
     // Processa os dados com segurança...
     echo "Ação executada com sucesso!";
@@ -595,12 +589,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head><meta charset="UTF-8"><title>Formulário Protegido</title></head>
 <body>
     <form method="post">
-        <?= gerarCampoCSRF() ?>
-        <label>Nome: <input type="text" name="nome"></label>
+        <?= csrfField() ?>
+        <label>Nome: <input type="text" name="name"></label>
         <button type="submit">Enviar</button>
     </form>
 </body>
-</html>
+</h
 ```
 
 > 💡 **Dica:** A função `hash_equals()` faz comparação em tempo constante, prevenindo **timing attacks** ao comparar tokens.
@@ -626,9 +620,9 @@ exit;
 
 // Redirecionamento com mensagem flash (ver Módulo 13 — Sessões)
 session_start();
-$_SESSION['flash_mensagem'] = 'Operação realizada com sucesso!';
+$_SESSION['flash_message'] = 'Operação realizada com sucesso!';
 header('Location: /index.php');
-exit;
+e
 ```
 
 > ⚠️ **Cuidado:** `header()` deve ser chamado **antes de qualquer output** (HTML, echo, espaços em branco). Caso contrário, gerará erro "headers already sent".
@@ -642,22 +636,20 @@ exit;
 // Ver Módulo 11 para detalhes completos
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['documento'])) {
-    $arquivo = $_FILES['documento'];
+    $file = $_FILES['documento'];
 
-    $nomeTemporario = $arquivo['tmp_name'];
-    $nomeOriginal   = $arquivo['name'];
-    $tamanho        = $arquivo['size'];
-    $erro           = $arquivo['error'];
+    $tmpName = $file['tmp_name'];
+    $originalName   = $file['name'];
+    $fileSize        = $file['size'];
+    $error           = $file['error'];
 
-    if ($erro === UPLOAD_ERR_OK) {
-        $destino = __DIR__ . '/uploads/' . basename($nomeOriginal);
-        move_uploaded_file($nomeTemporario, $destino);
+    if ($error === UPLOAD_ERR_OK) {
+        $destination = __DIR__ . '/uploads/' . basename($originalName);
+        move_uploaded_file($tmpName, $destination);
         echo "Upload concluído!";
     } else {
-        echo "Erro no upload: código {$erro}";
+        echo "Erro no upload: código {$error}";
     }
-}
-?>
 ```
 
 ---
@@ -666,7 +658,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['documento'])) {
 
 > **PHP 8.4+**
 
-A partir do PHP 8.4, a função `request_parse_body()` pode ser usada para processar o corpo da requisição de forma explícita, sendo útil em APIs e SAPI diferentes (CGI, FastCGI, etc.).
+A partir do PHP 8.4, a função `request_parse_body()` pode ser usada para process o corpo da requisição de forma explícita, sendo útil em APIs e SAPI diferentes (CGI, FastCGI, etc.).
 
 ```php
 <?php
@@ -677,13 +669,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // $postData contém os campos do formulário (equivalente a $_POST)
     // $fileData contém os arquivos enviados (equivalente a $_FILES)
 
-    $nome = $postData['nome'] ?? '';
+    $name = $postData['name'] ?? '';
 
     if (isset($fileData['documento'])) {
-        $arquivo = $fileData['documento'];
-        move_uploaded_file($arquivo['tmp_name'], __DIR__ . '/uploads/' . $arquivo['name']);
-    }
-}
+        $file = $fileData['documento'];
+        move_uploaded_file($file['tmp_name'], __DIR__ . '/uploads/' . $file['name']);
+   
 ```
 
 > 💡 **Dica:** `request_parse_body()` é útil quando você está rodando PHP em modo CLI ou em servidores CGI onde `$_POST` pode não estar disponível.
@@ -701,35 +692,35 @@ if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-$erros = [];
-$sucesso = false;
+$errors = [];
+$success = false;
 $email = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // CSRF
     if (!hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'] ?? '')) {
-        $erros[] = 'Token de segurança inválido.';
+        $errors[] = 'Token de segurança inválido.';
     }
 
     // Validação
     $email = filter_input(INPUT_POST, 'email', FILTER_VALIDATE_EMAIL);
     if (!$email) {
-        $erros[] = 'Informe um email válido.';
+        $errors[] = 'Informe um email válido.';
     }
 
     // Verifica se já está cadastrado (simulação com arquivo)
-    $arquivoInscritos = __DIR__ . '/newsletter.txt';
-    $inscritos = file_exists($arquivoInscritos)
-        ? file($arquivoInscritos, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES)
+    $subscribersFile = __DIR__ . '/newsletter.txt';
+    $subscribers = file_exists($subscribersFile)
+        ? file($subscribersFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES)
         : [];
 
-    if (in_array($email, $inscritos)) {
-        $erros[] = 'Este email já está cadastrado.';
+    if (in_array($email, $subscribers)) {
+        $errors[] = 'Este email já está cadastrado.';
     }
 
-    if (empty($erros)) {
-        file_put_contents($arquivoInscritos, $email . "\n", FILE_APPEND | LOCK_EX);
-        $sucesso = true;
+    if (empty($errors)) {
+        file_put_contents($subscribersFile, $email . "\n", FILE_APPEND | LOCK_EX);
+        $success = true;
         $email = '';
     }
 }
@@ -761,15 +752,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body>
 <div class="card">
-    <?php if ($sucesso): ?>
+    <?php if ($success): ?>
         <h2>Obrigado por se inscrever!</h2>
-        <p class="sucesso">Você receberá nossas novidades em breve.</p>
+        <p class="sucesso">Você receiveá nossas novidades em breve.</p>
     <?php else: ?>
         <h2>Assine nossa Newsletter</h2>
         <p class="description">Receba dicas de PHP direto no seu email. Sem spam.</p>
 
-        <?php foreach ($erros as $erro): ?>
-            <p class="erro"><?= htmlspecialchars($erro) ?></p>
+        <?php foreach ($errors as $error): ?>
+            <p class="erro"><?= htmlspecialchars($error) ?></p>
         <?php endforeach; ?>
 
         <form method="post">
@@ -785,7 +776,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php endif; ?>
 </div>
 </body>
-</html>
+</h
 ```
 
 ---

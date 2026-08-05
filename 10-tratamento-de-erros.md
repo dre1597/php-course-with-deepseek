@@ -51,8 +51,8 @@ O PHP classifica erros em diferentes níveis de severidade. Conhecer cada um aju
 <?php
 
 // E_NOTICE — variável não definida
-echo $variavelNaoDefinida;
-// Notice: Undefined variable: variavelNaoDefinida
+echo $undefinedVariable;
+// Notice: Undefined variable: undefinedVariable
 
 // E_WARNING — include de arquivo inexistente
 include 'arquivo_inexistente.php';
@@ -75,7 +75,7 @@ Desde o PHP 7.0, a maioria dos erros fatais foram convertidos em exceções que 
 
 try {
     // TypeError: funcao espera int, recebeu string
-    $resultado = array_sum('nao e um array');
+    $result = array_sum('nao e um array');
 } catch (TypeError $e) {
     echo "TypeError capturado: " . $e->getMessage() . PHP_EOL;
 }
@@ -90,7 +90,7 @@ try {
 ```php
 <?php
 
-// Ambiente de desenvolvimento: mostrar TUDO
+// Ambiente de desenvolvimento: show TUDO
 error_reporting(E_ALL);
 
 // Ambiente de producao: esconder notices, warnings e deprecated
@@ -126,7 +126,7 @@ ini_set('error_log', '/var/log/php/php_errors.log');
 // ====================
 // DESENVOLVIMENTO
 // ====================
-function configurarAmbienteDev(): void
+function setupDevEnvironment(): void
 {
     error_reporting(E_ALL);
     ini_set('display_errors', '1');
@@ -137,7 +137,7 @@ function configurarAmbienteDev(): void
 // ====================
 // PRODUCAO
 // ====================
-function configurarAmbienteProducao(): void
+function setupProductionEnvironment(): void
 {
     error_reporting(E_ALL & ~E_DEPRECATED & ~E_STRICT);
     ini_set('display_errors', '0');
@@ -148,9 +148,9 @@ function configurarAmbienteProducao(): void
 
 // Detectar pelo hostname ou variavel de ambiente
 if (getenv('APP_ENV') === 'production') {
-    configurarAmbienteProducao();
+    setupProductionEnvironment();
 } else {
-    configurarAmbienteDev();
+    setupDevEnvironment();
 }
 ```
 
@@ -180,17 +180,17 @@ O bloco `try/catch/finally` é o mecanismo primário para capturar e tratar exce
 ```php
 <?php
 
-function dividir(float $a, float $b): float
+function divide(float $dividend, float $divisor): float
 {
-    if ($b === 0.0) {
+    if ($divisor === 0.0) {
         throw new DivisionByZeroError('Divisao por zero nao permitida');
     }
-    return $a / $b;
+    return $dividend / $divisor;
 }
 
 try {
-    $resultado = dividir(10, 0);
-    echo "Resultado: {$resultado}";
+    $result = divide(10, 0);
+    echo "Resultado: {$result}";
 } catch (DivisionByZeroError $e) {
     echo "Erro: " . $e->getMessage() . PHP_EOL;
     echo "Arquivo: " . $e->getFile() . PHP_EOL;
@@ -216,16 +216,16 @@ try {
 ```php
 <?php
 
-function lerArquivo(string $caminho): string
+function readFile(string $path): string
 {
     $handle = null;
     try {
-        $handle = fopen($caminho, 'r');
+        $handle = fopen($path, 'r');
         if ($handle === false) {
-            throw new RuntimeException("Nao foi possivel abrir: {$caminho}");
+            throw new RuntimeException("Nao foi possivel abrir: {$path}");
         }
-        $conteudo = fread($handle, filesize($caminho));
-        return $conteudo;
+        $content = fread($handle, filesize($path));
+        return $content;
     } finally {
         // Garante que o arquivo sempre sera fechado
         if ($handle && is_resource($handle)) {
@@ -247,32 +247,32 @@ function lerArquivo(string $caminho): string
 
 class ApiClient
 {
-    public function buscarUsuario(int $id): array
+    public function findUser(int $id): array
     {
         if ($id <= 0) {
             throw new InvalidArgumentException('ID deve ser positivo');
         }
 
-        $resposta = @file_get_contents("https://api.exemplo.com/users/{$id}");
+        $response = @file_get_contents("https://api.exemplo.com/users/{$id}");
 
-        if ($resposta === false) {
+        if ($response === false) {
             throw new RuntimeException('Falha na conexao com a API');
         }
 
-        $dados = json_decode($resposta, true);
+        $data = json_decode($response, true);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
             throw new JsonException('Resposta JSON invalida', json_last_error());
         }
 
-        return $dados;
+        return $data;
     }
 }
 
 $client = new ApiClient();
 
 try {
-    $usuario = $client->buscarUsuario(-1);
+    $user = $client->findUser(-1);
 } catch (InvalidArgumentException $e) {
     echo "Erro de validacao: " . $e->getMessage() . PHP_EOL;
     // logica especifica para argumentos invalidos
@@ -314,7 +314,7 @@ Criar suas próprias exceções é uma excelente prática para códigos de domí
 <?php
 
 // Excecao base do dominio
-class DominioException extends Exception
+class DomainException extends Exception
 {
     public function __construct(
         string $message = '',
@@ -331,17 +331,17 @@ class DominioException extends Exception
 }
 
 // Excecoes especificas
-class SaldoInsuficienteException extends DominioException
+class InsufficientBalanceException extends DomainException
 {
     public function __construct(
-        public readonly float $saldoAtual,
-        public readonly float $valorSolicitado,
+        public readonly float $currentBalance,
+        public readonly float $requestedAmount,
     ) {
-        $diferenca = number_format($this->valorSolicitado - $this->saldoAtual, 2, ',', '.');
+        $difference = number_format($this->requestedAmount - $this->currentBalance, 2, ',', '.');
         parent::__construct(
-            "Saldo insuficiente. Saldo: R$ {$this->saldoAtual}, " .
-            "Solicitado: R$ {$this->valorSolicitado}. " .
-            "Faltam: R$ {$diferenca}"
+            "Saldo insuficiente. Saldo: R$ {$this->currentBalance}, " .
+            "Solicitado: R$ {$this->requestedAmount}. " .
+            "Faltam: R$ {$difference}"
         );
     }
 
@@ -351,57 +351,57 @@ class SaldoInsuficienteException extends DominioException
     }
 }
 
-class ContaBloqueadaException extends DominioException
+class AccountBlockedException extends DomainException
 {
-    public function __construct(string $motivo)
+    public function __construct(string $reason)
     {
-        parent::__construct("Conta bloqueada: {$motivo}");
+        parent::__construct("Account bloqueada: {$reason}");
     }
 }
 
 // Usando as excecoes customizadas
-class Conta
+class Account
 {
-    private bool $bloqueada = false;
+    private bool $blocked = false;
 
     public function __construct(
-        private string $titular,
-        private float $saldo = 0.0,
+        private string $holder,
+        private float $balance = 0.0,
     ) {}
 
-    public function sacar(float $valor): void
+    public function withdraw(float $value): void
     {
-        if ($this->bloqueada) {
-            throw new ContaBloqueadaException('Conta sob investigacao');
+        if ($this->blocked) {
+            throw new AccountBlockedException('Account sob investigacao');
         }
 
-        if ($valor > $this->saldo) {
-            throw new SaldoInsuficienteException(
-                saldoAtual: $this->saldo,
-                valorSolicitado: $valor,
+        if ($value > $this->balance) {
+            throw new InsufficientBalanceException(
+                currentBalance: $this->balance,
+                requestedAmount: $value,
             );
         }
 
-        $this->saldo -= $valor;
+        $this->balance -= $value;
     }
 
-    public function bloquear(): void
+    public function block(): void
     {
-        $this->bloqueada = true;
+        $this->blocked = true;
     }
 }
 
 // Controller / Service
-$conta = new Conta('Maria', 100.00);
+$account = new Account('Maria', 100.00);
 
 try {
-    $conta->sacar(500.00);
-} catch (SaldoInsuficienteException $e) {
+    $account->withdraw(500.00);
+} catch (InsufficientBalanceException $e) {
     echo $e->getTitulo() . ': ' . $e->getMessage() . PHP_EOL;
     // Saldo Insuficiente: Saldo insuficiente. Saldo: R$ 100, ...
-} catch (ContaBloqueadaException $e) {
+} catch (AccountBlockedException $e) {
     echo $e->getMessage() . PHP_EOL;
-} catch (DominioException $e) {
+} catch (DomainException $e) {
     echo $e->getMessage() . PHP_EOL;
 }
 ```
@@ -413,16 +413,16 @@ O terceiro parâmetro do construtor de `Exception` permite encadear exceções, 
 ```php
 <?php
 
-class RepositorioException extends Exception {}
+class RepositoryException extends Exception {}
 
-function salvarNoBanco(array $dados): void
+function saveToDatabase(array $dataPayload): void
 {
     try {
         // Simulando falha na conexao PDO
         throw new PDOException('Connection refused');
     } catch (PDOException $e) {
-        throw new RepositorioException(
-            "Falha ao salvar usuario: {$dados['nome']}",
+        throw new RepositoryException(
+            "Falha ao save usuario: {$dataPayload['name']}",
             0,
             $e, // encadeia a excecao original
         );
@@ -430,12 +430,12 @@ function salvarNoBanco(array $dados): void
 }
 
 try {
-    salvarNoBanco(['nome' => 'Joao']);
-} catch (RepositorioException $e) {
+    saveToDatabase(['name' => 'Joao']);
+} catch (RepositoryException $e) {
     echo $e->getMessage() . PHP_EOL;
     echo "Causa raiz: " . $e->getPrevious()->getMessage() . PHP_EOL;
 }
-// Falha ao salvar usuario: Joao
+// Falha ao save usuario: Joao
 // Causa raiz: Connection refused
 ```
 
@@ -495,9 +495,9 @@ try {
     // Stack trace resumido
     $trace = $e->getTrace();
     foreach ($trace as $i => $frame) {
-        $funcao = $frame['function'] ?? '???';
-        $linha  = $frame['line'] ?? '???';
-        echo "  #{$i} {$funcao}() na linha {$linha}" . PHP_EOL;
+        $function = $frame['function'] ?? '???';
+        $frameLine = $frame['line'] ?? '???';
+        echo "  #{$i} {$function}() na linha {$frameLine}" . PHP_EOL;
     }
 }
 ```
@@ -512,26 +512,26 @@ try {
 <?php
 
 // Ternario
-$nome = $input['nome'] ?? throw new InvalidArgumentException('Nome obrigatorio');
+$name = $input['name'] ?? throw new InvalidArgumentException('Nome obrigatorio');
 
 // match
-$status = match ($codigo) {
+$status = match ($code) {
     200, 201 => 'sucesso',
     400 => 'erro de validacao',
     404 => 'nao encontrado',
-    default => throw new UnexpectedValueException("Codigo HTTP desconhecido: {$codigo}"),
+    default => throw new UnexpectedValueException("Codigo HTTP desconhecido: {$code}"),
 };
 
 // arrow function
-$validar = fn(string $email): string => filter_var($email, FILTER_VALIDATE_EMAIL)
+$validate = fn(string $email): string => filter_var($email, FILTER_VALIDATE_EMAIL)
     ? $email
     : throw new InvalidArgumentException("Email invalido: {$email}");
 
-echo $validar('user@domain.com');
+echo $validate('user@domain.com');
 
 // coalescencia nula
 $config = ['host' => 'localhost'];
-$porta = $config['porta'] ?? throw new RuntimeException('Configuracao porta ausente');
+$port = $config['porta'] ?? throw new RuntimeException('Configuracao porta ausente');
 ```
 
 ### Exemplo Prático — Validação em Constructor
@@ -541,15 +541,15 @@ $porta = $config['porta'] ?? throw new RuntimeException('Configuracao porta ause
 
 class Email
 {
-    public function __construct(private string $valor)
+    public function __construct(private string $value)
     {
-        filter_var($this->valor, FILTER_VALIDATE_EMAIL)
-            ?: throw new InvalidArgumentException("Email invalido: {$this->valor}");
+        filter_var($this->value, FILTER_VALIDATE_EMAIL)
+            ?: throw new InvalidArgumentException("Email invalido: {$this->value}");
     }
 
     public function __toString(): string
     {
-        return $this->valor;
+        return $this->value;
     }
 }
 
@@ -571,15 +571,15 @@ echo $email; // user@domain.com
 
 function exceptionHandler(Throwable $e): void
 {
-    $data = date('Y-m-d H:i:s');
-    $classe = get_class($e);
-    $mensagem = $e->getMessage();
-    $arquivo  = $e->getFile();
-    $linha    = $e->getLine();
+    $timestamp = date('Y-m-d H:i:s');
+    $class = get_class($e);
+    $message = $e->getMessage();
+    $file  = $e->getFile();
+    $line    = $e->getLine();
 
     $log = <<<LOG
-[{$data}] {$classe}: {$mensagem}
-  Arquivo: {$arquivo}:{$linha}
+[{$timestamp}] {$class}: {$message}
+  Arquivo: {$file}:{$line}
   Trace:
 {$e->getTraceAsString()}
 ----------------------------------------
@@ -590,8 +590,8 @@ LOG;
     // Retornar uma resposta amigavel ao usuario
     http_response_code(500);
     echo json_encode([
-        'erro'   => 'Erro interno do servidor',
-        'codigo' => $e->getCode(),
+        'error'  => 'Erro interno do servidor',
+        'code' => $e->getCode(),
     ], JSON_UNESCAPED_UNICODE);
 
     exit;
@@ -611,17 +611,17 @@ Para capturar **erros** tradicionais (não exceções) como exceções:
 <?php
 
 function errorHandler(
-    int $severidade,
-    string $mensagem,
-    string $arquivo,
-    int $linha,
+    int $severity,
+    string $message,
+    string $file,
+    int $line,
 ): bool {
-    if (!(error_reporting() & $severidade)) {
+    if (!(error_reporting() & $severity)) {
         // Este nivel de erro nao esta configurado para reporte
         return false;
     }
 
-    throw new ErrorException($mensagem, 0, $severidade, $arquivo, $linha);
+    throw new ErrorException($message, 0, $severity, $file, $line);
 }
 
 set_error_handler('errorHandler');
@@ -644,8 +644,8 @@ try {
 <?php
 
 // Registrar um handler personalizado
-set_error_handler(function (int $severidade, string $msg, string $arquivo, int $linha): bool {
-    echo "[CUSTOM] {$msg} em {$arquivo}:{$linha}" . PHP_EOL;
+set_error_handler(function (int $severity, string $msg, string $file, int $line): bool {
+    echo "[CUSTOM] {$msg} em {$file}:{$line}" . PHP_EOL;
     return true;
 });
 
@@ -654,14 +654,14 @@ $handler = get_error_handler();
 var_dump($handler); // object(Closure)#1 (1) { ... }
 
 // Restaurar o handler padrao e depois voltar ao personalizado
-$anterior = get_error_handler();
+$previous = get_error_handler();
 restore_error_handler(); // volta ao handler padrao do PHP
 
 trigger_error('Usando handler padrao', E_USER_NOTICE);
 // PHP Notice: Usando handler padrao in ...
 
 // Reaplicar o handler anterior
-set_error_handler($anterior);
+set_error_handler($previous);
 trigger_error('Usando handler personalizado novamente', E_USER_NOTICE);
 // [CUSTOM] Usando handler personalizado novamente em ...
 
@@ -678,22 +678,22 @@ var_dump($excHandler); // object(Closure)#2 (1) { ... }
 
 function comErrorHandlerTemporario(callable $fn, callable $tempHandler): mixed
 {
-    $original = get_error_handler();   // PHP 8.5+
+    $previous = get_error_handler();   // PHP 8.5+
     set_error_handler($tempHandler);
 
     try {
         return $fn();
     } finally {
         // Restaura o handler original
-        if ($original !== null) {
-            set_error_handler($original);
+        if ($previous !== null) {
+            set_error_handler($previous);
         } else {
             restore_error_handler();
         }
     }
 }
 
-// Uso: executar codigo com um handler silencioso temporario
+// Uso: execute codigo com um handler silencioso temporario
 comErrorHandlerTemporario(
     fn() => trigger_error('ignorar este warning', E_USER_WARNING),
     fn() => true, // handler silencioso
@@ -710,16 +710,16 @@ comErrorHandlerTemporario(
 ### Antes (PHP 8.4 e anteriores)
 
 ```
-Fatal error: Call to undefined function funcaoInexistente() in /app/script.php on line 10
+Fatal error: Call to undefined function nonExistentFunction() in /app/script.php on line 10
 ```
 
 ### Agora (PHP 8.5+)
 
 ```
-Fatal error: Call to undefined function funcaoInexistente() in /app/script.php on line 10
+Fatal error: Call to undefined function nonExistentFunction() in /app/script.php on line 10
 Stack trace:
-#0 /app/script.php(10): processarDados()
-#1 /app/script.php(15): executarTarefa()
+#0 /app/script.php(10): processData()
+#1 /app/script.php(15): executeTask()
 #2 /app/script.php(20): {main}
 ```
 
@@ -728,20 +728,20 @@ Isso facilita imensamente a depuração de erros fatais sem precisar de um debug
 ```php
 <?php
 
-function processarDados(): void
+function processData(): void
 {
-    funcaoInexistente();  // fatal error
+    nonExistentFunction();  // fatal error
 }
 
-function executarTarefa(): void
+function executeTask(): void
 {
-    processarDados();
+    processData();
 }
 
-executarTarefa();
+executeTask();
 
 // PHP 8.5: o erro mostrara todo o caminho:
-// executarTarefa() -> processarDados() -> funcaoInexistente()
+// executeTask() -> processData() -> nonExistentFunction()
 ```
 
 💡 **Dica:** O backtrace em fatal errors é **automático** no PHP 8.5 — você não precisa ativar nenhuma configuração especial. Em produção, certifique-se de que `display_errors` esteja desligado para não expor o stack trace para o usuário final.
@@ -755,33 +755,33 @@ executarTarefa();
 ```php
 <?php
 
-function calcularIdade(int $anoNascimento): int
+function calculateAge(int $birthYear): int
 {
-    $anoAtual = (int) date('Y');
+    $currentYear = (int) date('Y');
 
-    if ($anoNascimento > $anoAtual) {
+    if ($birthYear > $currentYear) {
         trigger_error(
-            "Ano de nascimento ({$anoNascimento}) maior que o ano atual ({$anoAtual})",
+            "Ano de nascimento ({$birthYear}) maior que o ano atual ({$currentYear})",
             E_USER_WARNING,
         );
         return 0;
     }
 
-    if ($anoNascimento < 1900) {
+    if ($birthYear < 1900) {
         trigger_error(
-            "Ano de nascimento muito antigo: {$anoNascimento}",
+            "Ano de nascimento muito antigo: {$birthYear}",
             E_USER_NOTICE,
         );
     }
 
-    return $anoAtual - $anoNascimento;
+    return $currentYear - $birthYear;
 }
 
-$idade = calcularIdade(2050); // Warning: ano maior que atual
-echo "Idade: {$idade}" . PHP_EOL; // 0
+$age = calculateAge(2050); // Warning: ano maior que atual
+echo "Idade: {$age}" . PHP_EOL; // 0
 
-$idade = calcularIdade(1850); // Notice: ano muito antigo
-echo "Idade: {$idade}" . PHP_EOL; // 176
+$age = calculateAge(1850); // Notice: ano muito antigo
+echo "Idade: {$age}" . PHP_EOL; // 176
 ```
 
 ### Níveis de Erro de Usuário
@@ -798,20 +798,20 @@ echo "Idade: {$idade}" . PHP_EOL; // 176
 ```php
 <?php
 
-function meuErrorHandler(int $severidade, string $msg, string $arquivo, int $linha): bool
+function myErrorHandler(int $severity, string $msg, string $file, int $line): bool
 {
-    $niveis = [
+    $levels = [
         E_USER_NOTICE     => 'NOTICE',
         E_USER_WARNING    => 'WARNING',
         E_USER_ERROR      => 'ERROR',
         E_USER_DEPRECATED => 'DEPRECATED',
     ];
 
-    $nivel = $niveis[$severidade] ?? 'UNKNOWN';
+    $level = $levels[$severity] ?? 'UNKNOWN';
 
-    error_log("[{$nivel}] {$msg} em {$arquivo}:{$linha}");
+    error_log("[{$level}] {$msg} em {$file}:{$line}");
 
-    if ($severidade === E_USER_ERROR) {
+    if ($severity === E_USER_ERROR) {
         echo json_encode(['erro_fatal' => $msg]);
         exit(1);
     }
@@ -819,7 +819,7 @@ function meuErrorHandler(int $severidade, string $msg, string $arquivo, int $lin
     return true; // nao executa o handler padrao do PHP
 }
 
-set_error_handler('meuErrorHandler');
+set_error_handler('myErrorHandler');
 
 trigger_error('Configuracao obsoleta detectada', E_USER_DEPRECATED);
 trigger_error('Funcionalidade X sera removida em v3.0', E_USER_DEPRECATED);
@@ -834,29 +834,29 @@ trigger_error('Funcionalidade X sera removida em v3.0', E_USER_DEPRECATED);
 ```php
 <?php
 
-class BibliotecaAntiga
+class LegacyLibrary
 {
     #[\Deprecated(
-        message: 'Use getUsuarioPorId() em vez disso',
+        message: 'Use getUserPorId() em vez disso',
         since: '2.0.0',
     )]
-    public function buscarUsuario(int $id): ?array
+    public function findUser(int $id): ?array
     {
         // implementacao antiga
         return null;
     }
 
-    public function getUsuarioPorId(int $id): ?array
+    public function getUserPorId(int $id): ?array
     {
         // nova implementacao
         return null;
     }
 }
 
-class Formatador
+class Formatter
 {
     #[\Deprecated(
-        message: 'Use Metodo::formatar() no lugar',
+        message: 'Use Metodo::format() no lugar',
         since: '3.5',
     )]
     public const FORMATO_ANTIGO = 'Y-m-d';
@@ -864,12 +864,12 @@ class Formatador
     public const FORMATO_NOVO = 'd/m/Y';
 }
 
-$lib = new BibliotecaAntiga();
+$lib = new LegacyLibrary();
 
 // Chamar metodo depreciado emite E_USER_DEPRECATED:
-// $lib->buscarUsuario(1);
-// Deprecated: BibliotecaAntiga::buscarUsuario() is deprecated,
-// Use getUsuarioPorId() em vez disso
+// $lib->findUser(1);
+// Deprecated: LegacyLibrary::findUser() is deprecated,
+// Use getUserPorId() em vez disso
 ```
 
 ### Funcionamento do `#[\Deprecated]`
@@ -885,10 +885,10 @@ $lib = new BibliotecaAntiga();
 ```php
 <?php
 
-// Em desenvolvimento, converter deprecated em excecao
-set_error_handler(function (int $severidade, string $msg): bool {
-    if ($severidade === E_USER_DEPRECATED || $severidade === E_DEPRECATED) {
-        throw new ErrorException($msg, 0, $severidade);
+// Em desenvolvimento, convert deprecated em excecao
+set_error_handler(function (int $severity, string $msg): bool {
+    if ($severity === E_USER_DEPRECATED || $severity === E_DEPRECATED) {
+        throw new ErrorException($msg, 0, $severity);
     }
     return false;
 });
@@ -896,7 +896,7 @@ set_error_handler(function (int $severidade, string $msg): bool {
 class Service
 {
     #[\Deprecated(message: 'Use ServiceNovo', since: '3.0')]
-    public function executar(): string
+    public function execute(): string
     {
         return 'OK (antigo)';
     }
@@ -904,7 +904,7 @@ class Service
 
 try {
     $s = new Service();
-    $s->executar(); // Lanca ErrorException em dev — voce nao esquecera de migrar!
+    $s->execute(); // Lanca ErrorException em dev — voce nao esquecera de migrar!
 } catch (ErrorException $e) {
     echo "Migracao pendente: " . $e->getMessage() . PHP_EOL;
 }
@@ -937,7 +937,7 @@ try {
 error_log('Sistema iniciado com sucesso');
 
 // Modo 3: gravar em arquivo especifico
-error_log('Erro ao conectar ao banco de dados' . PHP_EOL, 3, __DIR__ . '/logs/banco.log');
+error_log('Erro ao connect ao banco de dados' . PHP_EOL, 3, __DIR__ . '/logs/banco.log');
 
 // Modo 1: enviar por email (use com cautela em producao!)
 // error_log('Erro critico detectado', 1, 'admin@exemplo.com');
@@ -951,56 +951,56 @@ error_log('Erro ao conectar ao banco de dados' . PHP_EOL, 3, __DIR__ . '/logs/ba
 class Logger
 {
     public function __construct(
-        private string $arquivo,
+        private string $file,
     ) {
-        $diretorio = dirname($this->arquivo);
-        if (!is_dir($diretorio)) {
-            mkdir($diretorio, 0755, true);
+        $dir = dirname($this->file);
+        if (!is_dir($dir)) {
+            mkdir($dir, 0755, true);
         }
     }
 
-    public function info(string $mensagem, array $contexto = []): void
+    public function info(string $message, array $contextData = []): void
     {
-        $this->log('INFO', $mensagem, $contexto);
+        $this->log('INFO', $message, $contextData);
     }
 
-    public function warning(string $mensagem, array $contexto = []): void
+    public function warning(string $message, array $contextData = []): void
     {
-        $this->log('WARNING', $mensagem, $contexto);
+        $this->log('WARNING', $message, $contextData);
     }
 
-    public function error(string $mensagem, array $contexto = []): void
+    public function error(string $message, array $contextData = []): void
     {
-        $this->log('ERROR', $mensagem, $contexto);
+        $this->log('ERROR', $message, $contextData);
     }
 
-    public function debug(string $mensagem, array $contexto = []): void
+    public function debug(string $message, array $contextData = []): void
     {
-        $this->log('DEBUG', $mensagem, $contexto);
+        $this->log('DEBUG', $message, $contextData);
     }
 
-    private function log(string $nivel, string $mensagem, array $contexto): void
+    private function log(string $level, string $message, array $contextData): void
     {
         $timestamp = date('Y-m-d H:i:s.v');
-        $contextoStr = empty($contexto) ? '' : ' ' . json_encode($contexto, JSON_UNESCAPED_UNICODE);
-        $linha = "[{$timestamp}] [{$nivel}] {$mensagem}{$contextoStr}" . PHP_EOL;
+        $contextDataStr = empty($contextData) ? '' : ' ' . json_encode($contextData, JSON_UNESCAPED_UNICODE);
+        $logLine = "[{$timestamp}] [{$level}] {$message}{$contextDataStr}" . PHP_EOL;
 
-        error_log($linha, 3, $this->arquivo);
+        error_log($logLine, 3, $this->file);
     }
 }
 
 // Uso:
 $logger = new Logger(__DIR__ . '/logs/app.log');
 
-$logger->info('Usuario autenticado', ['user_id' => 42]);
+$logger->info('User autenticado', ['user_id' => 42]);
 $logger->warning('Tentativa de login falhou', ['ip' => '192.168.1.1']);
-$logger->error('Falha ao processar pagamento', ['pedido_id' => 789]);
+$logger->error('Falha ao process pagamento', ['pedido_id' => 789]);
 $logger->debug('Query executada', ['sql' => 'SELECT ...', 'tempo_ms' => 12.5]);
 
 // Conteudo do log:
-// [2026-08-04 10:30:00.123] [INFO] Usuario autenticado {"user_id":42}
+// [2026-08-04 10:30:00.123] [INFO] User autenticado {"user_id":42}
 // [2026-08-04 10:30:05.456] [WARNING] Tentativa de login falhou {"ip":"192.168.1.1"}
-// [2026-08-04 10:30:10.789] [ERROR] Falha ao processar pagamento {"pedido_id":789}
+// [2026-08-04 10:30:10.789] [ERROR] Falha ao process pagamento {"pedido_id":789}
 // [2026-08-04 10:30:15.012] [DEBUG] Query executada {"sql":"SELECT ...","tempo_ms":12.5}
 ```
 
@@ -1030,7 +1030,7 @@ ini_set('log_errors', '1');
 throw new Exception('Saldo insuficiente');
 
 // BOM:
-throw new SaldoInsuficienteException(saldo: 100.0, valor: 500.0);
+throw new InsufficientBalanceException(currentBalance: 100.0, requestedAmount: 500.0);
 ```
 
 ### 3. Não Suprima Erros com `@`
@@ -1041,17 +1041,17 @@ O operador `@` suprime erros, mas torna a depuração impossível. Prefira verif
 <?php
 
 // RUIM:
-$conteudo = @file_get_contents('arquivo_que_pode_nao_existir.txt');
+$content = @file_get_contents('arquivo_que_pode_nao_existir.txt');
 
 // BOM:
 if (file_exists('arquivo.txt') && is_readable('arquivo.txt')) {
-    $conteudo = file_get_contents('arquivo.txt');
+    $content = file_get_contents('arquivo.txt');
 } else {
     // tratar ausencia do arquivo
 }
 
 // ALTERNATIVA BOM: try/catch com throw expression
-$conteudo = file_exists('arquivo.txt')
+$content = file_exists('arquivo.txt')
     ? file_get_contents('arquivo.txt')
     : throw new RuntimeException('Arquivo nao encontrado');
 ```
@@ -1079,17 +1079,17 @@ try {
 ```php
 <?php
 
-function processarArquivo(string $caminho): array
+function processFile(string $path): array
 {
-    $handle = fopen($caminho, 'r');
+    $handle = fopen($path, 'r');
 
     try {
         // processamento que pode lancar excecao
-        $dados = [];
-        while (($linha = fgetcsv($handle)) !== false) {
-            $dados[] = $linha;
+        $data = [];
+        while (($line = fgetcsv($handle)) !== false) {
+            $data[] = $line;
         }
-        return $dados;
+        return $data;
     } finally {
         // Garante fechamento mesmo com excecao
         if (is_resource($handle)) {
@@ -1104,22 +1104,22 @@ function processarArquivo(string $caminho): array
 ```php
 <?php
 
-class Agendamento
+class Appointment
 {
     public function __construct(
-        private DateTimeImmutable $data,
-        private string $descricao,
+        private DateTimeImmutable $date,
+        private string $description,
     ) {
-        $this->validar();
+        $this->validate();
     }
 
-    private function validar(): void
+    private function validate(): void
     {
-        if (mb_strlen($this->descricao) < 3) {
+        if (mb_strlen($this->description) < 3) {
             throw new InvalidArgumentException('Descricao deve ter ao menos 3 caracteres');
         }
 
-        if ($this->data < new DateTimeImmutable('today')) {
+        if ($this->date < new DateTimeImmutable('today')) {
             throw new InvalidArgumentException('Data deve ser futura');
         }
     }
@@ -1127,7 +1127,7 @@ class Agendamento
 
 // Validacao no momento da criacao — falha rapido, sem estados invalidos
 try {
-    $ag = new Agendamento(new DateTimeImmutable('2020-01-01'), 'A');
+    $appointment = new Appointment(new DateTimeImmutable('2020-01-01'), 'A');
 } catch (InvalidArgumentException $e) {
     echo $e->getMessage() . PHP_EOL;
 }
@@ -1145,12 +1145,12 @@ error_log("Erro no pedido 789: pagamento recusado");
 
 // BOM:
 error_log(json_encode([
-    'nivel'      => 'ERROR',
-    'mensagem'   => 'Pagamento recusado',
-    'pedido_id'  => 789,
+    'level'      => 'ERROR',
+    'message'    => 'Payment recusado',
+    'order_id'   => 789,
     'timestamp'  => date('c'),
     'gateway'    => 'stripe',
-    'codigo'     => 'card_declined',
+    'code'       => 'card_declined',
 ], JSON_UNESCAPED_UNICODE));
 ```
 
@@ -1163,18 +1163,18 @@ Não capture exceções muito cedo se não puder tratá-las de forma significati
 
 // RUIM: captura e engole
 try {
-    salvarPedido($dados);
+    saveOrder($orderData);
 } catch (Exception $e) {
     // silencioso — ninguem sabe que falhou
 }
 
 // BOM: capture onde pode tomar uma acao
 try {
-    salvarPedido($dados);
-    notificarCliente($dados);
-} catch (RepositorioException $e) {
+    saveOrder($orderData);
+    notifyClient($orderData);
+} catch (RepositoryException $e) {
     // Log e compensacao
-    logger->error('Falha ao salvar pedido', ['pedido' => $dados]);
+    $logger->error('Falha ao save pedido', ['order' => $orderData]);
     throw $e; // relancar se nao puder recuperar
 }
 ```

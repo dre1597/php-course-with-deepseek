@@ -164,31 +164,31 @@ echo "b" <=> "a"; // 1
 echo "a" <=> "a"; // 0
 
 // Muito útil em funções de ordenação
-$numeros = [3, 1, 4, 1, 5, 9, 2, 6];
-usort($numeros, fn($a, $b) => $a <=> $b);
-print_r($numeros); // [1, 1, 2, 3, 4, 5, 6, 9]
+$numbers = [3, 1, 4, 1, 5, 9, 2, 6];
+usort($numbers, fn($a, $b) => $a <=> $b);
+print_r($numbers); // [1, 1, 2, 3, 4, 5, 6, 9]
 
 // Ordenação por múltiplos critérios
-$pessoas = [
-    ['nome' => 'Ana',   'idade' => 30],
-    ['nome' => 'Bob',   'idade' => 25],
-    ['nome' => 'Carlos','idade' => 30],
-    ['nome' => 'Diana', 'idade' => 25],
+$people = [
+    ['name' => 'Ana',   'age' => 30],
+    ['name' => 'Bob',   'age' => 25],
+    ['name' => 'Carlos','age' => 30],
+    ['name' => 'Diana', 'age' => 25],
 ];
 
-usort($pessoas, function(array $a, array $b): int {
+usort($people, function(array $a, array $b): int {
     // Ordena por idade, e dentro da mesma idade por nome
-    return $a['idade'] <=> $b['idade']
-        ?: $a['nome'] <=> $b['nome'];
+    return $a['age'] <=> $b['age']
+        ?: $a['name'] <=> $b['name'];
 });
 
-print_r($pessoas);
+print_r($people);
 /*
 [
-    ['nome' => 'Bob',    'idade' => 25],
-    ['nome' => 'Diana',  'idade' => 25],
-    ['nome' => 'Ana',    'idade' => 30],
-    ['nome' => 'Carlos', 'idade' => 30],
+    ['name' => 'Bob',    'age' => 25],
+    ['name' => 'Diana',  'age' => 25],
+    ['name' => 'Ana',    'age' => 30],
+    ['name' => 'Carlos', 'age' => 30],
 ]
 */
 ```
@@ -227,12 +227,12 @@ var_dump(false xor false); // false — ambos false
 <?php
 
 // && tem precedência MAIOR que = 
-$resultado = true && false;
-var_dump($resultado); // bool(false) — interpretado como: $resultado = (true && false)
+$result = true && false;
+var_dump($result); // bool(false) — interpretado como: $result = (true && false)
 
 // and tem precedência MENOR que =
-$resultado = true and false;
-var_dump($resultado); // bool(true)! — interpretado como: ($resultado = true) and false
+$result = true and false;
+var_dump($result); // bool(true)! — interpretado como: ($result = true) and false
 
 // || vs or — mesmo comportamento de precedência
 $a = false || true;
@@ -254,14 +254,14 @@ var_dump($b); // bool(false) — (($b = false) or true)
 function a(): bool { echo "A "; return false; }
 function b(): bool { echo "B "; return true; }
 
-$resultado = a() && b(); // Exibe apenas "A " — b() nunca é chamada
-echo $resultado ? 'true' : 'false'; // false
+$result = a() && b(); // Exibe apenas "A " — b() nunca é chamada
+echo $result ? 'true' : 'false'; // false
 
 echo "\n";
 
 // Com ||: se o primeiro operando é true, o segundo NÃO é avaliado
-$resultado = b() || a(); // Exibe apenas "B " — a() nunca é chamada
-echo $resultado ? 'true' : 'false'; // true
+$result = b() || a(); // Exibe apenas "B " — a() nunca é chamada
+echo $result ? 'true' : 'false'; // true
 ```
 
 ### Aproveitando curto-circuito
@@ -275,15 +275,15 @@ $dbHost = $config && $config['db'] && $config['db']['host'];
 // Nunca dá erro de array access em null, porque para no primeiro false
 
 // Checagem de arquivo antes de incluir
-$arquivo = 'config.php';
-$carregado = file_exists($arquivo) && require $arquivo;
+$file = 'config.php';
+$loaded = file_exists($file) && require $file;
 
 // Usar valor padrão
-$nome = $_GET['nome'] ?? 'Visitante'; // Null coalescing (melhor)
+$name = $_GET['name'] ?? 'Visitante'; // Null coalescing (melhor)
 // Antigo:
-$nome = isset($_GET['nome']) ? $_GET['nome'] : 'Visitante';
+$name = isset($_GET['name']) ? $_GET['name'] : 'Visitante';
 // Ou com ||
-$nome = $_GET['nome'] or $nome = 'Visitante'; // Funciona pelo curto-circuito, mas não claro
+$name = $_GET['name'] or $name = 'Visitante'; // Funciona pelo curto-circuito, mas não claro
 ```
 
 ---
@@ -363,11 +363,11 @@ echo ++$letra; // B00
 ```php
 <?php
 
-$nome    = "Maria";
-$sobrenome = "Silva";
+$firstName  = "Maria";
+$lastName   = "Silva";
 
-$nomeCompleto = $nome . " " . $sobrenome;
-echo $nomeCompleto; // Maria Silva
+$fullName = $firstName . " " . $lastName;
+echo $fullName; // Maria Silva
 
 // Concatenação com outros tipos
 echo "Idade: " . 30;              // Idade: 30
@@ -400,9 +400,9 @@ echo $html;
 <?php
 
 // Construindo SQL de forma dinâmica (com cuidado!)
-$tabela = "usuarios";
-$campos = ['nome', 'email', 'idade'];
-$sql = "SELECT " . implode(', ', $campos) . " FROM {$tabela}";
+$table  = "usuarios";
+$columns = ['nome', 'email', 'idade'];
+$sql = "SELECT " . implode(', ', $columns) . " FROM {$table}";
 $sql .= " WHERE ativo = 1";
 $sql .= " ORDER BY nome ASC";
 $sql .= " LIMIT 10";
@@ -421,8 +421,8 @@ echo $sql;
 <?php
 
 // Sintaxe: condição ? valor_se_verdadeiro : valor_se_falso
-$idade = 20;
-$status = $idade >= 18 ? "Maior de idade" : "Menor de idade";
+$age = 20;
+$status = $age >= 18 ? "Maior de idade" : "Menor de idade";
 echo $status; // Maior de idade
 ```
 
@@ -431,20 +431,20 @@ echo $status; // Maior de idade
 ```php
 <?php
 
-$nota = 7.5;
+$grade = 7.5;
 
 // Funciona, mas é ilegível — EVITE!
-$conceito = $nota >= 9 ? 'A' : ($nota >= 7 ? 'B' : ($nota >= 5 ? 'C' : 'D'));
+$concept = $grade >= 9 ? 'A' : ($grade >= 7 ? 'B' : ($grade >= 5 ? 'C' : 'D'));
 
 // Melhor: use match (PHP 8.0+)
-$conceito = match (true) {
-    $nota >= 9 => 'A',
-    $nota >= 7 => 'B',
-    $nota >= 5 => 'C',
+$concept = match (true) {
+    $grade >= 9 => 'A',
+    $grade >= 7 => 'B',
+    $grade >= 5 => 'C',
     default    => 'D',
 };
 
-echo $conceito; // B
+echo $concept; // B
 ```
 
 ### Ternário curto (Elvis operator — PHP 5.3+)
@@ -453,15 +453,15 @@ echo $conceito; // B
 <?php
 
 // Se o primeiro operando for truthy, usa ele; senão, usa o segundo
-$nome = $_GET['nome'] ?: 'Visitante';
+$name = $_GET['name'] ?: 'Visitante';
 
 // Equivalente a (mas não exatamente igual):
-$nome = $_GET['nome'] ? $_GET['nome'] : 'Visitante';
+$name = $_GET['name'] ? $_GET['name'] : 'Visitante';
 
 // Exemplo com valores falsy
-$contador = 0;
-$resultado = $contador ?: 10;
-echo $resultado; // 10 — porque 0 é falsy
+$counter = 0;
+$result = $counter ?: 10;
+echo $result; // 10 — porque 0 é falsy
 
 // Cuidado: se 0 for um valor válido, use null coalescing em vez disso
 ```
@@ -474,8 +474,8 @@ echo $resultado; // 10 — porque 0 é falsy
 <?php
 
 // Retorna o primeiro operando definido e não-null
-$nome = $_GET['nome'] ?? 'Visitante';
-// Se $_GET['nome'] existe e não é null, usa ele; senão, 'Visitante'
+$name = $_GET['name'] ?? 'Visitante';
+// Se $_GET['name'] existe e não é null, usa ele; senão, 'Visitante'
 
 // Útil com arrays, objetos e valores que podem ser null
 $config = ['db_host' => 'localhost', 'db_port' => null];
@@ -496,9 +496,9 @@ echo $user; // root — não existe, então usa o default
 <?php
 
 // PHP 7.4+: encadeia múltiplos ?? para testar várias fontes
-$nome = $_GET['nome'] ?? $_POST['nome'] ?? $_COOKIE['nome'] ?? 'Anônimo';
+$name = $_GET['name'] ?? $_POST['name'] ?? $_COOKIE['name'] ?? 'Anônimo';
 
-// Testa $_GET['nome'], depois $_POST['nome'], depois $_COOKIE['nome'],
+// Testa $_GET['name'], depois $_POST['name'], depois $_COOKIE['name'],
 // e finalmente usa 'Anônimo'
 ```
 
@@ -508,13 +508,13 @@ $nome = $_GET['nome'] ?? $_POST['nome'] ?? $_COOKIE['nome'] ?? 'Anônimo';
 <?php
 
 // Atribui apenas se a variável for null ou não estiver definida
-$nome = 'João';
-$nome ??= 'Visitante';
-echo $nome; // João — já tinha valor, não altera
+$name = 'João';
+$name ??= 'Visitante';
+echo $name; // João — já tinha valor, não altera
 
-unset($nome);
-$nome ??= 'Visitante';
-echo $nome; // Visitante — não estava definida
+unset($name);
+$name ??= 'Visitante';
+echo $name; // Visitante — não estava definida
 
 $config = [];
 $config['host'] ??= 'localhost';
@@ -526,16 +526,16 @@ echo $config['host']; // localhost
 ```php
 <?php
 
-$valor = 0;
+$value = 0;
 
 // Elvis (?:) — verifica truthiness: 0 é falsy, então usa 'padrão'
-echo $valor ?: 'padrão'; // padrão
+echo $value ?: 'padrão'; // padrão
 
 // Null coalescing (??) — verifica apenas isset + não-null: 0 está definido e não é null
-echo $valor ?? 'padrão'; // 0
+echo $value ?? 'padrão'; // 0
 
 // Ternário tradicional
-echo $valor ? $valor : 'padrão'; // padrão — mesmo comportamento do elvis
+echo $value ? $value : 'padrão'; // padrão — mesmo comportamento do elvis
 ```
 
 | Operador      | PHP   | Verifica               | Exemplo `$x = 0`     | Exemplo `$x = null`  |
@@ -553,63 +553,63 @@ Permite acessar propriedades e métodos de objetos que podem ser `null` sem veri
 ```php
 <?php
 
-class Endereco
+class Address
 {
     public function __construct(
-        public string $rua,
-        public ?Cidade $cidade = null,
+        public string $street,
+        public ?City $city = null,
     ) {}
 }
 
-class Cidade
+class City
 {
     public function __construct(
-        public string $nome,
-        public ?Estado $estado = null,
+        public string $name,
+        public ?State $state = null,
     ) {}
 }
 
-class Estado
+class State
 {
     public function __construct(
-        public string $sigla,
+        public string $stateCode,
     ) {}
 }
 
-$endereco = new Endereco(
+$address = new Address(
     'Rua das Flores',
-    new Cidade('São Paulo', new Estado('SP'))
+    new City('São Paulo', new State('SP'))
 );
 
 // Sem nullsafe (verificação manual):
-$sigla = null;
-if ($endereco->cidade !== null && $endereco->cidade->estado !== null) {
-    $sigla = $endereco->cidade->estado->sigla;
+$code = null;
+if ($address->city !== null && $address->city->state !== null) {
+    $code = $address->city->state->stateCode;
 }
 
 // Com nullsafe:
-$sigla = $endereco->cidade?->estado?->sigla;
-echo $sigla; // SP
+$code = $address->city?->state?->stateCode;
+echo $code; // SP
 
 // Se qualquer parte da cadeia for null, o resultado é null
-$enderecoSemCidade = new Endereco('Av. Central', null);
-$sigla = $enderecoSemCidade->cidade?->estado?->sigla;
-var_dump($sigla); // NULL — não lança erro!
+$addressWithoutCity = new Address('Av. Central', null);
+$code = $addressWithoutCity->city?->state?->stateCode;
+var_dump($code); // NULL — não lança erro!
 ```
 
 ```php
 <?php
 
 // Nullsafe com métodos
-class Usuario
+class User
 {
-    public function getPerfil(): ?Perfil
+    public function getProfile(): ?Profile
     {
         return null; // Simulando: usuário sem perfil
     }
 }
 
-class Perfil
+class Profile
 {
     public function getAvatar(): string
     {
@@ -617,15 +617,15 @@ class Perfil
     }
 }
 
-$usuario = new Usuario();
+$user = new User();
 
 // Sem nullsafe
-$avatar = $usuario->getPerfil() !== null
-    ? $usuario->getPerfil()->getAvatar()
+$avatar = $user->getProfile() !== null
+    ? $user->getProfile()->getAvatar()
     : '/images/default.jpg';
 
 // Com nullsafe + null coalescing
-$avatar = $usuario->getPerfil()?->getAvatar() ?? '/images/default.jpg';
+$avatar = $user->getProfile()?->getAvatar() ?? '/images/default.jpg';
 echo $avatar; // /images/default.jpg
 ```
 
@@ -641,10 +641,10 @@ echo $avatar; // /images/default.jpg
 // PHP 8.5+
 
 // Sem pipe: código aninhado de difícil leitura
-$resultado = array_reverse(array_unique(array_map('strtoupper', $palavras)));
+$result = array_reverse(array_unique(array_map('strtoupper', $words)));
 
 // Com pipe: fluxo linear e legível
-$resultado = $palavras
+$result = $words
     |> array_map('strtoupper', $$)
     |> array_unique($$)
     |> array_reverse($$);
@@ -659,27 +659,27 @@ $resultado = $palavras
 // PHP 8.5+
 
 // Processamento de dados com pipe
-$dados = "  Maria Silva,28,São Paulo\n João Santos,35,Rio de Janeiro\n  Ana Costa,22,Belo Horizonte  ";
+$data = "  Maria Silva,28,São Paulo\n João Santos,35,Rio de Janeiro\n  Ana Costa,22,Belo Horizonte  ";
 
-$usuarios = $dados
+$users = $data
     |> trim($$)                          // Remove espaços das bordas
     |> explode("\n", $$)                 // Divide em linhas
     |> array_map('trim', $$)             // Limpa cada linha
     |> array_filter($$, 'strlen')        // Remove linhas vazias
     |> array_map(                        // Transforma cada linha em array associativo
-        fn(string $linha): array => (
-            sscanf($linha, '%[^,],%d,%s')
-            |> ['nome' => $$[0], 'idade' => $$[1], 'cidade' => $$[2]]
+        fn(string $line): array => (
+            sscanf($line, '%[^,],%d,%s')
+            |> ['name' => $$[0], 'age' => $$[1], 'city' => $$[2]]
         ),
         $$,
     );
 
-print_r($usuarios);
+print_r($users);
 /*
 [
-    ['nome' => 'Maria Silva', 'idade' => 28, 'cidade' => 'São Paulo'],
-    ['nome' => 'João Santos', 'idade' => 35, 'cidade' => 'Rio de Janeiro'],
-    ['nome' => 'Ana Costa', 'idade' => 22, 'cidade' => 'Belo Horizonte'],
+    ['name' => 'Maria Silva', 'age' => 28, 'city' => 'São Paulo'],
+    ['name' => 'João Santos', 'age' => 35, 'city' => 'Rio de Janeiro'],
+    ['name' => 'Ana Costa', 'age' => 22, 'city' => 'Belo Horizonte'],
 ]
 */
 ```
@@ -689,31 +689,31 @@ print_r($usuarios);
 // PHP 8.5+
 
 // Pipe com operações matemáticas
-function adicionarImposto(float $valor, float $taxa = 0.1): float
+function addTax(float $value, float $rate = 0.1): float
 {
-    return $valor * (1 + $taxa);
+    return $value * (1 + $rate);
 }
 
-function aplicarDesconto(float $valor, float $desconto): float
+function applyDiscount(float $value, float $discount): float
 {
-    return $valor * (1 - $desconto);
+    return $value * (1 - $discount);
 }
 
-function formatarMoeda(float $valor): string
+function formatCurrency(float $value): string
 {
-    return 'R$ ' . number_format($valor, 2, ',', '.');
+    return 'R$ ' . number_format($value, 2, ',', '.');
 }
 
-$precoBase = 100.00;
+$basePrice = 100.00;
 
-$precoFinal = $precoBase
-    |> adicionarImposto($$, 0.15)   // R$ 115.00
-    |> adicionarImposto($$, 0.05)   // R$ 120.75 (imposto adicional)
-    |> aplicarDesconto($$, 0.10)    // R$ 108.675
-    |> round($$, 2)                 // R$ 108.68
-    |> formatarMoeda($$);           // "R$ 108,68"
+$finalPrice = $basePrice
+    |> addTax($$, 0.15)          // R$ 115.00
+    |> addTax($$, 0.05)          // R$ 120.75 (imposto adicional)
+    |> applyDiscount($$, 0.10)   // R$ 108.675
+    |> round($$, 2)              // R$ 108.68
+    |> formatCurrency($$);       // "R$ 108,68"
 
-echo $precoFinal; // R$ 108,68
+echo $finalPrice; // R$ 108,68
 ```
 
 ```php
@@ -721,7 +721,7 @@ echo $precoFinal; // R$ 108,68
 // PHP 8.5+
 
 // Pipe em pipelines de validação/transformação
-function validarEmail(string $email): string
+function validateEmail(string $email): string
 {
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         throw new \InvalidArgumentException("Email inválido: {$email}");
@@ -729,26 +729,26 @@ function validarEmail(string $email): string
     return $email;
 }
 
-function normalizarEmail(string $email): string
+function normalizeEmail(string $email): string
 {
     return strtolower(trim($email));
 }
 
-function sanitizar(string $valor): string
+function sanitize(string $value): string
 {
-    return htmlspecialchars($valor, ENT_QUOTES, 'UTF-8');
+    return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
 }
 
 // Pipeline de processamento de input do usuário
 $input = ' Joao@Exemplo.COM ';
 
 try {
-    $emailLimpo = $input
-        |> sanitizar($$)
-        |> normalizarEmail($$)
-        |> validarEmail($$);
+    $cleanEmail = $input
+        |> sanitize($$)
+        |> normalizeEmail($$)
+        |> validateEmail($$);
 
-    echo "Email processado: {$emailLimpo}"; // Email processado: joao@exemplo.com
+    echo "Email processado: {$cleanEmail}"; // Email processado: joao@exemplo.com
 } catch (\InvalidArgumentException $e) {
     echo "Erro: " . $e->getMessage();
 }
@@ -768,26 +768,26 @@ try {
 ```php
 <?php
 
-$padrao = [
+$defaults = [
     'host'     => 'localhost',
     'port'     => 3306,
     'charset'  => 'utf8mb4',
 ];
 
-$usuario = [
+$userConfig = [
     'host'     => 'db.producao.com',
     'username' => 'admin',
 ];
 
 // União: mantém os valores do array da ESQUERDA quando há chaves duplicadas
-$config = $usuario + $padrao;
+$config = $userConfig + $defaults;
 
 print_r($config);
 /*
 [
-    'host'     => 'db.producao.com',  // do $usuario (esquerda tem prioridade)
-    'username' => 'admin',             // do $usuario
-    'port'     => 3306,                // do $padrao (não existia no $usuario)
+    'host'     => 'db.producao.com',  // do $userConfig (esquerda tem prioridade)
+    'username' => 'admin',             // do $userConfig
+    'port'     => 3306,                // do $defaults (não existia no $userConfig)
     'charset'  => 'utf8mb4',           // do $padrao
 ]
 */
@@ -862,32 +862,32 @@ printf("%b\n", $a >> 2);   // 11 → 3 (divide por 4)
 <?php
 
 // Flags de permissão como bits (padrão comum)
-const PODE_LER    = 1;    // 0b0001
-const PODE_ESCREVER = 2;  // 0b0010
-const PODE_DELETAR  = 4;  // 0b0100
-const PODE_ADMIN    = 8;  // 0b1000
+const CAN_READ    = 1;    // 0b0001
+const CAN_WRITE   = 2;    // 0b0010
+const CAN_DELETE  = 4;    // 0b0100
+const CAN_ADMIN   = 8;    // 0b1000
 
 // Combinando permissões
-$permissoesUsuario = PODE_LER | PODE_ESCREVER; // 3 (0b0011)
-$permissoesAdmin   = PODE_LER | PODE_ESCREVER | PODE_DELETAR | PODE_ADMIN; // 15 (0b1111)
+$userPermissions = CAN_READ | CAN_WRITE; // 3 (0b0011)
+$adminPermissions = CAN_READ | CAN_WRITE | CAN_DELETE | CAN_ADMIN; // 15 (0b1111)
 
 // Verificando permissões
-if ($permissoesUsuario & PODE_ESCREVER) {
+if ($userPermissions & CAN_WRITE) {
     echo "Usuário pode escrever\n";
 }
 
-if (!($permissoesUsuario & PODE_DELETAR)) {
+if (!($userPermissions & CAN_DELETE)) {
     echo "Usuário NÃO pode deletar\n";
 }
 
 // Adicionando permissão
-$permissoesUsuario |= PODE_DELETAR; // Agora tem permissão de deletar
+$userPermissions |= CAN_DELETE; // Agora tem permissão de deletar
 
 // Removendo permissão
-$permissoesUsuario &= ~PODE_DELETAR; // Remove permissão de deletar
+$userPermissions &= ~CAN_DELETE; // Remove permissão de deletar
 
 // Toggle (liga/desliga)
-$permissoesUsuario ^= PODE_ESCREVER; // Se tinha, remove; se não tinha, adiciona
+$userPermissions ^= CAN_WRITE; // Se tinha, remove; se não tinha, adiciona
 ```
 
 ---
@@ -900,26 +900,26 @@ Verifica se uma variável é instância de uma classe, subclasse ou implementa u
 <?php
 
 class Animal {}
-class Cachorro extends Animal {}
-interface Voador {}
+class Dog extends Animal {}
+interface CanFly {}
 
-$dog = new Cachorro();
+$dog = new Dog();
 
-var_dump($dog instanceof Cachorro); // true
-var_dump($dog instanceof Animal);   // true — é subclasse
-var_dump($dog instanceof Voador);   // false — não implementa a interface
+var_dump($dog instanceof Dog);     // true
+var_dump($dog instanceof Animal);  // true — é subclasse
+var_dump($dog instanceof CanFly);  // false — não implementa a interface
 
 // Com strings (PHP 8.0+ permite instanceof com string):
-$classe = 'Cachorro';
-var_dump($dog instanceof $classe); // true
+$class = 'Dog';
+var_dump($dog instanceof $class); // true
 
 // Com variáveis soltas
-$valor = 42;
-var_dump($valor instanceof \DateTime); // false
+$value = 42;
+var_dump($value instanceof \DateTime); // false
 
 // Com null (sempre retorna false)
-$nulo = null;
-var_dump($nulo instanceof \DateTime); // false
+$null = null;
+var_dump($null instanceof \DateTime); // false
 ```
 
 ---
@@ -960,12 +960,12 @@ Da mais alta para a mais baixa precedência:
 <?php
 
 // Exemplo onde parênteses salvam
-$resultado = true ? 'sim' : 'não' . ' obrigado';
-echo $resultado; // "sim" — o ternário tem precedência menor que concatenação?
+$result = true ? 'sim' : 'não' . ' obrigado';
+echo $result; // "sim" — o ternário tem precedência menor que concatenação?
 
 // Com parênteses fica claro
-$resultado = (true ? 'sim' : 'não') . ' obrigado';
-echo $resultado; // "sim obrigado"
+$result = (true ? 'sim' : 'não') . ' obrigado';
+echo $result; // "sim obrigado"
 ```
 
 ---

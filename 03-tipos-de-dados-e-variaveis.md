@@ -9,10 +9,10 @@ Toda variável em PHP começa com `$`:
 ```php
 <?php
 
-$nome = "Maria";
-$idade = 30;
-$altura = 1.72;
-$ativo = true;
+$name = "Maria";
+$age = 30;
+$height = 1.72;
+$active = true;
 ```
 
 Nomes de variáveis são **case-sensitive**:
@@ -20,11 +20,11 @@ Nomes de variáveis são **case-sensitive**:
 ```php
 <?php
 
-$nome = "João";
+$name = "João";
 $Nome = "Maria";
 $NOME = "Carlos";
 
-echo $nome; // João
+echo $name; // João
 echo $Nome; // Maria
 echo $NOME; // Carlos
 // Três variáveis diferentes!
@@ -42,11 +42,11 @@ echo $NOME; // Carlos
 <?php
 
 // ✅ Válidos
-$_variavel = 1;
-$nome_usuario = "ana";
+$_variable = 1;
+$userName = "ana";
 $total2 = 100;
-$café = "quente";          // Unicode — funciona, mas evite
-$variável = "válido";
+$coffee = "quente";          // Unicode — funciona, mas evite
+$variable = "válido";
 $ç = "çaracter especial";  // Funciona, mas péssima prática
 
 // ❌ Inválidos
@@ -88,15 +88,15 @@ echo $a;       // 30 (as duas variáveis estão ligadas)
 ```php
 <?php
 
-$campo = "nome";
-$$campo = "Beatriz";   // Cria $nome = "Beatriz"
+$field = "name";
+$$field = "Beatriz";   // Cria $name = "Beatriz"
 
-echo $nome;            // Beatriz
-echo $$campo;          // Beatriz
+echo $name;            // Beatriz
+echo $$field;          // Beatriz
 ```
 
 > ⚠️ **Cuidado**: Variáveis variáveis são confusas e quase nunca necessárias.
-> Em 99% dos casos, use arrays associativos (`$dados[$campo]`).
+> Em 99% dos casos, use arrays associativos (`$data[$campo]`).
 
 ---
 
@@ -153,15 +153,15 @@ echo PHP_FLOAT_MIN;  // 2.2250738585072E-308
 ```php
 <?php
 // Comparando floats com segurança
-$resultado = 0.1 + 0.2;
-$esperado  = 0.3;
+$result = 0.1 + 0.2;
+$expected  = 0.3;
 
 // Jeito errado:
-if ($resultado === 0.3) { /* nunca executa */ }
+if ($result === 0.3) { /* nunca executa */ }
 
 // Jeito certo: usar epsilon
 $epsilon = 0.00001;
-if (abs($resultado - $esperado) < $epsilon) {
+if (abs($result - $expected) < $epsilon) {
     echo "Iguais (com tolerância)";
 }
 ```
@@ -171,8 +171,8 @@ if (abs($resultado - $esperado) < $epsilon) {
 ```php
 <?php
 
-$verdadeiro = true;
-$falso = false;
+$enabled = true;
+$disabled = false;
 
 echo true;   // "1"
 echo false;  // "" (string vazia)
@@ -201,8 +201,8 @@ $falsy = [
     // (instâncias internas específicas)
 ];
 
-foreach ($falsy as $valor) {
-    echo var_export($valor, true) . ' → ' . var_export((bool)$valor, true) . "\n";
+foreach ($falsy as $value) {
+    echo var_export($value, true) . ' → ' . var_export((bool)$value, true) . "\n";
 }
 ```
 
@@ -227,13 +227,13 @@ EOT;
 ```php
 <?php
 
-$nome = "Carlos";
+$name = "Carlos";
 
 // Aspas simples: NÃO interpreta variáveis nem escapes especiais
-echo 'Olá, $nome!\n';  // Olá, $nome!\n
+echo 'Olá, $name!\n';  // Olá, $name!\n
 
 // Aspas duplas: interpreta variáveis e escapes (\n, \t, \\, \$)
-echo "Olá, $nome!\n";  // Olá, Carlos! (com quebra de linha)
+echo "Olá, $name!\n";  // Olá, Carlos! (com quebra de linha)
 ```
 
 #### Interpolação de strings
@@ -241,28 +241,28 @@ echo "Olá, $nome!\n";  // Olá, Carlos! (com quebra de linha)
 ```php
 <?php
 
-$fruta = "maçã";
-$quantidade = 5;
+$fruit = "maçã";
+$quantity = 5;
 
 // Simples
-echo "Eu tenho $quantidade $fruta(s).";
+echo "Eu tenho $quantity $fruit(s).";
 // Eu tenho 5 maçã(s).
 
 // Com chaves (recomendado para clareza)
-echo "Eu tenho {$quantidade} {$fruta}(s).";
+echo "Eu tenho {$quantity} {$fruit}(s).";
 
 // Acessando arrays e objetos
-$produto = ['nome' => 'Caneta', 'preco' => 2.50];
-echo "Produto: {$produto['nome']} custa R\$ {$produto['preco']}";
+$product = ['name' => 'Caneta', 'price' => 2.50];
+echo "Produto: {$product['name']} custa R\$ {$product['price']}";
 
 class Item {
-    public string $nome = 'Caderno';
+    public string $name = 'Caderno';
 }
 $item = new Item();
-echo "Item: {$item->nome}";
+echo "Item: {$item->name}";
 
 // Expressões dentro de chaves
-echo "Total: {$quantidade * 2.50}";  // PHP 8.1+ ???
+echo "Total: {$quantity * 2.50}";  // PHP 8.1+ ???
 ```
 
 #### Heredoc
@@ -270,17 +270,17 @@ echo "Total: {$quantidade * 2.50}";  // PHP 8.1+ ???
 ```php
 <?php
 
-$nome = "Mundo";
+$name = "Mundo";
 $versao = PHP_VERSION;
 
 $html = <<<HTML
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Olá, {$nome}!</title>
+    <title>Olá, {$name}!</title>
 </head>
 <body>
-    <h1>Bem-vindo, {$nome}</h1>
+    <h1>Bem-vindo, {$name}</h1>
     <p>Rodando PHP {$versao}</p>
 </body>
 </html>
@@ -296,10 +296,10 @@ echo $html;
 
 function gerarEmail(): string
 {
-    $usuario = "João";
+    $user = "João";
 
     return <<<TEMPLATE
-        Olá, {$usuario}!
+        Olá, {$user}!
 
         Seu pedido foi confirmado.
 
@@ -317,16 +317,16 @@ echo gerarEmail();
 <?php
 
 // Nowdoc: como aspas simples — NADA é interpretado
-$nome = "Maria";
+$name = "Maria";
 
-$texto = <<<'TEXTO'
-Olá, $nome!
+$text = <<<'TEXTO'
+Olá, $name!
 Aqui não há interpolação de variáveis.
 Nem escapes: \n \t
 TEXTO;
 
-echo $texto;
-// Olá, $nome!
+echo $text;
+// Olá, $name!
 // Aqui não há interpolação de variáveis.
 // Nem escapes: \n \t
 ```
@@ -342,14 +342,14 @@ A partir do PHP 7.0+, podemos declarar tipos para parâmetros de funções, reto
 ```php
 <?php
 
-function somar(int $a, int $b): int
+function add(int $a, int $b): int
 {
     return $a + $b;
 }
 
-echo somar(5, 3);    // 8
-echo somar(5, "3");  // 8 (coerção: string "3" → int 3)
-// somar(5, "abc");  // TypeError se strict_types=1
+echo add(5, 3);    // 8
+echo add(5, "3");  // 8 (coerção: string "3" → int 3)
+// add(5, "abc");  // TypeError se strict_types=1
 ```
 
 ### Tipos em propriedades (PHP 7.4+ / 8.0+)
@@ -357,22 +357,22 @@ echo somar(5, "3");  // 8 (coerção: string "3" → int 3)
 ```php
 <?php
 
-class Produto
+class Product
 {
-    public string $nome;
-    public float $preco;
-    public int $estoque;
-    public bool $disponivel;
+    public string $name;
+    public float $price;
+    public int $stock;
+    public bool $available;
 
     public function __construct(
-        string $nome,
-        float $preco,
-        int $estoque = 0
+        string $name,
+        float $price,
+        int $stock = 0
     ) {
-        $this->nome = $nome;
-        $this->preco = $preco;
-        $this->estoque = $estoque;
-        $this->disponivel = $estoque > 0;
+        $this->name = $name;
+        $this->price = $price;
+        $this->stock = $stock;
+        $this->available = $stock > 0;
     }
 }
 ```
@@ -382,15 +382,15 @@ class Produto
 ```php
 <?php
 
-class Produto
+class Product
 {
     public function __construct(
-        public string $nome,
-        public float $preco,
-        public int $estoque = 0,
-        public bool $disponivel = false,
+        public string $name,
+        public float $price,
+        public int $stock = 0,
+        public bool $available = false,
     ) {
-        $this->disponivel = $estoque > 0;
+        $this->available = $stock > 0;
     }
 }
 ```
@@ -406,32 +406,32 @@ Um parâmetro ou retorno pode aceitar múltiplos tipos:
 ```php
 <?php
 
-function formatarId(int|string $id): string
+function formatId(int|string $id): string
 {
     return (string) $id;
 }
 
-echo formatarId(42);     // "42"
-echo formatarId("ABC");  // "ABC"
+echo formatId(42);     // "42"
+echo formatId("ABC");  // "ABC"
 
 // Retorno com union type
-function buscarUsuario(string $id): ?array
+function findUser(string $id): ?array
 {
     // ?array é açúcar sintático para array|null
-    $usuarios = [
-        '1' => ['nome' => 'Alice'],
-        '2' => ['nome' => 'Bob'],
+    $users = [
+        '1' => ['name' => 'Alice'],
+        '2' => ['name' => 'Bob'],
     ];
-    return $usuarios[$id] ?? null;
+    return $users[$id] ?? null;
 }
 
 // Union com mais de 2 tipos
-function processar(mixed $valor): int|float|string
+function process(mixed $value): int|float|string
 {
     return match (true) {
-        is_int($valor)   => $valor * 2,
-        is_float($valor) => round($valor, 2),
-        is_string($valor) => strtoupper($valor),
+        is_int($value)   => $value * 2,
+        is_float($value) => round($value, 2),
+        is_string($value) => strtoupper($value),
         default          => throw new \InvalidArgumentException('Tipo inválido'),
     };
 }
@@ -448,50 +448,50 @@ Exige que o valor satisfaça **todos** os tipos ao mesmo tempo:
 ```php
 <?php
 
-interface TemNome
+interface HasName
 {
-    public function getNome(): string;
+    public function getName(): string;
 }
 
-interface TemPreco
+interface HasPrice
 {
-    public function getPreco(): float;
+    public function getPrice(): float;
 }
 
-class Produto implements TemNome, TemPreco
+class Product implements HasName, HasPrice
 {
     public function __construct(
-        private string $nome,
-        private float $preco,
+        private string $name,
+        private float $price,
     ) {}
 
-    public function getNome(): string { return $this->nome; }
-    public function getPreco(): float { return $this->preco; }
+    public function getName(): string { return $this->name; }
+    public function getPrice(): float { return $this->price; }
 }
 
-class Servico implements TemNome, TemPreco
+class Service implements HasName, HasPrice
 {
     public function __construct(
-        private string $nome,
-        private float $valorHora,
-        private int $horas,
+        private string $name,
+        private float $hourlyRate,
+        private int $hours,
     ) {}
 
-    public function getNome(): string { return $this->nome; }
-    public function getPreco(): float { return $this->valorHora * $this->horas; }
+    public function getName(): string { return $this->name; }
+    public function getPrice(): float { return $this->hourlyRate * $this->hours; }
 }
 
 // A função aceita QUALQUER objeto que implemente AMBAS as interfaces
-function exibirPreco(TemNome& TemPreco $item): string
+function displayPrice(HasName& HasPrice $item): string
 {
-    return "{$item->getNome()}: R\$ " . number_format($item->getPreco(), 2, ',', '.');
+    return "{$item->getName()}: R\$ " . number_format($item->getPrice(), 2, ',', '.');
 }
 
-$produto = new Produto('Teclado', 250.00);
-$servico = new Servico('Consultoria', 150.00, 3);
+$product = new Product('Teclado', 250.00);
+$service = new Service('Consultoria', 150.00, 3);
 
-echo exibirPreco($produto); // Teclado: R$ 250,00
-echo exibirPreco($servico); // Consultoria: R$ 450,00
+echo displayPrice($product); // Teclado: R$ 250,00
+echo displayPrice($service); // Consultoria: R$ 450,00
 ```
 
 ### Tipos nullable (`?Tipo`)
@@ -499,7 +499,7 @@ echo exibirPreco($servico); // Consultoria: R$ 450,00
 ```php
 <?php
 
-function buscarPorId(int $id): ?string
+function findById(int $id): ?string
 {
     // ?string é equivalente a string|null
     if ($id === 0) {
@@ -508,11 +508,11 @@ function buscarPorId(int $id): ?string
     return "Registro #{$id}";
 }
 
-$resultado = buscarPorId(0);
-var_dump($resultado); // NULL
+$result = findById(0);
+var_dump($result); // NULL
 
-$resultado = buscarPorId(42);
-var_dump($resultado); // string(12) "Registro #42"
+$result = findById(42);
+var_dump($result); // string(12) "Registro #42"
 ```
 
 ---
@@ -526,9 +526,9 @@ Aceita qualquer tipo. É o tipo "coringa":
 ```php
 <?php
 
-function debug(mixed $valor): void
+function debug(mixed $value): void
 {
-    var_dump($valor);
+    var_dump($value);
 }
 
 debug(42);
@@ -545,7 +545,7 @@ Indica que a função **não retorna nada**:
 ```php
 <?php
 
-function logMensagem(string $msg): void
+function logMessage(string $msg): void
 {
     error_log($msg);
     // Não pode ter return com valor
@@ -561,18 +561,18 @@ Indica que a função **nunca retorna**: ou lança exceção, ou chama `exit()`/
 ```php
 <?php
 
-function redirecionar(string $url): never
+function redirect(string $url): never
 {
     header("Location: {$url}");
     exit();
 }
 
-function erroFatal(string $mensagem): never
+function fatalError(string $message): never
 {
-    throw new \RuntimeException($mensagem);
+    throw new \RuntimeException($message);
 }
 
-function tipoInvalido(): never
+function invalidType(): never
 {
     // PHP entende que nunca chega depois disso
 }
@@ -592,11 +592,11 @@ function strpos_fake(string $haystack, string $needle): int|false
 }
 
 // null como tipo standalone (PHP 8.2+)
-function obterConfig(string $chave): string|null
+function getConfig(string $key): string|null
 {
     // string|null ao invés de ?string (equivalente)
     $config = ['app' => 'MeuApp'];
-    return $config[$chave] ?? null;
+    return $config[$key] ?? null;
 }
 ```
 
@@ -606,20 +606,20 @@ function obterConfig(string $chave): string|null
 <?php
 
 // PHP 8.2+ permite true como tipo (útil em union types)
-interface Validavel
+interface Validatable
 {
-    public function validar(): true|string;
+    public function validate(): true|string;
     // Retorna true se válido, ou string com mensagem de erro
 }
 
-class Email implements Validavel
+class Email implements Validatable
 {
-    public function __construct(private string $valor) {}
+    public function __construct(private string $value) {}
 
-    public function validar(): true|string
+    public function validate(): true|string
     {
-        if (!filter_var($this->valor, FILTER_VALIDATE_EMAIL)) {
-            return "Email '{$this->valor}' inválido";
+        if (!filter_var($this->value, FILTER_VALIDATE_EMAIL)) {
+            return "Email '{$this->value}' inválido";
         }
         return true;
     }
@@ -637,26 +637,26 @@ Por padrão, o PHP faz **coerção de tipos** (type juggling). Para forçar tipo
 
 declare(strict_types=1);
 
-function somar(int $a, int $b): int
+function add(int $a, int $b): int
 {
     return $a + $b;
 }
 
-echo somar(5, 3);     // 8 — OK
-echo somar(5, "3");   // TypeError! "3" não é int
+echo add(5, 3);     // 8 — OK
+echo add(5, "3");   // TypeError! "3" não é int
 ```
 
 ```php
 <?php
 
 // Sem strict_types (padrão): coerção acontece
-function somar(int $a, int $b): int
+function add(int $a, int $b): int
 {
     return $a + $b;
 }
 
-echo somar(5, "3");   // 8 — a string "3" é convertida para int 3
-echo somar(5, "3.7"); // 8 — float 3.7 → int 3 (perda de precisão!)
+echo add(5, "3");   // 8 — a string "3" é convertida para int 3
+echo add(5, "3.7"); // 8 — float 3.7 → int 3 (perda de precisão!)
 ```
 
 > 💡 **Dica**: **SEMPRE** use `declare(strict_types=1);` no topo de cada arquivo.
@@ -669,26 +669,26 @@ echo somar(5, "3.7"); // 8 — float 3.7 → int 3 (perda de precisão!)
 ```php
 <?php
 
-$valor = 42;
+$value = 42;
 
 // Obtém o tipo como string
-echo gettype($valor);             // "integer"
-echo get_debug_type($valor);      // "int" (PHP 8.0+, mais preciso)
+echo gettype($value);             // "integer"
+echo get_debug_type($value);      // "int" (PHP 8.0+, mais preciso)
 
 // Verificações booleanas
-var_dump(is_int($valor));         // bool(true)
-var_dump(is_float($valor));       // bool(false)
-var_dump(is_string($valor));      // bool(false)
-var_dump(is_bool($valor));        // bool(false)
-var_dump(is_array($valor));       // bool(false)
-var_dump(is_object($valor));      // bool(false)
-var_dump(is_null($valor));        // bool(false)
-var_dump(is_numeric($valor));     // bool(true) — é número?
-var_dump(is_scalar($valor));      // bool(true) — é escalar?
-var_dump(is_callable($valor));    // bool(false)
-var_dump(is_iterable($valor));    // bool(false)
-var_dump(isset($valor));          // bool(true) — está definida e não é null?
-var_dump(empty($valor));          // bool(false) — é falsy?
+var_dump(is_int($value));         // bool(true)
+var_dump(is_float($value));       // bool(false)
+var_dump(is_string($value));      // bool(false)
+var_dump(is_bool($value));        // bool(false)
+var_dump(is_array($value));       // bool(false)
+var_dump(is_object($value));      // bool(false)
+var_dump(is_null($value));        // bool(false)
+var_dump(is_numeric($value));     // bool(true) — é número?
+var_dump(is_scalar($value));      // bool(true) — é escalar?
+var_dump(is_callable($value));    // bool(false)
+var_dump(is_iterable($value));    // bool(false)
+var_dump(isset($value));          // bool(true) — está definida e não é null?
+var_dump(empty($value));          // bool(false) — é falsy?
 
 // isset vs empty vs is_null
 $var = null;
@@ -712,13 +712,13 @@ var_dump(is_null($var));// false
 ```php
 <?php
 
-$valor = "123";
-settype($valor, "int");
-echo $valor;        // 123
-var_dump($valor);   // int(123)
+$value = "123";
+settype($value, "int");
+echo $value;        // 123
+var_dump($value);   // int(123)
 
 // Equivalente ao cast explícito:
-$valor = (int) "123";
+$value = (int) "123";
 ```
 
 ---
@@ -731,16 +731,16 @@ $valor = (int) "123";
 <?php
 
 // Sintaxe moderna (PHP 5.4+)
-$frutas = ['maçã', 'banana', 'laranja', 'uva'];
+$fruits = ['maçã', 'banana', 'laranja', 'uva'];
 
 // Sintaxe antiga (ainda válida)
-$frutas = array('maçã', 'banana', 'laranja', 'uva');
+$fruits = array('maçã', 'banana', 'laranja', 'uva');
 
-echo $frutas[0];       // maçã
-echo $frutas[2];       // laranja
+echo $fruits[0];       // maçã
+echo $fruits[2];       // laranja
 
-$frutas[] = 'morango'; // Adiciona no final
-echo $frutas[4];       // morango
+$fruits[] = 'morango'; // Adiciona no final
+echo $fruits[4];       // morango
 ```
 
 ### Arrays associativos
@@ -748,15 +748,15 @@ echo $frutas[4];       // morango
 ```php
 <?php
 
-$usuario = [
-    'nome'      => 'Ana Carolina',
+$user = [
+    'name'      => 'Ana Carolina',
     'email'     => 'ana@email.com',
-    'idade'     => 28,
-    'admin'     => true,
+    'age'       => 28,
+    'isAdmin'   => true,
 ];
 
-echo $usuario['nome'];   // Ana Carolina
-echo $usuario['email'];  // ana@email.com
+echo $user['name'];   // Ana Carolina
+echo $user['email'];  // ana@email.com
 ```
 
 ### Arrays multidimensionais
@@ -764,21 +764,21 @@ echo $usuario['email'];  // ana@email.com
 ```php
 <?php
 
-$produtos = [
+$products = [
     [
-        'nome'  => 'Notebook',
-        'preco' => 3500.00,
+        'name'  => 'Notebook',
+        'price' => 3500.00,
         'tags'  => ['eletrônicos', 'informática'],
     ],
     [
-        'nome'  => 'Mouse',
-        'preco' => 89.90,
+        'name'  => 'Mouse',
+        'price' => 89.90,
         'tags'  => ['periféricos'],
     ],
 ];
 
-echo $produtos[0]['nome'];         // Notebook
-echo $produtos[1]['tags'][0];      // periféricos
+echo $products[0]['name'];         // Notebook
+echo $products[1]['tags'][0];      // periféricos
 ```
 
 Veremos arrays em profundidade em um módulo dedicado mais adiante.
@@ -794,22 +794,22 @@ Enums permitem definir um conjunto fixo de valores possíveis.
 ```php
 <?php
 
-enum StatusPedido
+enum OrderStatus
 {
-    case Pendente;
-    case Pago;
-    case Enviado;
-    case Entregue;
-    case Cancelado;
+    case Pending;
+    case Paid;
+    case Shipped;
+    case Delivered;
+    case Cancelled;
 }
 
-function atualizarStatus(StatusPedido $status): void
+function updateStatus(OrderStatus $status): void
 {
     echo "Status alterado para: " . $status->name . "\n";
 }
 
-atualizarStatus(StatusPedido::Pago);      // Status alterado para: Pago
-atualizarStatus(StatusPedido::Entregue);  // Status alterado para: Entregue
+updateStatus(OrderStatus::Paid);      // Status alterado para: Pago
+updateStatus(OrderStatus::Delivered);  // Status alterado para: Entregue
 ```
 
 ### Backed Enum (com valor)
@@ -817,7 +817,7 @@ atualizarStatus(StatusPedido::Entregue);  // Status alterado para: Entregue
 ```php
 <?php
 
-enum TamanhoCamiseta: string
+enum ShirtSize: string
 {
     case PP = 'pp';
     case P  = 'p';
@@ -827,23 +827,23 @@ enum TamanhoCamiseta: string
     case XG = 'xg';
 }
 
-function selecionarTamanho(TamanhoCamiseta $tamanho): void
+function selectSize(ShirtSize $size): void
 {
-    echo "Tamanho: " . $tamanho->value . "\n";
+    echo "Tamanho: " . $size->value . "\n";
 }
 
-selecionarTamanho(TamanhoCamiseta::M); // Tamanho: m
+selectSize(ShirtSize::M); // Tamanho: m
 
 // A partir de um valor:
-$tamanho = TamanhoCamiseta::from('g');
-echo $tamanho->name;  // G
+$size = ShirtSize::from('g');
+echo $size->name;  // G
 
 // from() lança ValueError se o valor não existir:
-// TamanhoCamiseta::from('xxl'); // ValueError
+// ShirtSize::from('xxl'); // ValueError
 
 // tryFrom() retorna null se não existir:
-$tentativa = TamanhoCamiseta::tryFrom('xxl');
-var_dump($tentativa); // NULL
+$attempt = ShirtSize::tryFrom('xxl');
+var_dump($attempt); // NULL
 ```
 
 ### Enums com inteiros
@@ -851,15 +851,15 @@ var_dump($tentativa); // NULL
 ```php
 <?php
 
-enum CodigoErro: int
+enum ErrorCode: int
 {
-    case NaoEncontrado     = 404;
-    case NaoAutorizado     = 401;
-    case ErroInterno       = 500;
-    case ValidacaoFalha    = 422;
+    case NotFound           = 404;
+    case Unauthorized       = 401;
+    case InternalError      = 500;
+    case ValidationFailed   = 422;
 }
 
-echo CodigoErro::NaoEncontrado->value; // 404
+echo ErrorCode::NotFound->value; // 404
 ```
 
 ### Métodos em enums
@@ -867,41 +867,41 @@ echo CodigoErro::NaoEncontrado->value; // 404
 ```php
 <?php
 
-enum MetodoPagamento: string
+enum PaymentMethod: string
 {
-    case CartaoCredito = 'credit_card';
-    case Boleto        = 'boleto';
-    case Pix           = 'pix';
-    case Debito        = 'debit_card';
+    case CreditCard  = 'credit_card';
+    case BankSlip    = 'boleto';
+    case Pix         = 'pix';
+    case Debit       = 'debit_card';
 
-    public function rotulo(): string
+    public function label(): string
     {
         return match ($this) {
-            self::CartaoCredito => 'Cartão de Crédito',
-            self::Boleto        => 'Boleto Bancário',
-            self::Pix           => 'PIX',
-            self::Debito        => 'Cartão de Débito',
+            self::CreditCard  => 'Cartão de Crédito',
+            self::BankSlip    => 'Boleto Bancário',
+            self::Pix         => 'PIX',
+            self::Debit       => 'Cartão de Débito',
         };
     }
 
-    public function prazoProcessamento(): string
+    public function processingDeadline(): string
     {
         return match ($this) {
-            self::Pix           => 'Instantâneo',
-            self::CartaoCredito => 'Até 24h',
-            self::Debito        => 'Até 24h',
-            self::Boleto        => 'Até 3 dias úteis',
+            self::Pix         => 'Instantâneo',
+            self::CreditCard  => 'Até 24h',
+            self::Debit       => 'Até 24h',
+            self::BankSlip    => 'Até 3 dias úteis',
         };
     }
 }
 
-$metodo = MetodoPagamento::Pix;
-echo $metodo->rotulo();              // PIX
-echo $metodo->prazoProcessamento();  // Instantâneo
+$method = PaymentMethod::Pix;
+echo $method->label();              // PIX
+echo $method->processingDeadline();  // Instantâneo
 
 // Iterar sobre todos os cases:
-foreach (MetodoPagamento::cases() as $case) {
-    echo "{$case->rotulo()} → {$case->value}\n";
+foreach (PaymentMethod::cases() as $case) {
+    echo "{$case->label()} → {$case->value}\n";
 }
 ```
 
@@ -910,34 +910,34 @@ foreach (MetodoPagamento::cases() as $case) {
 ```php
 <?php
 
-interface Descrevivel
+interface Describable
 {
-    public function descrever(): string;
+    public function describe(): string;
 }
 
-trait DescricaoPadrao
+trait DefaultDescription
 {
-    public function descrever(): string
+    public function describe(): string
     {
         return match (true) {
-            $this instanceof StatusPedido => "Pedido {$this->name}",
+            $this instanceof OrderStatus => "Pedido {$this->name}",
             default => $this->name,
         };
     }
 }
 
-enum StatusPedidoComDescricao: string implements Descrevivel
+enum OrderStatusWithDescription: string implements Describable
 {
-    use DescricaoPadrao;
+    use DefaultDescription;
 
-    case Pendente  = 'P';
-    case Pago      = 'PG';
-    case Enviado   = 'E';
-    case Entregue  = 'ET';
+    case Pending  = 'P';
+    case Paid     = 'PG';
+    case Shipped  = 'E';
+    case Delivered = 'ET';
 }
 
-$status = StatusPedidoComDescricao::Pendente;
-echo $status->descrever();  // Pedido Pendente
+$status = OrderStatusWithDescription::Pending;
+echo $status->describe();  // Pedido Pendente
 ```
 
 ---
@@ -950,24 +950,24 @@ O PHP converte tipos conforme o contexto:
 <?php
 
 // String para int em contexto aritmético
-$resultado = "10" + 5;
-echo $resultado;          // 15
-var_dump($resultado);     // int(15)
+$result = "10" + 5;
+echo $result;          // 15
+var_dump($result);     // int(15)
 
 // Int para string em concatenação
-$texto = "Total: " . 100;
-echo $texto;              // Total: 100
-var_dump($texto);         // string(10) "Total: 100"
+$text = "Total: " . 100;
+echo $text;              // Total: 100
+var_dump($text);         // string(10) "Total: 100"
 
 // String para float
-$soma = "1.5" + "2.5";
-var_dump($soma);          // float(4)
+$sum = "1.5" + "2.5";
+var_dump($sum);          // float(4)
 
 // Casts explícitos
 $inteiro   = (int) "42";       // 42
 $float     = (float) "3.14";   // 3.14
 $string    = (string) 100;     // "100"
-$booleano  = (bool) 1;         // true
+$boolean   = (bool) 1;         // true
 $array     = (array) "teste";  // ["teste"]
 $object    = (object) ['a' => 1];
 ```

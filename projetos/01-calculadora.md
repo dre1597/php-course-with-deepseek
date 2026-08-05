@@ -25,111 +25,110 @@ Apenas um arquivo! Toda a lógica e o HTML ficam no `index.php`. Simples, didát
 session_start();
 
 // Inicializa histórico na sessão
-if (!isset($_SESSION['historico'])) {
-    $_SESSION['historico'] = [];
+if (!isset($_SESSION['history'])) {
+    $_SESSION['history'] = [];
 }
 
 // Inicializa variáveis
-$resultado    = '';
-$erro         = '';
-$numero1      = $_POST['numero1'] ?? '';
-$numero2      = $_POST['numero2'] ?? '';
-$operacao     = $_POST['operacao'] ?? 'somar';
-$expressao    = '';
+$result    = '';
+$error         = '';
+$number1      = $_POST['number1'] ?? '';
+$number2      = $_POST['number2'] ?? '';
+$operation     = $_POST['operation'] ?? 'add';
+$expression    = '';
 
 // Adicionar ao histórico via POST
-$acaoHistorico = $_POST['acao_historico'] ?? '';
+$historyAction = $_POST['history_action'] ?? '';
 
 // Reutilizar cálculo do histórico
-if ($acaoHistorico === 'reutilizar' && isset($_POST['indice'])) {
-    $indice = (int) $_POST['indice'];
-    if (isset($_SESSION['historico'][$indice])) {
-        $itemHistorico = $_SESSION['historico'][$indice];
-        $numero1  = $itemHistorico['numero1'];
-        $numero2  = $itemHistorico['numero2'];
-        $operacao = $itemHistorico['operacao'];
-        // Força recalcular
-        $_POST['calcular'] = '1';
+if ($historyAction === 'reuse' && isset($_POST['history_index'])) {
+    $index = (int) $_POST['history_index'];
+    if (isset($_SESSION['history'][$index])) {
+        $historyItem = $_SESSION['history'][$index];
+        $number1  = $historyItem['number1'];
+        $number2  = $historyItem['number2'];
+        $operation = $historyItem['operation'];
+        // Força recalculate
+        $_POST['calculate'] = '1';
     }
 }
 
 // Limpar histórico
-if ($acaoHistorico === 'limpar') {
-    $_SESSION['historico'] = [];
+if ($historyAction === 'clear') {
+    $_SESSION['history'] = [];
 }
 
 // Processa o cálculo
-if (isset($_POST['calcular'])) {
-    $numero1 = trim($_POST['numero1'] ?? '');
-    $numero2 = trim($_POST['numero2'] ?? '');
-    $operacao = $_POST['operacao'] ?? 'somar';
+if (isset($_POST['calculate'])) {
+    $number1 = trim($_POST['number1'] ?? '');
+    $number2 = trim($_POST['number2'] ?? '');
+    $operation = $_POST['operation'] ?? 'add';
 
     // Validações
-    if ($numero1 === '' || $numero2 === '') {
-        $erro = 'Preencha ambos os números.';
-    } elseif (!is_numeric($numero1) || !is_numeric($numero2)) {
-        $erro = 'Informe apenas valores numéricos válidos.';
+    if ($number1 === '' || $number2 === '') {
+        $error = 'Preencha ambos os números.';
+    } elseif (!is_numeric($number1) || !is_numeric($number2)) {
+        $error = 'Informe apenas valores numéricos válidos.';
     } else {
-        $n1 = (float) $numero1;
-        $n2 = (float) $numero2;
+        $n1 = (float) $number1;
+        $n2 = (float) $number2;
 
-        $resultado = match ($operacao) {
-            'somar'       => $n1 + $n2,
-            'subtrair'    => $n1 - $n2,
-            'multiplicar' => $n1 * $n2,
-            'dividir'     => ($n2 != 0) ? $n1 / $n2 : null,
-            'resto'       => ($n2 != 0) ? $n1 % $n2 : null,
-            'potencia'    => $n1 ** $n2,
+        $result = match ($operation) {
+            'add'         => $n1 + $n2,
+            'subtract'    => $n1 - $n2,
+            'multiply'    => $n1 * $n2,
+            'divide'      => ($n2 != 0) ? $n1 / $n2 : null,
+            'mod'         => ($n2 != 0) ? $n1 % $n2 : null,
+            'power'       => $n1 ** $n2,
             default       => null,
         };
 
-        if ($resultado === null) {
-            $erro = match ($operacao) {
-                'dividir' => 'Divisão por zero não é permitida.',
-                'resto'   => 'Módulo por zero não é permitido.',
-                default   => 'Operação inválida.',
+        if ($result === null) {
+            $error = match ($operation) {
+                'divide' => 'Divisão por zero não é permitida.',
+                'mod'    => 'Módulo por zero não é permitido.',
+                default  => 'Operação inválida.',
             };
         } else {
             // Formata o resultado
-            if (is_float($resultado)) {
-                $resultado = rtrim(rtrim(number_format($resultado, 10, '.', ''), '0'), '.');
+            if (is_float($result)) {
+                $result = rtrim(rtrim(number_format($result, 10, '.', ''), '0'), '.');
             }
 
             // Monta expressão
-            $simbolos = [
-                'somar'       => '+',
-                'subtrair'    => '-',
-                'multiplicar' => '×',
-                'dividir'     => '÷',
-                'resto'       => '%',
-                'potencia'    => '^',
+            $symbols = [
+                'add'       => '+',
+                'subtract'  => '-',
+                'multiply'  => '×',
+                'divide'    => '÷',
+                'mod'       => '%',
+                'power'     => '^',
             ];
-            $simbolo = $simbolos[$operacao] ?? '?';
-            $expressao = "{$n1} {$simbolo} {$n2} = {$resultado}";
+            $symbol = $symbols[$operation] ?? '?';
+            $expression = "{$n1} {$symbol} {$n2} = {$result}";
 
             // Salva no histórico
-            $entradaHistorico = [
-                'numero1'    => $n1,
-                'numero2'    => $n2,
-                'operacao'   => $operacao,
-                'simbolo'    => $simbolo,
-                'resultado'  => $resultado,
-                'expressao'  => $expressao,
-                'data_hora'  => date('H:i:s'),
+            $historyEntry = [
+                'number1'    => $n1,
+                'number2'    => $n2,
+                'operation'   => $operation,
+                'symbol'    => $symbol,
+                'result'    => $result,
+                'expression'=> $expression,
+                'time'      => date('H:i:s'),
             ];
-            array_unshift($_SESSION['historico'], $entradaHistorico);
+            array_unshift($_SESSION['history'], $historyEntry);
 
-            // Mantém apenas os últimos 20 registros
-            if (count($_SESSION['historico']) > 20) {
-                $_SESSION['historico'] = array_slice($_SESSION['historico'], 0, 20);
+            if (count($_SESSION['history']) > 20) {
+                $_SESSION['history'] = array_slice($_SESSION['history'], 0, 20);
             }
         }
     }
 }
 
 // Para exibição no HTML
-function h(string $texto): string {
-    return htmlspecialchars($texto, ENT_QUOTES, 'UTF-8');
+function h(string $text): string {
+    return htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
 }
 ?>
 <!DOCTYPE html>
@@ -252,7 +251,7 @@ function h(string $texto): string {
             color: #7c3aed;
         }
 
-        .btn-calcular {
+        .btn-calculate {
             width: 100%;
             padding: 14px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -265,12 +264,12 @@ function h(string $texto): string {
             transition: transform 0.1s, box-shadow 0.2s;
         }
 
-        .btn-calcular:hover {
+        .btn-calculate:hover {
             transform: translateY(-1px);
             box-shadow: 0 4px 15px rgba(102, 126, 234, 0.5);
         }
 
-        .btn-calcular:active {
+        .btn-calculate:active {
             transform: translateY(0);
         }
 
@@ -406,76 +405,75 @@ function h(string $texto): string {
     <div class="calculadora">
         <form method="post" action="index.php">
             <div class="campo">
-                <label for="numero1">Primeiro número</label>
-                <input type="text" id="numero1" name="numero1"
-                       value="<?= h($numero1) ?>" placeholder="Ex: 42.5" autocomplete="off">
+                <label for="number1">Primeiro número</label>
+                <input type="text" id="number1" name="number1"
+                       value="<?= h($number1) ?>" placeholder="Ex: 42.5" autocomplete="off">
             </div>
 
             <div class="campo">
-                <label for="numero2">Segundo número</label>
-                <input type="text" id="numero2" name="numero2"
-                       value="<?= h($numero2) ?>" placeholder="Ex: 8" autocomplete="off">
+                <label for="number2">Segundo número</label>
+                <input type="text" id="number2" name="number2"
+                       value="<?= h($number2) ?>" placeholder="Ex: 8" autocomplete="off">
             </div>
 
             <label style="font-weight:600; font-size:0.9rem; margin-bottom:8px; display:block;">Operação</label>
             <div class="operacoes">
                 <?php
                 $ops = [
-                    'somar'       => '+',
-                    'subtrair'    => '−',
-                    'multiplicar' => '×',
-                    'dividir'     => '÷',
-                    'resto'       => '%',
-                    'potencia'    => '^',
+                    'add'       => '+',
+                    'subtract'  => '−',
+                    'multiply'  => '×',
+                    'divide'    => '÷',
+                    'mod'       => '%',
+                    'power'     => '^',
                 ];
-                foreach ($ops as $op => $simbolo):
-                    $checked = ($operacao === $op) ? 'checked' : '';
-                ?>
+                foreach ($ops as $opValue => $opSymbol):
+                    $checked = ($operation === $opValue) ? 'checked' : ''; ?>
                     <label>
-                        <input type="radio" name="operacao" value="<?= $op ?>" <?= $checked ?>>
-                        <span><?= $simbolo ?></span>
+                        <input type="radio" name="operation" value="<?= $opValue ?>" <?= $checked ?>>
+                        <span><?= $opSymbol ?></span>
                     </label>
                 <?php endforeach; ?>
             </div>
 
-            <button type="submit" name="calcular" value="1" class="btn-calcular">Calcular</button>
+            <button type="submit" name="calculate" value="1" class="btn-calculate">Calcular</button>
         </form>
 
-        <?php if ($erro): ?>
-            <div class="erro-box"><?= h($erro) ?></div>
-        <?php elseif ($resultado !== '' && $resultado !== null): ?>
+        <?php if ($error): ?>
+            <div class="erro-box"><?= h($error) ?></div>
+        <?php elseif ($result !== '' && $result !== null): ?>
             <div class="resultado-box">
-                <?php if ($expressao): ?>
-                    <div class="expressao"><?= h($expressao) ?></div>
-                <?php endif; ?>
-            </div>
+                <?php if ($expression): ?>
+                    <div class="expressao"><?= h($expression) ?></div>
+            <?php endif; ?>
+    </div>
         <?php endif; ?>
     </div>
 
     <div class="historico">
         <h3>
             Histórico
-            <?php if (!empty($_SESSION['historico'])): ?>
+            <?php if (!empty($_SESSION['history'])): ?>
                 <form method="post" style="display:inline">
-                    <input type="hidden" name="acao_historico" value="limpar">
+                    <input type="hidden" name="history_action" value="clear">
                     <button type="submit" class="btn-limpar">Limpar tudo</button>
                 </form>
             <?php endif; ?>
         </h3>
 
-        <?php if (empty($_SESSION['historico'])): ?>
+        <?php if (empty($_SESSION['history'])): ?>
             <p class="vazio">Nenhum cálculo realizado ainda.</p>
         <?php else: ?>
             <ul class="lista-historico">
-                <?php foreach ($_SESSION['historico'] as $i => $item): ?>
+                <?php foreach ($_SESSION['history'] as $i => $item): ?>
                 <li class="item-historico">
                     <div>
-                        <span class="expressao-historico"><?= h($item['expressao']) ?></span>
-                        <span class="detalhes"><?= h($item['data_hora']) ?></span>
+                        <span class="expressao-historico"><?= h($item['expression']) ?></span>
+                        <span class="detalhes"><?= h($item['time']) ?></span>
                     </div>
                     <form method="post" style="display:inline">
-                        <input type="hidden" name="acao_historico" value="reutilizar">
-                        <input type="hidden" name="indice" value="<?= $i ?>">
+                        <input type="hidden" name="history_action" value="reuse">
+                        <input type="hidden" name="history_index" value="<?= $i ?>">
                         <button type="submit" class="btn-reusar">Reusar</button>
                     </form>
                 </li>
@@ -485,7 +483,7 @@ function h(string $texto): string {
     </div>
 </div>
 </body>
-</html>
+</h
 ```
 
 ---
@@ -499,7 +497,7 @@ cp index.php /var/www/html/calculadora/
 
 # Ou use o servidor embutido do PHP
 php -S localhost:8080 -t /var/www/html/calculadora/
-# Acesse http://localhost:8080
+# Acesse http://localhost:
 ```
 
 ---
@@ -516,7 +514,7 @@ Substitua o armazenamento em sessão por um arquivo JSON. Assim o histórico sob
 Use um cookie para armazenar a preferência de tema e aplique classes CSS condicionais.
 
 ### 4. Atalhos de teclado
-Adicione JavaScript para permitir digitar números e operadores (ex: `42*8` e Enter para calcular).
+Adicione JavaScript para permitir digitar números e operadores (ex: `42*8` e Enter para calculate).
 
 ---
 

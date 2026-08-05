@@ -6,6 +6,7 @@ Criar um sistema completo de cadastro e login de usuários com PHP puro, usando 
 
 ## Estrutura de Arquivos
 
+
 ```
 projetos/login/
     database.sqlite    (criado na primeira execução)
@@ -23,6 +24,7 @@ projetos/login/
         cadastro.php   (formulário de cadastro)
         login.php      (formulário de login)
         dashboard.php  (área protegida)
+
 ```
 
 ---
@@ -36,17 +38,16 @@ projetos/login/
 // config.php
 return [
     'app' => [
-        'nome' => 'Sistema de Login',
+        'name' => 'Sistema de Login',
         'url'  => 'http://localhost:8080',
     ],
     'db' => [
         'caminho' => __DIR__ . '/database.sqlite',
     ],
-    'senha' => [
+    'password' => [
         'algoritmo' => PASSWORD_DEFAULT, // PASSWORD_BCRYPT ou PASSWORD_ARGON2ID
         'custo'     => 12,               // PHP 8.4+: padrão subiu para 12
-    ],
-];
+    ]
 ```
 
 ### `src/Database.php`
@@ -57,10 +58,10 @@ return [
 class Database {
     private static ?PDO $instancia = null;
 
-    public static function get(string $caminho): PDO {
+    public static function get(string $path): PDO {
         if (self::$instancia === null) {
             self::$instancia = new PDO(
-                'sqlite:' . $caminho,
+                'sqlite:' . $path,
                 null,
                 null,
                 [
@@ -76,28 +77,27 @@ class Database {
 
     public static function inicializar(PDO $pdo): void {
         $pdo->exec("
-            CREATE TABLE IF NOT EXISTS usuarios (
+            CREATE TABLE IF NOT EXISTS users (
                 id              INTEGER PRIMARY KEY AUTOINCREMENT,
-                nome            TEXT    NOT NULL,
+                name            TEXT    NOT NULL,
                 email           TEXT    NOT NULL UNIQUE,
-                senha           TEXT    NOT NULL,
+                password           TEXT    NOT NULL,
                 token_lembrar   TEXT,
-                criado_em       TEXT    DEFAULT (datetime('now', 'localtime')),
-                atualizado_em   TEXT    DEFAULT (datetime('now', 'localtime'))
+                created_at       TEXT    DEFAULT (datetime('now', 'localtime')),
+                updated_at   TEXT    DEFAULT (datetime('now', 'localtime'))
             );
 
-            CREATE TABLE IF NOT EXISTS tokens_csrf (
+            CREATE TABLE IF NOT EXISTS csrf_tokens (
                 id          INTEGER PRIMARY KEY AUTOINCREMENT,
-                usuario_id  INTEGER NOT NULL,
+                user_id  INTEGER NOT NULL,
                 token       TEXT    NOT NULL,
-                criado_em   TEXT    DEFAULT (datetime('now', 'localtime')),
-                FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
+                created_at   TEXT    DEFAULT (datetime('now', 'localtime')),
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
             );
 
-            CREATE UNIQUE INDEX IF NOT EXISTS idx_usuarios_email ON usuarios(email);
+            CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email ON users(email);
         ");
-    }
-}
+   
 ```
 
 ### `src/Session.php`
@@ -106,7 +106,7 @@ class Database {
 <?php
 // src/Session.php
 class Session {
-    public static function iniciar(): void {
+    public static function start(): void {
         if (session_status() === PHP_SESSION_NONE) {
             session_set_cookie_params([
                 'lifetime' => 0,
@@ -120,29 +120,29 @@ class Session {
         }
     }
 
-    public static function set(string $chave, mixed $valor): void {
-        $_SESSION[$chave] = $valor;
+    public static function set(string $key, mixed $value): void {
+        $_SESSION[$key] = $value;
     }
 
-    public static function get(string $chave, mixed $padrao = null): mixed {
-        return $_SESSION[$chave] ?? $padrao;
+    public static function get(string $key, mixed $default = null): mixed {
+        return $_SESSION[$key] ?? $default;
     }
 
-    public static function remover(string $chave): void {
-        unset($_SESSION[$chave]);
+    public static function remove(string $key): void {
+        unset($_SESSION[$key]);
     }
 
-    public static function flash(string $chave, string $mensagem = null): ?string {
-        if ($mensagem !== null) {
-            $_SESSION['_flash'][$chave] = $mensagem;
+    public static function flash(string $key, string $message = null): ?string {
+        if ($message !== null) {
+            $_SESSION['_flash'][$key] = $message;
             return null;
         }
-        $msg = $_SESSION['_flash'][$chave] ?? null;
-        unset($_SESSION['_flash'][$chave]);
+        $msg = $_SESSION['_flash'][$key] ?? null;
+        unset($_SESSION['_flash'][$key]);
         return $msg;
     }
 
-    public static function destruir(): void {
+    public static function destroy(): void {
         $_SESSION = [];
 
         if (ini_get('session.use_cookies')) {
@@ -161,25 +161,24 @@ class Session {
         session_destroy();
     }
 
-    public static function setUsuario(array $usuario): void {
-        self::set('usuario_id', $usuario['id']);
-        self::set('usuario_nome', $usuario['nome']);
-        self::set('usuario_email', $usuario['email']);
+    public static function setUser(array $user): void {
+        self::set('user_id', $user['id']);
+        self::set('user_name', $user['name']);
+        self::set('user_email', $user['email']);
         session_regenerate_id(true);
     }
 
-    public static function estaLogado(): bool {
-        return self::get('usuario_id') !== null;
+    public static function isLoggedIn(): bool {
+        return self::get('user_id') !== null;
     }
 
-    public static function usuarioId(): ?int {
-        return self::get('usuario_id');
+    public static function userId(): ?int {
+        return self::get('user_id');
     }
 
-    public static function usuarioNome(): ?string {
-        return self::get('usuario_nome');
-    }
-}
+    public static function userName(): ?string {
+        return self::get('user_name');
+   
 ```
 
 ### `src/Validator.php`
@@ -188,73 +187,72 @@ class Session {
 <?php
 // src/Validator.php
 class Validator {
-    private array $erros = [];
+    private array $errors = [];
 
-    public function validar(array $dados, array $regras): array {
-        $limpos = [];
+    public function validate(array $data, array $rules): array {
+        $cleaned = [];
 
-        foreach ($regras as $campo => $regrasCampo) {
-            $valor = $dados[$campo] ?? '';
+        foreach ($rules as $field => $fieldRules) {
+            $value = $data[$field] ?? '';
 
-            if (in_array('required', $regrasCampo) && trim((string) $valor) === '') {
-                $this->erros[$campo] = "O campo '{$campo}' é obrigatório.";
+            if (in_array('required', $fieldRules) && trim((string) $value) === '') {
+                $this->errors[$field] = "O campo '{$field}' é obrigatório.";
                 continue;
             }
 
-            $valor = trim((string) $valor);
+            $value = trim((string) $value);
 
-            if (in_array('email', $regrasCampo) && $valor !== '') {
-                $validado = filter_var($valor, FILTER_VALIDATE_EMAIL);
-                if ($validado === false) {
-                    $this->erros[$campo] = 'Email inválido.';
+            if (in_array('email', $fieldRules) && $value !== '') {
+                $validated = filter_var($value, FILTER_VALIDATE_EMAIL);
+                if ($validated === false) {
+                    $this->errors[$field] = 'Email inválido.';
                 } else {
-                    $valor = $validado;
+                    $value = $validated;
                 }
             }
 
-            foreach ($regrasCampo as $regra) {
-                if (str_starts_with($regra, 'min:')) {
-                    $min = (int) substr($regra, 4);
-                    if (strlen($valor) < $min) {
-                        $this->erros[$campo] = "Deve ter no mínimo {$min} caracteres.";
+            foreach ($fieldRules as $rule) {
+                if (str_starts_with($rule, 'min:')) {
+                    $min = (int) substr($rule, 4);
+                    if (strlen($value) < $min) {
+                        $this->errors[$field] = "Deve ter no mínimo {$min} caracteres.";
                     }
                 }
-                if (str_starts_with($regra, 'max:')) {
-                    $max = (int) substr($regra, 4);
-                    if (strlen($valor) > $max) {
-                        $this->erros[$campo] = "Deve ter no máximo {$max} caracteres.";
+                if (str_starts_with($rule, 'max:')) {
+                    $max = (int) substr($rule, 4);
+                    if (strlen($value) > $max) {
+                        $this->errors[$field] = "Deve ter no máximo {$max} caracteres.";
                     }
                 }
-                if ($regra === 'senha_forte' && $valor !== '') {
-                    if (!preg_match('/[A-Z]/', $valor)) {
-                        $this->erros[$campo] = 'Deve conter ao menos uma maiúscula.';
+                if ($rule === 'senha_forte' && $value !== '') {
+                    if (!preg_match('/[A-Z]/', $value)) {
+                        $this->errors[$field] = 'Deve conter ao menos uma maiúscula.';
                     }
-                    if (!preg_match('/[a-z]/', $valor)) {
-                        $this->erros[$campo] = 'Deve conter ao menos uma minúscula.';
+                    if (!preg_match('/[a-z]/', $value)) {
+                        $this->errors[$field] = 'Deve conter ao menos uma minúscula.';
                     }
-                    if (!preg_match('/[0-9]/', $valor)) {
-                        $this->erros[$campo] = 'Deve conter ao menos um número.';
+                    if (!preg_match('/[0-9]/', $value)) {
+                        $this->errors[$field] = 'Deve conter ao menos um número.';
                     }
-                    if (!preg_match('/[^A-Za-z0-9]/', $valor)) {
-                        $this->erros[$campo] = 'Deve conter ao menos um caractere especial.';
+                    if (!preg_match('/[^A-Za-z0-9]/', $value)) {
+                        $this->errors[$field] = 'Deve conter ao menos um caractere especial.';
                     }
                 }
             }
 
-            $limpos[$campo] = $valor;
+            $cleaned[$field] = $value;
         }
 
-        return $limpos;
+        return $cleaned;
     }
 
-    public function temErros(): bool {
-        return !empty($this->erros);
+    public function hasErrors(): bool {
+        return !empty($this->errors);
     }
 
-    public function getErros(): array {
-        return $this->erros;
-    }
-}
+    public function getErrors(): array {
+        return $this->errors;
+   
 ```
 
 ### `src/Auth.php`
@@ -265,69 +263,67 @@ class Validator {
 class Auth {
     public function __construct(private PDO $pdo) {}
 
-    public function cadastrar(string $nome, string $email, string $senha): array {
-        // Verifica email duplicado
-        $stmt = $this->pdo->prepare('SELECT id FROM usuarios WHERE email = :email');
+    public function register(string $name, string $email, string $password): array {
+        $stmt = $this->pdo->prepare('SELECT id FROM users WHERE email = :email');
         $stmt->execute([':email' => $email]);
 
         if ($stmt->fetch()) {
-            return ['sucesso' => false, 'erro' => 'Este email já está cadastrado.'];
+            return ['success' => false, 'error' => 'Este email já está cadastrado.'];
         }
 
-        $hash = password_hash($senha, PASSWORD_DEFAULT);
+        $hash = password_hash($password, PASSWORD_DEFAULT);
         $stmt = $this->pdo->prepare(
-            'INSERT INTO usuarios (nome, email, senha) VALUES (:nome, :email, :senha)'
+            'INSERT INTO users (name, email, password) VALUES (:name, :email, :password)'
         );
         $stmt->execute([
-            ':nome'  => $nome,
+            ':name'  => $name,
             ':email' => $email,
-            ':senha' => $hash,
+            ':password' => $hash,
         ]);
 
-        return ['sucesso' => true, 'id' => (int) $this->pdo->lastInsertId()];
+        return ['success' => true, 'id' => (int) $this->pdo->lastInsertId()];
     }
 
-    public function login(string $email, string $senha): array {
-        $stmt = $this->pdo->prepare('SELECT id, nome, email, senha FROM usuarios WHERE email = :email');
+    public function login(string $email, string $password): array {
+        $stmt = $this->pdo->prepare('SELECT id, name, email, password FROM users WHERE email = :email');
         $stmt->execute([':email' => $email]);
-        $usuario = $stmt->fetch();
+        $user = $stmt->fetch();
 
-        if (!$usuario) {
-            return ['sucesso' => false, 'erro' => 'Email ou senha incorretos.'];
+        if (!$user) {
+            return ['success' => false, 'error' => 'Email ou password incorretos.'];
         }
 
-        if (!password_verify($senha, $usuario['senha'])) {
-            return ['sucesso' => false, 'erro' => 'Email ou senha incorretos.'];
+        if (!password_verify($password, $user['password'])) {
+            return ['success' => false, 'error' => 'Email ou password incorretos.'];
         }
 
-        unset($usuario['senha']);
-        return ['sucesso' => true, 'usuario' => $usuario];
+        unset($user['password']);
+        return ['success' => true, 'user' => $user];
     }
 
-    public function buscarPorId(int $id): ?array {
-        $stmt = $this->pdo->prepare('SELECT id, nome, email, criado_em FROM usuarios WHERE id = :id');
+    public function findById(int $id): ?array {
+        $stmt = $this->pdo->prepare('SELECT id, name, email, created_at FROM users WHERE id = :id');
         $stmt->execute([':id' => $id]);
-        $resultado = $stmt->fetch();
-        return $resultado ?: null;
+        $result = $stmt->fetch();
+        return $result ?: null;
     }
 
-    public function gerarTokenCSRF(int $usuarioId): string {
+    public function generateCSRFToken(int $userId): string {
         $token = bin2hex(random_bytes(32));
 
         $stmt = $this->pdo->prepare(
-            'INSERT INTO tokens_csrf (usuario_id, token) VALUES (:usuario_id, :token)'
+            'INSERT INTO csrf_tokens (user_id, token) VALUES (:user_id, :token)'
         );
-        $stmt->execute([':usuario_id' => $usuarioId, ':token' => $token]);
+        $stmt->execute([':user_id' => $userId, ':token' => $token]);
 
         $_SESSION['csrf_token'] = $token;
         return $token;
     }
 
-    public function verificarTokenCSRF(string $token): bool {
+    public function verifyCSRFToken(string $token): bool {
         $esperado = $_SESSION['csrf_token'] ?? '';
         return $esperado !== '' && hash_equals($esperado, $token);
-    }
-}
+   
 ```
 
 ### `src/Router.php`
@@ -336,30 +332,29 @@ class Auth {
 <?php
 // src/Router.php
 class Router {
-    private array $rotas = [];
+    private array $routes = [];
 
-    public function get(string $caminho, callable $handler): void {
-        $this->rotas['GET'][$caminho] = $handler;
+    public function get(string $path, callable $handler): void {
+        $this->routes['GET'][$path] = $handler;
     }
 
-    public function post(string $caminho, callable $handler): void {
-        $this->rotas['POST'][$caminho] = $handler;
+    public function post(string $path, callable $handler): void {
+        $this->routes['POST'][$path] = $handler;
     }
 
-    public function dispatch(string $metodo, string $uri): void {
-        $metodo = strtoupper($metodo);
+    public function dispatch(string $method, string $uri): void {
+        $method = strtoupper($method);
         $uri = parse_url($uri, PHP_URL_PATH);
         $uri = rtrim($uri, '/') ?: '/';
 
-        if (isset($this->rotas[$metodo][$uri])) {
-            call_user_func($this->rotas[$metodo][$uri]);
+        if (isset($this->routes[$method][$uri])) {
+            call_user_func($this->routes[$method][$uri]);
         } else {
             http_response_code(404);
             echo "<h1>404 — Página não encontrada</h1>\n";
-            echo "<p>Método: {$metodo} | URI: " . htmlspecialchars($uri) . "</p>";
+            echo "<p>Método: {$method} | URI: " . htmlspecialchars($uri) . "</p>";
         }
-    }
-}
+   
 ```
 
 ### `templates/layout.php`
@@ -367,16 +362,16 @@ class Router {
 ```php
 <?php
 // templates/layout.php
-function layout(string $titulo, string $conteudo, bool $logado = false, string $nomeUsuario = ''): string {
-    $nome = htmlspecialchars($nomeUsuario);
-    $navLogado = $logado ? "
+function layout(string $title, string $content, bool $loggedIn = false, string $userName = ''): string {
+    $name = htmlspecialchars($userName);
+    $loggedInNav = $loggedIn ? "
         <a href='/dashboard'>Dashboard</a>
         <a href='/logout'>Sair</a>
     " : "
         <a href='/login'>Entrar</a>
         <a href='/cadastro'>Cadastrar</a>
     ";
-    $nomeLogado = $logado ? "<span class='user-name'>{$nome}</span>" : '';
+    $loggedInName = $loggedIn ? "<span class='user-name'>{$name}</span>" : '';
 
     return <<<HTML
 <!DOCTYPE html>
@@ -384,7 +379,7 @@ function layout(string $titulo, string $conteudo, bool $logado = false, string $
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{$titulo}</title>
+    <title>{$title}</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: system-ui, -apple-system, sans-serif; background: #f8fafc;
@@ -428,18 +423,17 @@ function layout(string $titulo, string $conteudo, bool $logado = false, string $
     <nav>
         <a href="/" class="brand">🔐 Sistema de Login</a>
         <div class="nav-links">
-            {$nomeLogado}
-            {$navLogado}
+            {$loggedInName}
+            {$loggedInNav}
         </div>
     </nav>
     <div class="container">
-        {$conteudo}
+        {$content}
     </div>
     <footer>&copy; 2026 — PHP Puro + SQLite</footer>
 </body>
 </html>
-HTML;
-}
+HTM
 ```
 
 ### `templates/home.php`
@@ -447,12 +441,12 @@ HTML;
 ```php
 <?php
 // templates/home.php
-$logado = Session::estaLogado();
+$loggedIn = Session::isLoggedIn();
 
-if ($logado) {
-    $conteudo = "
+if ($loggedIn) {
+    $content = "
         <div class='card'>
-            <h1>Bem-vindo(a), " . htmlspecialchars(Session::usuarioNome()) . "!</h1>
+            <h1>Bem-vindo(a), " . htmlspecialchars(Session::userName()) . "!</h1>
             <p>Você está logado no sistema.</p>
             <p style='margin-top:16px'>
                 <a href='/dashboard' style='color:#6366f1;font-weight:600;text-decoration:none;'>
@@ -462,7 +456,7 @@ if ($logado) {
         </div>
     ";
 } else {
-    $conteudo = "
+    $content = "
         <div class='card' style='text-align:center'>
             <h1>Sistema de Login com PHP + SQLite</h1>
             <p style='color:#64748b;margin-bottom:24px'>
@@ -480,7 +474,7 @@ if ($logado) {
     ";
 }
 
-echo layout('Sistema de Login', $conteudo, $logado, Session::usuarioNome());
+echo layout('Sistema de Login', $content, $loggedIn, Session::userName()
 ```
 
 ### `templates/cadastro.php`
@@ -488,37 +482,37 @@ echo layout('Sistema de Login', $conteudo, $logado, Session::usuarioNome());
 ```php
 <?php
 // templates/cadastro.php
-$erros = Session::flash('erros', null) ?? [];
-$dados = Session::flash('dados', null) ?? [];
-$sucesso = Session::flash('sucesso', null) ?? '';
+$errors = Session::flash('errors', null) ?? [];
+$data = Session::flash('data', null) ?? [];
+$success = Session::flash('success', null) ?? '';
 
-$nome = htmlspecialchars($dados['nome'] ?? '');
-$email = htmlspecialchars($dados['email'] ?? '');
+$name = htmlspecialchars($data['name'] ?? '');
+$email = htmlspecialchars($data['email'] ?? '');
 
-$htmlErros = '';
-if (!empty($erros)) {
-    $htmlErros = '<div class="alert alert-erro"><ul>';
-    foreach ($erros as $erro) {
-        $htmlErros .= '<li>' . htmlspecialchars($erro) . '</li>';
+$errorsHtml = '';
+if (!empty($errors)) {
+    $errorsHtml = '<div class="alert alert-erro"><ul>';
+    foreach ($errors as $error) {
+        $errorsHtml .= '<li>' . htmlspecialchars($error) . '</li>';
     }
-    $htmlErros .= '</ul></div>';
+    $errorsHtml .= '</ul></div>';
 }
 
-$htmlSucesso = '';
-if ($sucesso) {
-    $htmlSucesso = '<div class="alert alert-sucesso">' . htmlspecialchars($sucesso) . '</div>';
+$successHtml = '';
+if ($success) {
+    $successHtml = '<div class="alert alert-sucesso">' . htmlspecialchars($success) . '</div>';
 }
 
-$conteudo = <<<HTML
+$content = <<<HTML
 <div class="card">
     <h1>Criar Conta</h1>
-    {$htmlErros}
-    {$htmlSucesso}
+    {$errorsHtml}
+    {$successHtml}
     <form method="post" action="/cadastro" novalidate>
         <input type="hidden" name="csrf_token" value="{$_SESSION['csrf_token']}">
         <div class="form-group">
-            <label for="nome">Nome completo</label>
-            <input type="text" id="nome" name="nome" value="{$nome}" required
+            <label for="name">Nome completo</label>
+            <input type="text" id="name" name="name" value="{$name}" required
                    autocomplete="name" autofocus>
         </div>
         <div class="form-group">
@@ -527,8 +521,8 @@ $conteudo = <<<HTML
                    autocomplete="email">
         </div>
         <div class="form-group">
-            <label for="senha">Senha</label>
-            <input type="password" id="senha" name="senha" required
+            <label for="password">Senha</label>
+            <input type="password" id="password" name="password" required
                    minlength="8"
                    placeholder="Mínimo 8 caracteres, maiúscula, número, símbolo">
         </div>
@@ -538,7 +532,7 @@ $conteudo = <<<HTML
 </div>
 HTML;
 
-echo layout('Cadastro', $conteudo, Session::estaLogado(), Session::usuarioNome());
+echo layout('Cadastro', $content, Session::isLoggedIn(), Session::userName()
 ```
 
 ### `templates/login.php`
@@ -546,12 +540,12 @@ echo layout('Cadastro', $conteudo, Session::estaLogado(), Session::usuarioNome()
 ```php
 <?php
 // templates/login.php
-$erro = Session::flash('erro', null) ?? '';
+$error = Session::flash('error', null) ?? '';
 $email = htmlspecialchars(Session::flash('email', null) ?? '');
 
-$htmlErro = $erro ? "<div class='alert alert-erro'>" . htmlspecialchars($erro) . "</div>" : '';
+$htmlErro = $error ? "<div class='alert alert-erro'>" . htmlspecialchars($error) . "</div>" : '';
 
-$conteudo = <<<HTML
+$content = <<<HTML
 <div class="card">
     <h1>Entrar</h1>
     {$htmlErro}
@@ -563,8 +557,8 @@ $conteudo = <<<HTML
                    autocomplete="email" autofocus>
         </div>
         <div class="form-group">
-            <label for="senha">Senha</label>
-            <input type="password" id="senha" name="senha" required autocomplete="current-password">
+            <label for="password">Senha</label>
+            <input type="password" id="password" name="password" required autocomplete="current-password">
         </div>
         <button type="submit" class="btn btn-primary">Entrar</button>
     </form>
@@ -572,7 +566,7 @@ $conteudo = <<<HTML
 </div>
 HTML;
 
-echo layout('Login', $conteudo, Session::estaLogado(), Session::usuarioNome());
+echo layout('Login', $content, Session::isLoggedIn(), Session::userName()
 ```
 
 ### `templates/dashboard.php`
@@ -580,14 +574,14 @@ echo layout('Login', $conteudo, Session::estaLogado(), Session::usuarioNome());
 ```php
 <?php
 // templates/dashboard.php
-$nome = htmlspecialchars(Session::usuarioNome());
-$usuarioId = Session::usuarioId();
+$name = htmlspecialchars(Session::userName());
+$userId = Session::userId();
 
-$conteudo = <<<HTML
+$content = <<<HTML
 <div class="card">
     <h1>Dashboard</h1>
-    <p>Bem-vindo(a), <strong>{$nome}</strong>!</p>
-    <p style="color:#64748b;margin-top:8px">ID do usuário: {$usuarioId}</p>
+    <p>Bem-vindo(a), <strong>{$name}</strong>!</p>
+    <p style="color:#64748b;margin-top:8px">ID do usuário: {$userId}</p>
     <div style="margin-top:32px;padding:16px;background:#f8fafc;border-radius:8px">
         <p style="font-weight:600;margin-bottom:8px">Você está logado com sucesso!</p>
         <p style="font-size:0.9rem;color:#64748b">
@@ -600,7 +594,7 @@ $conteudo = <<<HTML
 </div>
 HTML;
 
-echo layout('Dashboard', $conteudo, true, Session::usuarioNome());
+echo layout('Dashboard', $content, true, Session::userName()
 ```
 
 ### `index.php` (Front Controller)
@@ -611,17 +605,17 @@ echo layout('Dashboard', $conteudo, true, Session::usuarioNome());
 declare(strict_types=1);
 
 // Autoload simples
-spl_autoload_register(function (string $classe) {
-    $caminho = __DIR__ . '/src/' . $classe . '.php';
-    if (file_exists($caminho)) {
-        require_once $caminho;
+spl_autoload_register(function (string $class) {
+    $path = __DIR__ . '/src/' . $class . '.php';
+    if (file_exists($path)) {
+        require_once $path;
     }
 });
 
 $config = require __DIR__ . '/config.php';
 
 // Inicializa sessão
-Session::iniciar();
+Session::start();
 
 // Inicializa banco
 $pdo = Database::get($config['db']['caminho']);
@@ -645,7 +639,7 @@ $router->get('/', function () {
 
 // Cadastro — GET
 $router->get('/cadastro', function () {
-    if (Session::estaLogado()) {
+    if (Session::isLoggedIn()) {
         header('Location: /dashboard');
         exit;
     }
@@ -654,50 +648,50 @@ $router->get('/cadastro', function () {
 
 // Cadastro — POST
 $router->post('/cadastro', function () use ($auth) {
-    if (Session::estaLogado()) {
+    if (Session::isLoggedIn()) {
         header('Location: /dashboard');
         exit;
     }
 
     // CSRF
     if (!hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'] ?? '')) {
-        Session::flash('erros', ['Token de segurança inválido.']);
-        Session::flash('dados', $_POST);
+        Session::flash('errors', ['Token de segurança inválido.']);
+        Session::flash('data', $_POST);
         header('Location: /cadastro');
         exit;
     }
 
     $validator = new Validator();
-    $dados = $validator->validar($_POST, [
-        'nome'  => ['required', 'min:3', 'max:100'],
+    $data = $validator->validate($_POST, [
+        'name'  => ['required', 'min:3', 'max:100'],
         'email' => ['required', 'email'],
-        'senha' => ['required', 'min:8', 'senha_forte'],
+        'password' => ['required', 'min:8', 'senha_forte'],
     ]);
 
-    if ($validator->temErros()) {
-        Session::flash('erros', $validator->getErros());
-        Session::flash('dados', $_POST);
+    if ($validator->hasErrors()) {
+        Session::flash('errors', $validator->getErrors());
+        Session::flash('data', $_POST);
         header('Location: /cadastro');
         exit;
     }
 
-    $resultado = $auth->cadastrar($dados['nome'], $dados['email'], $dados['senha']);
+    $result = $auth->register($data['name'], $data['email'], $data['password']);
 
-    if (!$resultado['sucesso']) {
-        Session::flash('erros', [$resultado['erro']]);
-        Session::flash('dados', $_POST);
+    if (!$result['success']) {
+        Session::flash('errors', [$result['error']]);
+        Session::flash('data', $_POST);
         header('Location: /cadastro');
         exit;
     }
 
-    Session::flash('sucesso', 'Cadastro realizado! Faça login para continuar.');
+    Session::flash('success', 'Cadastro realizado! Faça login para continuar.');
     header('Location: /login');
     exit;
 });
 
 // Login — GET
 $router->get('/login', function () {
-    if (Session::estaLogado()) {
+    if (Session::isLoggedIn()) {
         header('Location: /dashboard');
         exit;
     }
@@ -706,46 +700,46 @@ $router->get('/login', function () {
 
 // Login — POST
 $router->post('/login', function () use ($auth) {
-    if (Session::estaLogado()) {
+    if (Session::isLoggedIn()) {
         header('Location: /dashboard');
         exit;
     }
 
     if (!hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'] ?? '')) {
-        Session::flash('erro', 'Token de segurança inválido.');
+        Session::flash('error', 'Token de segurança inválido.');
         Session::flash('email', $_POST['email'] ?? '');
         header('Location: /login');
         exit;
     }
 
     $email = trim($_POST['email'] ?? '');
-    $senha = $_POST['senha'] ?? '';
+    $password = $_POST['password'] ?? '';
 
-    if ($email === '' || $senha === '') {
-        Session::flash('erro', 'Preencha todos os campos.');
+    if ($email === '' || $password === '') {
+        Session::flash('error', 'Preencha todos os campos.');
         Session::flash('email', $email);
         header('Location: /login');
         exit;
     }
 
-    $resultado = $auth->login($email, $senha);
+    $result = $auth->login($email, $password);
 
-    if (!$resultado['sucesso']) {
-        Session::flash('erro', $resultado['erro']);
+    if (!$result['success']) {
+        Session::flash('error', $result['error']);
         Session::flash('email', $email);
         header('Location: /login');
         exit;
     }
 
-    Session::setUsuario($resultado['usuario']);
+    Session::setUser($result['user']);
     header('Location: /dashboard');
     exit;
 });
 
 // Dashboard — GET (protegido)
 $router->get('/dashboard', function () {
-    if (!Session::estaLogado()) {
-        Session::flash('erro', 'Faça login para acessar esta página.');
+    if (!Session::isLoggedIn()) {
+        Session::flash('error', 'Faça login para acessar esta página.');
         header('Location: /login');
         exit;
     }
@@ -754,21 +748,21 @@ $router->get('/dashboard', function () {
 
 // Logout — POST
 $router->post('/logout', function () {
-    Session::destruir();
+    Session::destroy();
     header('Location: /');
     exit;
 });
 
 // ==================== DISPATCH ====================
-$metodo = $_SERVER['REQUEST_METHOD'];
+$method = $_SERVER['REQUEST_METHOD'];
 $uri = $_SERVER['REQUEST_URI'];
 
 // Suporte a _method override para navegadores
-if ($metodo === 'POST' && isset($_POST['_method'])) {
-    $metodo = strtoupper($_POST['_method']);
+if ($method === 'POST' && isset($_POST['_method'])) {
+    $method = strtoupper($_POST['_method']);
 }
 
-$router->dispatch($metodo, $uri);
+$router->dispatch($method, $u
 ```
 
 ---
@@ -777,7 +771,7 @@ $router->dispatch($metodo, $uri);
 
 ```bash
 php -S localhost:8080 -t /caminho/para/projetos/login/
-# Acesse http://localhost:8080
+# Acesse http://localhost:
 ```
 
 O banco `database.sqlite` é criado na primeira execução.

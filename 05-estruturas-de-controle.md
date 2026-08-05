@@ -7,9 +7,9 @@ A estrutura condicional mais fundamental:
 ```php
 <?php
 
-$idade = 20;
+$age = 20;
 
-if ($idade >= 18) {
+if ($age >= 18) {
     echo "Maior de idade";
 }
 ```
@@ -19,9 +19,9 @@ if ($idade >= 18) {
 ```php
 <?php
 
-$temperatura = 15;
+$temperature = 15;
 
-if ($temperatura >= 30) {
+if ($temperature >= 30) {
     echo "Muito quente";
 } else {
     echo "Temperatura agradável";
@@ -33,15 +33,15 @@ if ($temperatura >= 30) {
 ```php
 <?php
 
-$hora = 14;
+$hour = 14;
 
-if ($hora < 6) {
+if ($hour < 6) {
     echo "Madrugada";
-} elseif ($hora < 12) {
+} elseif ($hour < 12) {
     echo "Manhã";
-} elseif ($hora < 18) {
+} elseif ($hour < 18) {
     echo "Tarde";
-} elseif ($hora < 24) {
+} elseif ($hour < 24) {
     echo "Noite";
 } else {
     echo "Horário inválido";
@@ -55,12 +55,12 @@ if ($hora < 6) {
 ```php
 <?php
 
-$usuarioLogado = true;
-$temPermissao = false;
+$isLoggedIn = true;
+$hasPermission = false;
 
-if ($usuarioLogado && $temPermissao) {
+if ($isLoggedIn && $hasPermission) {
     echo "Acesso concedido ao painel admin";
-} elseif ($usuarioLogado && !$temPermissao) {
+} elseif ($isLoggedIn && !$hasPermission) {
     echo "Login OK, mas sem permissão de admin. Redirecionando...";
 } else {
     echo "Faça login para continuar";
@@ -73,27 +73,27 @@ if ($usuarioLogado && $temPermissao) {
 <?php
 
 $email = $_POST['email'] ?? '';
-$senha = $_POST['senha'] ?? '';
+$password = $_POST['password'] ?? '';
 
-$erros = [];
+$errors = [];
 
 if ($email === '') {
-    $erros[] = 'O email é obrigatório.';
+    $errors[] = 'O email é obrigatório.';
 } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    $erros[] = 'Formato de email inválido.';
+    $errors[] = 'Formato de email inválido.';
 }
 
-if ($senha === '') {
-    $erros[] = 'A senha é obrigatória.';
-} elseif (strlen($senha) < 8) {
-    $erros[] = 'A senha deve ter no mínimo 8 caracteres.';
+if ($password === '') {
+    $errors[] = 'A senha é obrigatória.';
+} elseif (strlen($password) < 8) {
+    $errors[] = 'A senha deve ter no mínimo 8 caracteres.';
 }
 
-if ($erros === []) {
+if ($errors === []) {
     echo "Tudo validado! Prosseguindo...";
 } else {
-    foreach ($erros as $erro) {
-        echo "Erro: {$erro}\n";
+    foreach ($errors as $error) {
+        echo "Erro: {$error}\n";
     }
 }
 ```
@@ -107,9 +107,9 @@ if ($erros === []) {
 ```php
 <?php
 
-$diaSemana = 3;
+$weekDay = 3;
 
-switch ($diaSemana) {
+switch ($weekDay) {
     case 1:
         echo "Domingo";
         break;
@@ -145,10 +145,10 @@ Sem `break`, a execução "cai" para o próximo `case`:
 ```php
 <?php
 
-$mes = 2;
-$ano = 2024;
+$month = 2;
+$year = 2024;
 
-switch ($mes) {
+switch ($month) {
     case 1:
     case 3:
     case 5:
@@ -166,8 +166,8 @@ switch ($mes) {
         break;
     case 2:
         // Ano bissexto?
-        $dias = ($ano % 4 === 0 && $ano % 100 !== 0) || ($ano % 400 === 0) ? 29 : 28;
-        echo "{$dias} dias";
+        $days = ($year % 4 === 0 && $year % 100 !== 0) || ($year % 400 === 0) ? 29 : 28;
+        echo "{$days} dias";
         break;
     default:
         echo "Mês inválido";
@@ -182,9 +182,9 @@ switch ($mes) {
 ```php
 <?php
 
-$valor = 0;
+$value = 0;
 
-switch ($valor) {
+switch ($value) {
     case false:
         echo "Entrou no false"; // Executa este! Porque 0 == false
         break;
@@ -208,17 +208,17 @@ prefira `match` (PHP 8.0+).
 <?php
 
 // Técnica: switch(true) para condições complexas
-$nota = 8.5;
-$frequencia = 85; // porcentagem
+$grade = 8.5;
+$attendance = 85; // porcentagem
 
 switch (true) {
-    case $nota >= 7 && $frequencia >= 75:
+    case $grade >= 7 && $attendance >= 75:
         echo "Aprovado";
         break;
-    case $nota >= 5 && $frequencia >= 75:
+    case $grade >= 5 && $attendance >= 75:
         echo "Recuperação";
         break;
-    case $frequencia < 75:
+    case $attendance < 75:
         echo "Reprovado por falta";
         break;
     default:
@@ -252,7 +252,7 @@ switch (true) {
 
 $statusCode = 404;
 
-$mensagem = match ($statusCode) {
+$message = match ($statusCode) {
     200     => 'OK',
     201     => 'Created',
     301     => 'Moved Permanently',
@@ -261,7 +261,7 @@ $mensagem = match ($statusCode) {
     default => 'Unknown Status',
 };
 
-echo $mensagem; // Not Found
+echo $message; // Not Found
 ```
 
 ### Múltiplas condições para o mesmo braço
@@ -269,15 +269,15 @@ echo $mensagem; // Not Found
 ```php
 <?php
 
-$dia = 'sabado';
+$day = 'sabado';
 
-$tipoDia = match ($dia) {
+$dayType = match ($day) {
     'segunda', 'terca', 'quarta', 'quinta', 'sexta' => 'Dia útil',
     'sabado', 'domingo' => 'Fim de semana',
     default => 'Dia inválido',
 };
 
-echo $tipoDia; // Fim de semana
+echo $dayType; // Fim de semana
 ```
 
 ### Expressões como corpo do braço
@@ -285,18 +285,18 @@ echo $tipoDia; // Fim de semana
 ```php
 <?php
 
-$valor = 150.00;
-$tipoDesconto = 'blackfriday';
+$value = 150.00;
+$discountType = 'blackfriday';
 
-$precoFinal = match ($tipoDesconto) {
-    'vip'         => $valor * 0.7,           // 30% off
-    'blackfriday' => $valor * 0.5,           // 50% off
-    'assinante'   => $valor * 0.85,          // 15% off
-    default       => $valor,                 // preço cheio
+$finalPrice = match ($discountType) {
+    'vip'         => $value * 0.7,           // 30% off
+    'blackfriday' => $value * 0.5,           // 50% off
+    'assinante'   => $value * 0.85,          // 15% off
+    default       => $value,                 // preço cheio
 };
 
-echo "Preço original: R$ " . number_format($valor, 2, ',', '.') . "\n";
-echo "Preço final: R$ " . number_format($precoFinal, 2, ',', '.') . "\n";
+echo "Preço original: R$ " . number_format($value, 2, ',', '.') . "\n";
+echo "Preço final: R$ " . number_format($finalPrice, 2, ',', '.') . "\n";
 // Preço original: R$ 150,00
 // Preço final: R$ 75,00
 ```
@@ -306,28 +306,28 @@ echo "Preço final: R$ " . number_format($precoFinal, 2, ',', '.') . "\n";
 ```php
 <?php
 
-enum MetodoPagamento: string
+enum PaymentMethod: string
 {
     case Pix     = 'pix';
-    case Boleto  = 'boleto';
-    case Credito = 'credito';
-    case Debito  = 'debito';
+    case BankSlip  = 'boleto';
+    case Credit = 'credito';
+    case Debit  = 'debito';
 }
 
-function obterTaxaProcessamento(MetodoPagamento $metodo): float
+function getProcessingFee(PaymentMethod $method): float
 {
-    return match ($metodo) {
-        MetodoPagamento::Pix     => 0.00,   // sem taxa
-        MetodoPagamento::Boleto  => 3.50,   // taxa fixa
-        MetodoPagamento::Credito => 0.0499, // 4.99%
-        MetodoPagamento::Debito  => 0.0299, // 2.99%
+    return match ($method) {
+        PaymentMethod::Pix     => 0.00,   // sem taxa
+        PaymentMethod::BankSlip  => 3.50,   // taxa fixa
+        PaymentMethod::Credit => 0.0499, // 4.99%
+        PaymentMethod::Debit  => 0.0299, // 2.99%
     };
     // Não precisa de default: enum cobre todos os casos
     // Se um novo case for adicionado ao enum, o PHP emitirá
     // um UnhandledMatchError em tempo de execução
 }
 
-echo obterTaxaProcessamento(MetodoPagamento::Pix); // 0.0
+echo getProcessingFee(PaymentMethod::Pix); // 0.0
 ```
 
 ### `match(true)` para condições complexas
@@ -335,18 +335,18 @@ echo obterTaxaProcessamento(MetodoPagamento::Pix); // 0.0
 ```php
 <?php
 
-$nota = 8.5;
-$frequencia = 85;
+$grade = 8.5;
+$attendance = 85;
 
-$resultado = match (true) {
-    $nota >= 9 && $frequencia >= 90  => 'Aprovado com louvor',
-    $nota >= 7 && $frequencia >= 75  => 'Aprovado',
-    $nota >= 5 && $frequencia >= 75  => 'Recuperação',
-    $frequencia < 75                 => 'Reprovado por falta',
+$result = match (true) {
+    $grade >= 9 && $attendance >= 90  => 'Aprovado com louvor',
+    $grade >= 7 && $attendance >= 75  => 'Aprovado',
+    $grade >= 5 && $attendance >= 75  => 'Recuperação',
+    $attendance < 75                 => 'Reprovado por falta',
     default                          => 'Reprovado por nota',
 };
 
-echo $resultado; // Aprovado
+echo $result; // Aprovado
 ```
 
 ### `match` sem `default` e `UnhandledMatchError`
@@ -356,17 +356,17 @@ Se nenhum braço corresponder e não houver `default`, o PHP lança `\UnhandledM
 ```php
 <?php
 
-$direcao = 'norte';
+$direction = 'norte';
 
 try {
-    $comando = match ($direcao) {
+    $command = match ($direction) {
         'cima'    => 'Mover para cima',
         'baixo'   => 'Mover para baixo',
         'esquerda' => 'Mover para esquerda',
         'direita' => 'Mover para direita',
     };
 } catch (\UnhandledMatchError $e) {
-    echo "Direção '{$direcao}' não reconhecida.";
+    echo "Direção '{$direction}' não reconhecida.";
 }
 // Direção 'norte' não reconhecida.
 ```
@@ -382,11 +382,11 @@ Executa o bloco **enquanto** a condição for verdadeira. O PHP verifica a condi
 ```php
 <?php
 
-$contador = 1;
+$counter = 1;
 
-while ($contador <= 5) {
-    echo "Iteração {$contador}\n";
-    $contador++;
+while ($counter <= 5) {
+    echo "Iteração {$counter}\n";
+    $counter++;
 }
 // Iteração 1
 // Iteração 2
@@ -404,10 +404,10 @@ if ($handle === false) {
     die('Não foi possível abrir o arquivo');
 }
 
-$linhaNumero = 0;
-while (($linha = fgetcsv($handle)) !== false) {
-    $linhaNumero++;
-    echo "Linha {$linhaNumero}: " . implode(' | ', $linha) . "\n";
+$lineNumber = 0;
+while (($line = fgetcsv($handle)) !== false) {
+    $lineNumber++;
+    echo "Linha {$lineNumber}: " . implode(' | ', $line) . "\n";
 }
 fclose($handle);
 ```
@@ -419,25 +419,25 @@ A condição é verificada **depois** da execução. Garante que o bloco execute
 ```php
 <?php
 
-$tentativas = 0;
-$maxTentativas = 3;
+$attempts = 0;
+$maxAttempts = 3;
 
 do {
-    $tentativas++;
-    echo "Tentativa {$tentativas} de {$maxTentativas}\n";
+    $attempts++;
+    echo "Tentativa {$attempts} de {$maxAttempts}\n";
 
     // Simula uma operação que pode falhar
-    $sucesso = random_int(0, 1) === 1;
+    $success = random_int(0, 1) === 1;
 
-    if ($sucesso) {
+    if ($success) {
         echo "Operação concluída com sucesso!\n";
         break;
     }
 
     echo "Falhou. ";
-} while ($tentativas < $maxTentativas);
+} while ($attempts < $maxAttempts);
 
-if ($tentativas === $maxTentativas && !$sucesso) {
+if ($attempts === $maxAttempts && !$success) {
     echo "Todas as tentativas falharam.\n";
 }
 ```
@@ -513,9 +513,9 @@ for (;;) {
 echo "Tabuada do 7:\n";
 echo str_repeat('─', 20) . "\n";
 
-for ($multiplicador = 1; $multiplicador <= 10; $multiplicador++) {
-    $resultado = 7 * $multiplicador;
-    echo "7 × " . str_pad($multiplicador, 2, ' ', STR_PAD_LEFT) . " = " . str_pad($resultado, 2, ' ', STR_PAD_LEFT) . "\n";
+for ($multiplier = 1; $multiplier <= 10; $multiplier++) {
+    $result = 7 * $multiplier;
+    echo "7 × " . str_pad($multiplier, 2, ' ', STR_PAD_LEFT) . " = " . str_pad($result, 2, ' ', STR_PAD_LEFT) . "\n";
 }
 /*
 Tabuada do 7:
@@ -533,17 +533,17 @@ Tabuada do 7:
 ```php
 <?php
 
-$meses = [
+$months = [
     'Janeiro', 'Fevereiro', 'Março', 'Abril',
     'Maio', 'Junho', 'Julho', 'Agosto',
     'Setembro', 'Outubro', 'Novembro', 'Dezembro',
 ];
 
 echo "<select name='mes'>\n";
-for ($i = 0; $i < count($meses); $i++) {
-    $valor = $i + 1;
-    $selecionado = ($valor === (int)date('m')) ? ' selected' : '';
-    echo "    <option value='{$valor}'{$selecionado}>{$meses[$i]}</option>\n";
+for ($i = 0; $i < count($months); $i++) {
+    $value = $i + 1;
+    $selected = ($value === (int)date('m')) ? ' selected' : '';
+    echo "    <option value='{$value}'{$selected}>{$months[$i]}</option>\n";
 }
 echo "</select>\n";
 ```
@@ -559,10 +559,10 @@ A forma mais idiomática de iterar sobre arrays e objetos iteráveis em PHP.
 ```php
 <?php
 
-$frutas = ['maçã', 'banana', 'laranja', 'uva', 'morango'];
+$fruits = ['maçã', 'banana', 'laranja', 'uva', 'morango'];
 
-foreach ($frutas as $fruta) {
-    echo "Fruta: {$fruta}\n";
+foreach ($fruits as $fruit) {
+    echo "Fruta: {$fruit}\n";
 }
 ```
 
@@ -571,15 +571,15 @@ foreach ($frutas as $fruta) {
 ```php
 <?php
 
-$usuario = [
-    'nome'   => 'Carlos Eduardo',
+$user = [
+    'name'   => 'Carlos Eduardo',
     'email'  => 'carlos@exemplo.com',
-    'idade'  => 34,
-    'cidade' => 'Belo Horizonte',
+    'age'    => 34,
+    'city'   => 'Belo Horizonte',
 ];
 
-foreach ($usuario as $chave => $valor) {
-    echo ucfirst($chave) . ": {$valor}\n";
+foreach ($user as $key => $value) {
+    echo ucfirst($key) . ": {$value}\n";
 }
 // Nome: Carlos Eduardo
 // Email: carlos@exemplo.com
@@ -592,26 +592,26 @@ foreach ($usuario as $chave => $valor) {
 ```php
 <?php
 
-$produtos = [
-    ['nome' => 'Notebook',    'preco' => 3500.00, 'estoque' => 12],
-    ['nome' => 'Monitor 27"', 'preco' => 1200.00, 'estoque' => 5],
-    ['nome' => 'Teclado',     'preco' => 250.00,  'estoque' => 30],
-    ['nome' => 'Mouse',       'preco' => 120.00,  'estoque' => 0],
+$products = [
+    ['name' => 'Notebook',    'price' => 3500.00, 'stock' => 12],
+    ['name' => 'Monitor 27"', 'price' => 1200.00, 'stock' => 5],
+    ['name' => 'Teclado',     'price' => 250.00,  'stock' => 30],
+    ['name' => 'Mouse',       'price' => 120.00,  'stock' => 0],
 ];
 
 echo "┌──────┬────────────────────┬──────────┬─────────┐\n";
 echo "│ ID   │ Produto            │ Preço    │ Estoque │\n";
 echo "├──────┼────────────────────┼──────────┼─────────┤\n";
 
-foreach ($produtos as $id => $produto) {
+foreach ($products as $id => $product) {
     $idStr     = str_pad($id + 1, 4, ' ', STR_PAD_LEFT);
-    $nomeStr   = str_pad($produto['nome'], 18, ' ');
-    $precoStr  = 'R$ ' . str_pad(number_format($produto['preco'], 2, ',', '.'), 7, ' ', STR_PAD_LEFT);
-    $estoqueStr = str_pad($produto['estoque'], 7, ' ', STR_PAD_LEFT);
+    $nameStr   = str_pad($product['name'], 18, ' ');
+    $priceStr  = 'R$ ' . str_pad(number_format($product['price'], 2, ',', '.'), 7, ' ', STR_PAD_LEFT);
+    $stockStr  = str_pad($product['stock'], 7, ' ', STR_PAD_LEFT);
 
-    $status = $produto['estoque'] > 0 ? '' : ' (esgotado)';
+    $status = $product['stock'] > 0 ? '' : ' (esgotado)';
 
-    echo "│ {$idStr} │ {$nomeStr} │ {$precoStr} │ {$estoqueStr} │{$status}\n";
+    echo "│ {$idStr} │ {$nameStr} │ {$priceStr} │ {$stockStr} │{$status}\n";
 }
 
 echo "└──────┴────────────────────┴──────────┴─────────┘\n";
@@ -622,20 +622,20 @@ echo "└──────┴────────────────�
 ```php
 <?php
 
-$numeros = [1, 2, 3, 4, 5];
+$numbers = [1, 2, 3, 4, 5];
 
 // Por valor: NÃO altera o array original
-foreach ($numeros as $num) {
+foreach ($numbers as $num) {
     $num *= 2; // $num é uma cópia
 }
-print_r($numeros); // [1, 2, 3, 4, 5] — inalterado
+print_r($numbers); // [1, 2, 3, 4, 5] — inalterado
 
 // Por referência: ALTERA o array original
-foreach ($numeros as &$num) {
+foreach ($numbers as &$num) {
     $num *= 2;
 }
 unset($num); // IMPORTANTE: desfazer a referência após o loop!
-print_r($numeros); // [2, 4, 6, 8, 10]
+print_r($numbers); // [2, 4, 6, 8, 10]
 ```
 
 > ⚠️ **Cuidado**: Sempre chame `unset()` na variável de referência após o loop.
@@ -657,26 +657,26 @@ print_r($numeros); // [2, 4, 6, 8, 10]
 
 // Qualquer objeto que implemente Traversable pode ser usado em foreach
 
-class Contador implements \Iterator
+class Counter implements \Iterator
 {
-    private int $posicao = 0;
-    private array $valores;
+    private int $position = 0;
+    private array $values;
 
-    public function __construct(array $valores)
+    public function __construct(array $values)
     {
-        $this->valores = array_values($valores);
+        $this->values = array_values($values);
     }
 
-    public function current(): mixed { return $this->valores[$this->posicao]; }
-    public function key(): mixed { return $this->posicao; }
-    public function next(): void { $this->posicao++; }
-    public function rewind(): void { $this->posicao = 0; }
-    public function valid(): bool { return isset($this->valores[$this->posicao]); }
+    public function current(): mixed { return $this->values[$this->position]; }
+    public function key(): mixed { return $this->position; }
+    public function next(): void { $this->position++; }
+    public function rewind(): void { $this->position = 0; }
+    public function valid(): bool { return isset($this->values[$this->position]); }
 }
 
-$contador = new Contador(['a', 'b', 'c']);
-foreach ($contador as $indice => $valor) {
-    echo "{$indice}: {$valor}\n";
+$counter = new Counter(['a', 'b', 'c']);
+foreach ($counter as $index => $value) {
+    echo "{$index}: {$value}\n";
 }
 ```
 
@@ -685,10 +685,10 @@ foreach ($contador as $indice => $valor) {
 ```php
 <?php
 
-$cores = ['vermelho', 'verde', 'azul'];
+$colors = ['vermelho', 'verde', 'azul'];
 
-foreach ($cores as $indice => $cor) {
-    echo "[{$indice}] = {$cor}\n";
+foreach ($colors as $index => $color) {
+    echo "[{$index}] = {$color}\n";
 }
 // [0] = vermelho
 // [1] = verde
@@ -700,10 +700,10 @@ foreach ($cores as $indice => $cor) {
 ```php
 <?php
 
-$texto = "PHP";
-$caracteres = mb_str_split($texto); // PHP 7.4+
+$text = "PHP";
+$characters = mb_str_split($text); // PHP 7.4+
 
-foreach ($caracteres as $i => $char) {
+foreach ($characters as $i => $char) {
     echo "Posição {$i}: {$char}\n";
 }
 // Posição 0: P
@@ -724,12 +724,12 @@ Interrompe a execução do loop atual:
 
 echo "Procurando o número 7...\n";
 
-$numeros = [1, 3, 5, 7, 9, 11, 13];
+$numbers = [1, 3, 5, 7, 9, 11, 13];
 
-foreach ($numeros as $posicao => $numero) {
-    echo "  Verificando posição {$posicao}: {$numero}\n";
-    if ($numero === 7) {
-        echo "  → Encontrado na posição {$posicao}!\n";
+foreach ($numbers as $position => $number) {
+    echo "  Verificando posição {$position}: {$number}\n";
+    if ($number === 7) {
+        echo "  → Encontrado na posição {$position}!\n";
         break; // Para o loop imediatamente
     }
 }
@@ -748,20 +748,20 @@ Procurando o número 7...
 ```php
 <?php
 
-$matriz = [
+$matrix = [
     [1, 2, 3],
     [4, 5, 6],
     [7, 8, 9],
 ];
 
-$alvo = 5;
-$encontrado = false;
+$target = 5;
+$found = false;
 
-foreach ($matriz as $linhaIndex => $linha) {
-    foreach ($linha as $colunaIndex => $valor) {
-        echo "  [{$linhaIndex}][{$colunaIndex}] = {$valor}\n";
-        if ($valor === $alvo) {
-            echo "  → Encontrado em [{$linhaIndex}][{$colunaIndex}]\n";
+foreach ($matrix as $rowIndex => $row) {
+    foreach ($row as $columnIndex => $value) {
+        echo "  [{$rowIndex}][{$columnIndex}] = {$value}\n";
+        if ($value === $target) {
+            echo "  → Encontrado em [{$rowIndex}][{$columnIndex}]\n";
             break 2; // Sai de AMBOS os foreach
         }
     }
@@ -790,18 +790,18 @@ for ($i = 1; $i <= 10; $i++) {
 ```php
 <?php
 
-$matriz = [
+$matrix = [
     [1, 2, 3],
     [4, 5, 6],
     [7, 8, 9],
 ];
 
-foreach ($matriz as $linha) {
-    foreach ($linha as $valor) {
-        if ($valor % 2 === 0) {
+foreach ($matrix as $row) {
+    foreach ($row as $value) {
+        if ($value % 2 === 0) {
             continue 2; // Pula para a PRÓXIMA LINHA
         }
-        echo "{$valor} "; // Só imprime ímpares
+        echo "{$value} "; // Só imprime ímpares
     }
     echo "\n";
 }
@@ -818,14 +818,14 @@ Em `switch`, `break` encerra o switch, `continue` age como `break`:
 <?php
 
 // Dentro de um switch aninhado em um loop:
-$valores = [1, 2, 3, 'fim'];
+$values = [1, 2, 3, 'fim'];
 
-foreach ($valores as $valor) {
-    if ($valor === 'fim') {
+foreach ($values as $value) {
+    if ($value === 'fim') {
         break; // Sai do foreach
     }
 
-    switch ($valor) {
+    switch ($value) {
         case 1:
             echo "um\n";
             break; // Sai do switch
@@ -837,7 +837,7 @@ foreach ($valores as $valor) {
             break;
     }
 
-    echo "Após o switch (valor {$valor})\n";
+    echo "Após o switch (value {$value})\n";
 }
 /*
 Saída:
@@ -859,12 +859,12 @@ PHP suporta `goto`, mas seu uso é desencorajado. Pode tornar o código impossí
 
 $i = 0;
 
-inicio_loop:
+loop_start:
     $i++;
     echo "{$i} ";
 
     if ($i < 5) {
-        goto inicio_loop;
+        goto loop_start;
     }
 // 1 2 3 4 5
 ```
@@ -875,18 +875,18 @@ inicio_loop:
 <?php
 
 // goto pode ser útil como alternativa a break N em casos muito complexos
-foreach ($dados as $grupo) {
-    foreach ($grupo as $item) {
+foreach ($data as $group) {
+    foreach ($group as $item) {
         foreach ($item as $subItem) {
-            if (condicaoDeSaida($subItem)) {
-                goto saida_limpa;
+            if (exitCondition($subItem)) {
+                goto clean_exit;
             }
-            processarItem($subItem);
+            processItem($subItem);
         }
     }
 }
 
-saida_limpa:
+clean_exit:
     echo "Processamento concluído ou interrompido.\n";
 ```
 
@@ -913,7 +913,7 @@ Dentro de uma função, `return` encerra a execução e retorna um valor. Fora d
 ```php
 <?php
 
-function dividir(float $a, float $b): float
+function divide(float $a, float $b): float
 {
     if ($b === 0.0) {
         throw new \DivisionByZeroError('Divisão por zero');
@@ -923,8 +923,8 @@ function dividir(float $a, float $b): float
     echo "Esta linha nunca será impressa";
 }
 
-$resultado = dividir(10, 2);
-echo $resultado; // 5
+$result = divide(10, 2);
+echo $result; // 5
 ```
 
 ### `return` em arquivos incluídos
@@ -960,12 +960,12 @@ Já vimos nos módulos anteriores. Deve ser a primeira instrução do arquivo:
 
 declare(strict_types=1);
 
-function somar(int $a, int $b): int
+function add(int $a, int $b): int
 {
     return $a + $b;
 }
 
-// somar(1, "2"); // TypeError com strict_types
+// add(1, "2"); // TypeError com strict_types
 ```
 
 ### `declare(ticks=N)`
@@ -1013,9 +1013,9 @@ PHP oferece uma sintaxe alternativa para estruturas de controle, ideal para temp
 ### `if:` / `endif;`
 
 ```php
-<?php if ($usuarioLogado): ?>
+<?php if ($isLoggedIn): ?>
     <div class="dashboard">
-        <h2>Bem-vindo, <?= htmlspecialchars($usuario['nome']) ?></h2>
+        <h2>Bem-vindo, <?= htmlspecialchars($user['name']) ?></h2>
         <a href="/perfil">Meu Perfil</a>
     </div>
 <?php else: ?>
@@ -1023,7 +1023,7 @@ PHP oferece uma sintaxe alternativa para estruturas de controle, ideal para temp
         <h2>Entrar</h2>
         <form method="post" action="/login">
             <input type="email" name="email" placeholder="Email">
-            <input type="password" name="senha" placeholder="Senha">
+            <input type="password" name="password" placeholder="Senha">
             <button type="submit">Entrar</button>
         </form>
     </div>
@@ -1043,12 +1043,12 @@ PHP oferece uma sintaxe alternativa para estruturas de controle, ideal para temp
         </tr>
     </thead>
     <tbody>
-    <?php foreach ($produtos as $i => $produto): ?>
-        <tr class="<?= $produto['estoque'] === 0 ? 'esgotado' : '' ?>">
+    <?php foreach ($products as $i => $product): ?>
+        <tr class="<?= $product['stock'] === 0 ? 'esgotado' : '' ?>">
             <td><?= $i + 1 ?></td>
-            <td><?= htmlspecialchars($produto['nome']) ?></td>
-            <td>R$ <?= number_format($produto['preco'], 2, ',', '.') ?></td>
-            <td><?= $produto['estoque'] ?></td>
+            <td><?= htmlspecialchars($product['name']) ?></td>
+            <td>R$ <?= number_format($product['price'], 2, ',', '.') ?></td>
+            <td><?= $product['stock'] ?></td>
         </tr>
     <?php endforeach; ?>
     </tbody>
@@ -1060,8 +1060,8 @@ PHP oferece uma sintaxe alternativa para estruturas de controle, ideal para temp
 ```php
 <select name="ano">
     <option value="">Selecione o ano</option>
-    <?php for ($ano = date('Y'); $ano >= 2000; $ano--): ?>
-        <option value="<?= $ano ?>"><?= $ano ?></option>
+    <?php for ($year = date('Y'); $year >= 2000; $year--): ?>
+        <option value="<?= $year ?>"><?= $year ?></option>
     <?php endfor; ?>
 </select>
 ```
@@ -1082,7 +1082,7 @@ PHP oferece uma sintaxe alternativa para estruturas de controle, ideal para temp
 ### `switch:` / `endswitch;`
 
 ```php
-<?php switch ($tipoUsuario): ?>
+<?php switch ($userType): ?>
     <?php case 'admin': ?>
         <nav class="admin-menu">
             <a href="/admin/dashboard">Dashboard</a>
@@ -1117,42 +1117,42 @@ Um script que combina várias estruturas de controle:
 
 declare(strict_types=1);
 
-function classificarNumeros(array $numeros): array
+function classifyNumbers(array $numbers): array
 {
-    $classificacao = [
-        'pares'     => [],
-        'impares'   => [],
-        'primos'    => [],
-        'negativos' => [],
+    $classification = [
+        'even'      => [],
+        'odd'       => [],
+        'primes'    => [],
+        'negatives' => [],
         'zeros'     => 0,
     ];
 
-    foreach ($numeros as $numero) {
-        if ($numero === 0) {
-            $classificacao['zeros']++;
+    foreach ($numbers as $number) {
+        if ($number === 0) {
+            $classification['zeros']++;
             continue;
         }
 
-        if ($numero < 0) {
-            $classificacao['negativos'][] = $numero;
-            $numero = abs($numero);
+        if ($number < 0) {
+            $classification['negatives'][] = $number;
+            $number = abs($number);
         }
 
-        if ($numero % 2 === 0) {
-            $classificacao['pares'][] = $numero;
+        if ($number % 2 === 0) {
+            $classification['even'][] = $number;
         } else {
-            $classificacao['impares'][] = $numero;
+            $classification['odd'][] = $number;
         }
 
-        if (ehPrimo($numero)) {
-            $classificacao['primos'][] = $numero;
+        if (isPrime($number)) {
+            $classification['primes'][] = $number;
         }
     }
 
-    return $classificacao;
+    return $classification;
 }
 
-function ehPrimo(int $n): bool
+function isPrime(int $n): bool
 {
     if ($n <= 1) return false;
     if ($n <= 3) return true;
@@ -1167,21 +1167,21 @@ function ehPrimo(int $n): bool
 }
 
 // Teste
-$numeros = [-7, -3, 0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 17, 0, 42];
-$resultado = classificarNumeros($numeros);
+$numbers = [-7, -3, 0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 17, 0, 42];
+$result = classifyNumbers($numbers);
 
-foreach ($resultado as $categoria => $valores) {
-    if ($categoria === 'zeros') {
-        echo "Zeros encontrados: {$valores}\n";
+foreach ($result as $category => $values) {
+    if ($category === 'zeros') {
+        echo "Zeros encontrados: {$values}\n";
     } else {
-        echo ucfirst($categoria) . ": " . implode(', ', $valores) . "\n";
+        echo ucfirst($category) . ": " . implode(', ', $values) . "\n";
     }
 }
 /*
-Pares: 2, 4, 6, 8, 10, 42
-Impares: 7, 3, 3, 5, 7, 9, 11, 13, 17
-Primos: 2, 7, 3, 3, 5, 7, 11, 13, 17
-Negativos: -7, -3
+Even: 2, 4, 6, 8, 10, 42
+Odd: 7, 3, 3, 5, 7, 9, 11, 13, 17
+Primes: 2, 7, 3, 3, 5, 7, 11, 13, 17
+Negatives: -7, -3
 Zeros encontrados: 2
 */
 ```

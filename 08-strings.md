@@ -28,9 +28,9 @@ Conteúdo **não é interpretado**. Apenas duas sequências de escape são recon
 ```php
 <?php
 
-$nome = 'PHP';
+$name = 'PHP';
 
-echo 'Olá, $nome!';           // Olá, $nome! (NÃO interpola)
+echo 'Olá, $name!';           // Olá, $name! (NÃO interpola)
 echo 'Custo: R$ 99,90';       // Custo: R$ 99,90
 echo 'Aspas \'simples\'';     // Aspas 'simples'
 echo 'Barra \\ invertida';    // Barra \ invertida
@@ -43,10 +43,10 @@ Realizam **interpolação de variáveis** e reconhecem sequências de escape com
 ```php
 <?php
 
-$linguagem = 'PHP';
-$versao = 8.5;
+$language = 'PHP';
+$version = 8.5;
 
-echo "Estudando $linguagem $versao";    // Estudando PHP 8.5
+echo "Estudando $language $version";    // Estudando PHP 8.5
 
 // Sequências de escape
 echo "Linha 1\nLinha 2\nLinha 3";
@@ -62,24 +62,24 @@ Para expressões mais complexas dentro de strings com aspas duplas, use `{}`:
 ```php
 <?php
 
-$frutas = ['maçã', 'banana', 'laranja'];
-echo "Primeira fruta: {$frutas[0]}";          // Primeira fruta: maçã
+$fruits = ['maçã', 'banana', 'laranja'];
+echo "Primeira fruta: {$fruits[0]}";          // Primeira fruta: maçã
 
-class Usuario {
-    public function getNome(): string {
+class User {
+    public function getName(): string {
         return 'Maria';
     }
 }
-$u = new Usuario();
-echo "Nome: {$u->getNome()}";                 // Nome: Maria
+$user = new User();
+echo "Nome: {$user->getName()}";                 // Nome: Maria
 
 // Acessar propriedades de array associativo
-$config = ['host' => 'localhost', 'porta' => 3306];
-echo "Conectando em {$config['host']}:{$config['porta']}";
+$config = ['host' => 'localhost', 'port' => 3306];
+echo "Conectando em {$config['host']}:{$config['port']}";
 // Conectando em localhost:3306
 
-$valor = 42;
-echo "O dobro de {$valor} é " . ($valor * 2); // O dobro de 42 é 84
+$value = 42;
+echo "O dobro de {$value} é " . ($value * 2); // O dobro de 42 é 84
 ```
 
 ### Performance
@@ -97,13 +97,13 @@ Equivalente a aspas duplas (interpola variáveis), mas permite múltiplas linhas
 ```php
 <?php
 
-$nome = 'Carlos';
-$idade = 28;
+$name = 'Carlos';
+$age = 28;
 
 $html = <<<HTML
 <div class="usuario">
-    <h2>Nome: {$nome}</h2>
-    <p>Idade: {$idade} anos</p>
+    <h2>Nome: {$name}</h2>
+    <p>Idade: {$age} anos</p>
 </div>
 HTML;
 
@@ -124,11 +124,11 @@ A partir do PHP 7.3, o identificador de fechamento **pode** ser indentado. A ind
 
 function gerarTemplate(): string
 {
-    $titulo = 'Bem-vindo';
+    $title = 'Bem-vindo';
 
     return <<<HTML
         <section>
-            <h1>{$titulo}</h1>
+            <h1>{$title}</h1>
             <p>PHP 8.5 é incrível.</p>
         </section>
         HTML; // indentação do fechador: 8 espaços
@@ -147,13 +147,13 @@ Equivalente a aspas simples — **não interpola** variáveis. O identificador d
 
 $framework = 'Laravel';
 
-$texto = <<<'TXT'
+$text = <<<'TXT'
 Neste bloco, $framework não será interpolado.
 Todas as sequências como \n e \t são tratadas literalmente.
 Aqui vai uma barra: \\ e um cifrão: \$var
 TXT;
 
-echo $texto;
+echo $text;
 // Neste bloco, $framework não será interpolado.
 // Todas as sequências como \n e \t são tratadas literalmente.
 // Aqui vai uma barra: \\ e um cifrão: \$var
@@ -192,17 +192,17 @@ echo strlen('café');      // 5  — CUIDADO: conta bytes, não caracteres!
 ```php
 <?php
 
-$frase = 'O rato roeu a roupa do rei de Roma';
+$phrase = 'O rato roeu a roupa do rei de Roma';
 
-$pos = strpos($frase, 'rato');
+$pos = strpos($phrase, 'rato');
 echo $pos; // 2 (posição baseada em zero)
 
-$pos2 = strpos($frase, 'Roma');
+$pos2 = strpos($phrase, 'Roma');
 echo $pos2; // 30
 
 // Não encontrado retorna false
-$inexistente = strpos($frase, 'Python');
-var_dump($inexistente); // bool(false)
+$notFound = strpos($phrase, 'Python');
+var_dump($notFound); // bool(false)
 ```
 
 ⚠️ **Cuidado:** `strpos()` pode retornar índice `0`, que é falsy. Sempre compare com `=== false`:
@@ -230,14 +230,14 @@ echo stripos('Olá MUNDO', 'mundo'); // 4
 ```php
 <?php
 
-$texto = 'O gato preto pulou sobre o gato branco';
-$novo = str_replace('gato', 'cachorro', $texto);
-echo $novo; // O cachorro preto pulou sobre o cachorro branco
+$text = 'O gato preto pulou sobre o gato branco';
+$new = str_replace('gato', 'cachorro', $text);
+echo $new; // O cachorro preto pulou sobre o cachorro branco
 
 // Substituições múltiplas com arrays:
-$buscas = ['gato', 'preto', 'branco'];
-$trocas = ['pássaro', 'azul', 'amarelo'];
-echo str_replace($buscas, $trocas, $texto);
+$searches = ['gato', 'preto', 'branco'];
+$replacements = ['pássaro', 'azul', 'amarelo'];
+echo str_replace($searches, $replacements, $text);
 // O pássaro azul pulou sobre o pássaro amarelo
 ```
 
@@ -255,12 +255,12 @@ echo str_ireplace('PHP', 'JavaScript', 'php é legal e PHP também');
 ```php
 <?php
 
-$texto = 'PHP 8.5 - Novidades';
+$text = 'PHP 8.5 - Novidades';
 
-echo substr($texto, 0, 3);   // PHP (a partir do 0, 3 caracteres)
-echo substr($texto, 4, 3);   // 8.5
-echo substr($texto, -9);     // Novidades (últimos 9 caracteres)
-echo substr($texto, 4, -3);  // 8.5 - Novid (remove 3 do final)
+echo substr($text, 0, 3);   // PHP (a partir do 0, 3 caracteres)
+echo substr($text, 4, 3);   // 8.5
+echo substr($text, -9);     // Novidades (últimos 9 caracteres)
+echo substr($text, 4, -3);  // 8.5 - Novid (remove 3 do final)
 ```
 
 ### `trim()`, `ltrim()`, `rtrim()` — Remover Espaços
@@ -268,16 +268,16 @@ echo substr($texto, 4, -3);  // 8.5 - Novid (remove 3 do final)
 ```php
 <?php
 
-$sujo = "   \t  Hello, World!  \n  ";
+$dirty = "   \t  Hello, World!  \n  ";
 
-echo trim($sujo);   // "Hello, World!"
-echo ltrim($sujo);  // "Hello, World!  \n  "
-echo rtrim($sujo);  // "   \t  Hello, World!"
+echo trim($dirty);   // "Hello, World!"
+echo ltrim($dirty);  // "Hello, World!  \n  "
+echo rtrim($dirty);  // "   \t  Hello, World!"
 
 // Remover caracteres específicos:
-$valor = '...R$ 99,90...';
-echo trim($valor, '.');            // "R$ 99,90"
-echo trim($valor, '.R$ ');         // "99,90"
+$value = '...R$ 99,90...';
+echo trim($value, '.');            // "R$ 99,90"
+echo trim($value, '.R$ ');         // "99,90"
 ```
 
 ### `strtoupper()`, `strtolower()`, `ucfirst()`, `ucwords()`, `lcfirst()`
@@ -285,12 +285,12 @@ echo trim($valor, '.R$ ');         // "99,90"
 ```php
 <?php
 
-$nome = 'joão silva';
+$name = 'joão silva';
 
-echo strtoupper($nome);    // JOÃO SILVA
-echo strtolower($nome);    // joão silva
-echo ucfirst($nome);       // João silva
-echo ucwords($nome);       // João Silva
+echo strtoupper($name);    // JOÃO SILVA
+echo strtolower($name);    // joão silva
+echo ucfirst($name);       // João silva
+echo ucwords($name);       // João Silva
 echo lcfirst('PHP');       // pHP
 
 // IMPORTANTE: estas funções NÃO lidam com UTF-8 corretamente.
@@ -320,11 +320,11 @@ echo mb_strlen('日本語');     // 3
 ```php
 <?php
 
-$texto = 'Programação em PHP';
+$text = 'Programação em PHP';
 
-echo mb_substr($texto, 0, 11);   // Programação
-echo mb_substr($texto, -3);       // PHP
-echo mb_substr($texto, 12);       // em PHP
+echo mb_substr($text, 0, 11);   // Programação
+echo mb_substr($text, -3);       // PHP
+echo mb_substr($text, 12);       // em PHP
 ```
 
 ### `mb_strpos()`
@@ -332,10 +332,10 @@ echo mb_substr($texto, 12);       // em PHP
 ```php
 <?php
 
-$frase = 'A explicação é simples';
+$phrase = 'A explicação é simples';
 
-echo mb_strpos($frase, 'ção');     // 9 (posição correta em caracteres)
-echo mb_strpos($frase, 'é');       // 14
+echo mb_strpos($phrase, 'ção');     // 9 (posição correta em caracteres)
+echo mb_strpos($phrase, 'é');       // 14
 ```
 
 ### Outras Funções `mb_*` Importantes
@@ -388,17 +388,17 @@ mb_regex_encoding('UTF-8');
 ```php
 <?php
 
-$texto = "　こんにちは　";  // espaços ideográficos (U+3000)
+$text = "　こんにちは　";  // espaços ideográficos (U+3000)
 
 // trim() NÃO remove caracteres multibyte
-echo trim($texto);              // "　こんにちは　" (não alterado)
+echo trim($text);              // "　こんにちは　" (não alterado)
 
 // mb_trim() remove corretamente
-echo mb_trim($texto);           // "こんにちは"
+echo mb_trim($text);           // "こんにちは"
 
 // Com caracteres específicos:
-$valor = '...R$ 99,90...';
-echo mb_trim($valor, '.');      // "R$ 99,90"
+$value = '...R$ 99,90...';
+echo mb_trim($value, '.');      // "R$ 99,90"
 
 // ltrim e rtrim
 echo mb_ltrim('   espaços à esquerda', ' ');    // "espaços à esquerda"
@@ -424,9 +424,9 @@ echo mb_lcfirst('OLA');              // oLA
 echo mb_lcfirst('ÁRVORE');           // áRVORE
 
 // Aplicação: capitalizar nome de cidade
-$cidade = 'são paulo';
-echo mb_ucfirst($cidade);            // São paulo
-echo mb_convert_case($cidade, MB_CASE_TITLE, 'UTF-8'); // São Paulo
+$city = 'são paulo';
+echo mb_ucfirst($city);            // São paulo
+echo mb_convert_case($city, MB_CASE_TITLE, 'UTF-8'); // São Paulo
 ```
 
 💡 **Dica:** Use `mb_ucfirst` para capitalizar a primeira letra de nomes próprios, títulos e início de frases em português, que com frequência começam com acentos.
@@ -441,16 +441,16 @@ echo mb_convert_case($cidade, MB_CASE_TITLE, 'UTF-8'); // São Paulo
 <?php
 
 $csv = 'João,Maria,Pedro,Ana,Bia';
-$nomes = explode(',', $csv);
-print_r($nomes); // ['João', 'Maria', 'Pedro', 'Ana', 'Bia']
+$names = explode(',', $csv);
+print_r($names); // ['João', 'Maria', 'Pedro', 'Ana', 'Bia']
 
 // Com limite (terceiro parâmetro):
-$frase = 'um dois três quatro cinco';
-print_r(explode(' ', $frase, 3));
+$phrase = 'um dois três quatro cinco';
+print_r(explode(' ', $phrase, 3));
 // ['um', 'dois', 'três quatro cinco']
 
 // Limite negativo — remove os últimos N elementos:
-print_r(explode(' ', $frase, -2));
+print_r(explode(' ', $phrase, -2));
 // ['um', 'dois', 'três']
 ```
 
@@ -461,12 +461,12 @@ print_r(explode(' ', $frase, -2));
 ```php
 <?php
 
-$partes = ['2026', '08', '04'];
-echo implode('-', $partes);  // 2026-08-04
-echo join('/', $partes);     // 2026/08/04
+$parts = ['2026', '08', '04'];
+echo implode('-', $parts);  // 2026-08-04
+echo join('/', $parts);     // 2026/08/04
 
 // Implode sem delimitador:
-echo implode($partes);      // 20260804
+echo implode($parts);      // 20260804
 ```
 
 ### Pipeline Típico: `explode` → processar → `implode`
@@ -474,12 +474,12 @@ echo implode($partes);      // 20260804
 ```php
 <?php
 
-$nomes = 'ana, carlos, BIA, PEDRO, joão';
+$names = 'ana, carlos, BIA, PEDRO, joão';
 
 // Normalizar: trim e capitalizar cada nome
-$partes = explode(',', $nomes);
-$partes = array_map(fn(string $n): string => mb_ucfirst(mb_strtolower(trim($n))), $partes);
-$normalizado = implode(', ', $partes);
+$parts = explode(',', $names);
+$parts = array_map(fn(string $name): string => mb_ucfirst(mb_strtolower(trim($name))), $parts);
+$normalizado = implode(', ', $parts);
 
 echo $normalizado; // Ana, Carlos, Bia, Pedro, João
 ```
@@ -493,12 +493,12 @@ echo $normalizado; // Ana, Carlos, Bia, Pedro, João
 ```php
 <?php
 
-$produto = 'Notebook';
-$preco   = 3500.00;
-$qtd     = 2;
+$product = 'Notebook';
+$price   = 3500.00;
+$qty     = 2;
 
-echo sprintf('Produto: %s — Preço unitário: R$ %.2f — Quantidade: %d', $produto, $preco, $qtd);
-// Produto: Notebook — Preço unitário: R$ 3500.00 — Quantidade: 2
+echo sprintf('Product: %s — Preço unitário: R$ %.2f — Quantidade: %d', $product, $price, $qty);
+// Product: Notebook — Preço unitário: R$ 3500.00 — Quantidade: 2
 ```
 
 ### Principais Placeholders
@@ -518,10 +518,10 @@ echo sprintf('Produto: %s — Preço unitário: R$ %.2f — Quantidade: %d', $pr
 ```php
 <?php
 
-$valor = 1234.5678;
+$value = 1234.5678;
 
-echo sprintf('R$ %.2f', $valor);        // R$ 1234.57
-echo sprintf('%\'.2f', $valor);          // 1234.57 (aspas simples é o padding char)
+echo sprintf('R$ %.2f', $value);        // R$ 1234.57
+echo sprintf('%\'.2f', $value);          // 1234.57 (aspas simples é o padding char)
 
 // Preenchimento com zeros à esquerda:
 echo sprintf('%08d', 42);                // 00000042
@@ -549,8 +549,8 @@ printf('Data: %s, Hora: %s', date('d/m/Y'), date('H:i'));
 function logFormatado(string $template, mixed ...$args): string
 {
     $timestamp = date('Y-m-d H:i:s');
-    $mensagem = vsprintf($template, $args);
-    return "[{$timestamp}] {$mensagem}";
+    $message = vsprintf($template, $args);
+    return "[{$timestamp}] {$message}";
 }
 
 echo logFormatado('Usuário %s fez login de %s', 'admin', '192.168.1.1');
@@ -604,17 +604,17 @@ Verifica se uma string **termina com** outra:
 ```php
 <?php
 
-$arquivo = 'relatorio_financeiro.pdf';
+$file = 'relatorio_financeiro.pdf';
 
-var_dump(str_ends_with($arquivo, '.pdf'));     // bool(true)
-var_dump(str_ends_with($arquivo, '.docx'));    // bool(false)
+var_dump(str_ends_with($file, '.pdf'));     // bool(true)
+var_dump(str_ends_with($file, '.docx'));    // bool(false)
 
 // Filtrar extensões permitidas:
-$permitidas = ['.jpg', '.png', '.gif', '.webp'];
+$allowed = ['.jpg', '.png', '.gif', '.webp'];
 $upload = 'foto_perfil.png';
 
-$valido = array_any($permitidas, fn(string $ext): bool => str_ends_with($upload, $ext));
-var_dump($valido); // bool(true)
+$valid = array_any($allowed, fn(string $ext): bool => str_ends_with($upload, $ext));
+var_dump($valid); // bool(true)
 ```
 
 ### Exemplo Combinado
@@ -622,7 +622,7 @@ var_dump($valido); // bool(true)
 ```php
 <?php
 
-function validarEmail(string $email): bool
+function validateEmail(string $email): bool
 {
     return str_contains($email, '@')
         && !str_starts_with($email, '@')
@@ -630,9 +630,9 @@ function validarEmail(string $email): bool
         && str_contains($email, '.');
 }
 
-var_dump(validarEmail('user@dominio.com'));  // bool(true)
-var_dump(validarEmail('@dominio.com'));      // bool(false)
-var_dump(validarEmail('user@'));             // bool(false)
+var_dump(validateEmail('user@dominio.com'));  // bool(true)
+var_dump(validateEmail('@dominio.com'));      // bool(false)
+var_dump(validateEmail('user@'));             // bool(false)
 ```
 
 ---
@@ -669,12 +669,12 @@ echo htmlspecialchars($input, ENT_QUOTES, 'UTF-8');
 ```php
 <?php
 
-$dados = "O'Brian disse: \"Olá\"";
+$date = "O'Brian disse: \"Olá\"";
 
-echo htmlspecialchars($dados, ENT_COMPAT, 'UTF-8');
+echo htmlspecialchars($date, ENT_COMPAT, 'UTF-8');
 // O'Brian disse: &quot;Olá&quot;
 
-echo htmlspecialchars($dados, ENT_QUOTES, 'UTF-8');
+echo htmlspecialchars($date, ENT_QUOTES, 'UTF-8');
 // O&#039;Brian disse: &quot;Olá&quot;
 
 // Sempre use ENT_QUOTES para máxima segurança
@@ -688,12 +688,12 @@ echo htmlspecialchars($dados, ENT_QUOTES, 'UTF-8');
 ```php
 <?php
 
-$texto = 'Ação e Coração';
+$text = 'Ação e Coração';
 
-echo htmlspecialchars($texto, ENT_QUOTES, 'UTF-8');
+echo htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
 // Ação e Coração (caracteres acentuados preservados)
 
-echo htmlentities($texto, ENT_QUOTES, 'UTF-8');
+echo htmlentities($text, ENT_QUOTES, 'UTF-8');
 // A&ccedil;&atilde;o e Cora&ccedil;&atilde;o (entidades HTML)
 ```
 
@@ -726,15 +726,15 @@ echo strip_tags($html, '<strong><em>');
  * Escapa valor para saída segura em HTML.
  * Se o valor for null, retorna string vazia.
  */
-function e(mixed $valor): string
+function e(mixed $value): string
 {
-    return htmlspecialchars((string) ($valor ?? ''), ENT_QUOTES, 'UTF-8');
+    return htmlspecialchars((string) ($value ?? ''), ENT_QUOTES, 'UTF-8');
 }
 
 // Em templates:
-$usuario = ['nome' => '<b>João</b>', 'bio' => 'Dev & "hacker" ético'];
-echo '<h1>' . e($usuario['nome']) . '</h1>';
-echo '<p>' . e($usuario['bio']) . '</p>';
+$user = ['name' => '<b>João</b>', 'bio' => 'Dev & "hacker" ético'];
+echo '<h1>' . e($user['name']) . '</h1>';
+echo '<p>' . e($user['bio']) . '</p>';
 // <h1>&lt;b&gt;João&lt;/b&gt;</h1>
 // <p>Dev &amp; &quot;hacker&quot; ético</p>
 ```
@@ -748,9 +748,9 @@ echo '<p>' . e($usuario['bio']) . '</p>';
 ```php
 <?php
 
-$comentario = "Primeira linha.\nSegunda linha.\nTerceira linha.";
+$comment = "Primeira linha.\nSegunda linha.\nTerceira linha.";
 
-echo nl2br($comentario);
+echo nl2br($comment);
 // Primeira linha.<br />
 // Segunda linha.<br />
 // Terceira linha.
@@ -761,7 +761,7 @@ Para usar `<br>` (XHTML) em vez de `<br />`:
 ```php
 <?php
 
-echo nl2br($comentario, false); // <br> em vez de <br />
+echo nl2br($comment, false); // <br> em vez de <br />
 ```
 
 ### `wordwrap()` — Quebrar Linhas por Comprimento
@@ -769,9 +769,9 @@ echo nl2br($comentario, false); // <br> em vez de <br />
 ```php
 <?php
 
-$texto = 'O rápido cachorro marrom pula sobre o gato preguiçoso.';
+$text = 'O rápido cachorro marrom pula sobre o gato preguiçoso.';
 
-echo wordwrap($texto, 20, "<br />\n");
+echo wordwrap($text, 20, "<br />\n");
 /*
 O rápido cachorro
 marrom pula sobre o
@@ -798,9 +798,9 @@ Expressões regulares (regex) são padrões de busca em strings. Em PHP, as fun�
 $email = 'usuario@dominio.com.br';
 
 // Verificar formato de email (simplificado)
-$padrao = '/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/';
+$pattern = '/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/';
 
-if (preg_match($padrao, $email)) {
+if (preg_match($pattern, $email)) {
     echo 'Email válido';
 } else {
     echo 'Email inválido';
@@ -812,9 +812,9 @@ if (preg_match($padrao, $email)) {
 ```php
 <?php
 
-$data = 'Data: 2026-08-04';
+$date = 'Data: 2026-08-04';
 
-if (preg_match('/Data: (\d{4})-(\d{2})-(\d{2})/', $data, $matches)) {
+if (preg_match('/Data: (\d{4})-(\d{2})-(\d{2})/', $date, $matches)) {
     print_r($matches);
     /*
     Array
@@ -846,20 +846,20 @@ print_r($matches[1]); // ['/home', '/about', '/contact']
 ```php
 <?php
 
-// Remover tudo que não é dígito (ex: formatar telefone)
-$telefone = '(11) 98765-4321';
-$apenasNumeros = preg_replace('/\D/', '', $telefone);
-echo $apenasNumeros; // 11987654321
+// Remover tudo que não é dígito (ex: format telefone)
+$phone = '(11) 98765-4321';
+$onlyNumbers = preg_replace('/\D/', '', $phone);
+echo $onlyNumbers; // 11987654321
 
 // Mascarar parte de um email
 $email = 'usuario.secreto@provedor.com.br';
-$mascarado = preg_replace('/(.{3}).*(@.*)/', '$1***$2', $email);
-echo $mascarado; // usu***@provedor.com.br
+$masked = preg_replace('/(.{3}).*(@.*)/', '$1***$2', $email);
+echo $masked; // usu***@provedor.com.br
 
 // Substituir múltiplos espaços por um único
-$texto = 'PHP     é         incrível';
-$limpo = preg_replace('/\s+/', ' ', $texto);
-echo $limpo; // PHP é incrível
+$text = 'PHP     é         incrível';
+$clean = preg_replace('/\s+/', ' ', $text);
+echo $clean; // PHP é incrível
 ```
 
 ### `preg_split()` — Dividir com Regex
@@ -868,8 +868,8 @@ echo $limpo; // PHP é incrível
 <?php
 
 $csv = 'João, Maria; Pedro| Ana, Bia';
-$nomes = preg_split('/[,;|]\s*/', $csv);
-print_r($nomes); // ['João', 'Maria', 'Pedro', 'Ana', 'Bia']
+$names = preg_split('/[,;|]\s*/', $csv);
+print_r($names); // ['João', 'Maria', 'Pedro', 'Ana', 'Bia']
 ```
 
 ### Delimitadores e Modificadores Comuns
@@ -925,14 +925,14 @@ print_r($str_split_result); // ['c', 'a', 'f', '�', '�'] — corrompido!
 print_r(mb_str_split('café')); // ['c', 'a', 'f', 'é'] — OK
 
 // grapheme_str_split lida com tudo, incluindo emojis compostos:
-$bandeira = '🇧🇷';  // bandeira do Brasil (2 code points combinados)
-echo grapheme_strlen($bandeira) . PHP_EOL;   // 1 (um grapheme cluster)
-print_r(grapheme_str_split($bandeira));      // ['🇧🇷']
+$flag = '🇧🇷';  // bandeira do Brasil (2 code points combinados)
+echo grapheme_strlen($flag) . PHP_EOL;   // 1 (um grapheme cluster)
+print_r(grapheme_str_split($flag));      // ['🇧🇷']
 
 // Família com emoji:
-$familia = '👨‍👩‍👧';  // família (4 emojis combinados com ZWJ)
-echo grapheme_strlen($familia) . PHP_EOL;    // 1
-print_r(grapheme_str_split($familia));       // ['👨‍👩‍👧']
+$family = '👨‍👩‍👧';  // família (4 emojis combinados com ZWJ)
+echo grapheme_strlen($family) . PHP_EOL;    // 1
+print_r(grapheme_str_split($family));       // ['👨‍👩‍👧']
 ```
 
 💡 **Dica:** Use `grapheme_str_split()` sempre que manipular strings com emojis, caracteres combinados ou texto internacional. É a função mais segura para divisão caractere-a-caractere.
@@ -988,10 +988,10 @@ Ordena strings que contêm números de forma intuitiva (1, 2, 3, ..., 10, 11, em
 ```php
 <?php
 
-$arquivos = ['img10.jpg', 'img2.jpg', 'img1.jpg', 'img20.jpg'];
+$files = ['img10.jpg', 'img2.jpg', 'img1.jpg', 'img20.jpg'];
 
-usort($arquivos, 'strnatcmp');
-print_r($arquivos); // ['img1.jpg', 'img2.jpg', 'img10.jpg', 'img20.jpg']
+usort($files, 'strnatcmp');
+print_r($files); // ['img1.jpg', 'img2.jpg', 'img10.jpg', 'img20.jpg']
 ```
 
 ---

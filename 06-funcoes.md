@@ -27,12 +27,12 @@ Em PHP, funções são declaradas com a palavra-chave `function`, seguida do nom
 ```php
 <?php
 
-function saudacao(): void
+function greet(): void
 {
     echo "Olá, mundo!";
 }
 
-saudacao(); // Olá, mundo!
+greet(); // Olá, mundo!
 ```
 
 A partir do PHP 8.0, funções podem ser declaradas em qualquer ordem — o PHP resolve o símbolo antes da execução. No entanto, funções condicionais (declaradas dentro de `if`) só ficam disponíveis após a condição ser avaliada como verdadeira.
@@ -44,12 +44,12 @@ Nomes de função são case-insensitive:
 ```php
 <?php
 
-function minhaFuncao(): void
+function myFunction(): void
 {
     echo "executada";
 }
 
-MINHAFUNCAO(); // funciona, embora não seja recomendado
+MYFUNCTION(); // funciona, embora não seja recomendado
 ```
 
 💡 **Dica:** Mantenha consistência no casing. O padrão PSR-12 recomenda `camelCase` para nomes de função.
@@ -63,19 +63,19 @@ Parâmetros são declarados entre os parênteses da função. Parâmetros com va
 ```php
 <?php
 
-function criarUsuario(string $nome, int $idade = 18, bool $ativo = true): array
+function createUser(string $name, int $age = 18, bool $active = true): array
 {
     return [
-        'nome'  => $nome,
-        'idade' => $idade,
-        'ativo' => $ativo,
+        'name'   => $name,
+        'age'    => $age,
+        'active' => $active,
     ];
 }
 
 // Chamadas válidas
-$user1 = criarUsuario('João');                  // idade=18, ativo=true
-$user2 = criarUsuario('Maria', 25);              // idade=25, ativo=true
-$user3 = criarUsuario('Pedro', 30, false);       // idade=30, ativo=false
+$user1 = createUser('João');                  // idade=18, ativo=true
+$user2 = createUser('Maria', 25);              // idade=25, ativo=true
+$user3 = createUser('Pedro', 30, false);       // idade=30, ativo=false
 ```
 
 ⚠️ **Cuidado:** Não é possível declarar um parâmetro obrigatório após um opcional. O PHP emitirá um erro fatal:
@@ -83,8 +83,8 @@ $user3 = criarUsuario('Pedro', 30, false);       // idade=30, ativo=false
 ```php
 <?php
 
-// ERRO: parâmetro obrigatório $b vem depois do opcional $a
-function errada(int $a = 1, int $b): void {}
+// ERRO: parâmetro obrigatório $second vem depois do opcional $first
+function wrong(int $first = 1, int $second): void {}
 ```
 
 ### Valores Default com Expressões (PHP 8.1+)
@@ -94,12 +94,12 @@ Desde o PHP 8.1, valores padrão podem ser qualquer expressão escalar, incluind
 ```php
 <?php
 
-function obterData(DateTimeInterface $data = new DateTimeImmutable('now')): string
+function getData(DateTimeInterface $date = new DateTimeImmutable('now')): string
 {
-    return $data->format('Y-m-d');
+    return $date->format('Y-m-d');
 }
 
-echo obterData(); // 2026-08-04 (data atual)
+echo getData(); // 2026-08-04 (data atual)
 ```
 
 ---
@@ -111,33 +111,33 @@ echo obterData(); // 2026-08-04 (data atual)
 ```php
 <?php
 
-function criarPedido(
-    string $produto,
-    int $quantidade = 1,
-    float $preco = 0.0,
-    string $cliente = 'Anônimo',
+function createOrder(
+    string $product,
+    int $quantity = 1,
+    float $price = 0.0,
+    string $client = 'Anônimo',
 ): array {
-    return compact('produto', 'quantidade', 'preco', 'cliente');
+    return compact('product', 'quantity', 'price', 'client');
 }
 
 // Chamadas com named arguments
-$pedido1 = criarPedido(
-    produto: 'Notebook',
-    preco: 3500.00,
-    cliente: 'Ana',
-    quantidade: 2,
+$order1 = createOrder(
+    product: 'Notebook',
+    price: 3500.00,
+    client: 'Ana',
+    quantity: 2,
 );
 
-$pedido2 = criarPedido(preco: 99.90, produto: 'Mouse');
+$order2 = createOrder(price: 99.90, product: 'Mouse');
 
-print_r($pedido1);
+print_r($order1);
 /*
 Array
 (
-    [produto] => Notebook
-    [quantidade] => 2
-    [preco] => 3500
-    [cliente] => Ana
+    [product] => Notebook
+    [quantity] => 2
+    [price] => 3500
+    [client] => Ana
 )
 */
 ```
@@ -183,13 +183,13 @@ Type declarations definem os tipos esperados para parâmetros e para o valor de 
 
 declare(strict_types=1);
 
-function multiplicar(int $a, int $b): int
+function multiply(int $first, int $second): int
 {
-    return $a * $b;
+    return $first * $second;
 }
 
-echo multiplicar(3, 4);    // 12
-// multiplicar(3.5, 4);    // TypeError — float não é aceito como int
+echo multiply(3, 4);    // 12
+// multiply(3.5, 4);    // TypeError — float não é aceito como int
 ```
 
 ### Nullable Types
@@ -199,14 +199,14 @@ Prefixar com `?` permite que o parâmetro ou retorno seja do tipo especificado o
 ```php
 <?php
 
-function buscarPorId(int $id): ?array
+function findById(int $id): ?array
 {
-    $dados = [1 => ['nome' => 'João'], 2 => ['nome' => 'Maria']];
-    return $dados[$id] ?? null;
+    $data = [1 => ['name' => 'João'], 2 => ['name' => 'Maria']];
+    return $data[$id] ?? null;
 }
 
-$resultado = buscarPorId(3); // null
-var_dump($resultado);        // NULL
+$result = findById(3); // null
+var_dump($result);        // NULL
 ```
 
 ---
@@ -220,17 +220,17 @@ Permitem que um parâmetro ou retorno aceite mais de um tipo:
 ```php
 <?php
 
-function formatarValor(int|float|string $valor): string
+function formatValue(int|float|string $value): string
 {
-    if (is_numeric($valor)) {
-        return number_format((float) $valor, 2, ',', '.');
+    if (is_numeric($value)) {
+        return number_format((float) $value, 2, ',', '.');
     }
-    return strtoupper((string) $valor);
+    return strtoupper((string) $value);
 }
 
-echo formatarValor(1500);      // 1.500,00
-echo formatarValor(99.9);      // 99,90
-echo formatarValor('abc');     // ABC
+echo formatValue(1500);      // 1.500,00
+echo formatValue(99.9);      // 99,90
+echo formatValue('abc');     // ABC
 ```
 
 Union types não podem incluir `void`, `never`, `mixed`, `null` standalone, `true`, `false` ou tipos redundantes.
@@ -252,11 +252,11 @@ interface Serializavel
     public function toArray(): array;
 }
 
-class Pedido implements Logavel, Serializavel
+class Order implements Logavel, Serializavel
 {
     public function getLogMessage(): string
     {
-        return 'Pedido processado';
+        return 'Order processed';
     }
 
     public function toArray(): array
@@ -265,14 +265,14 @@ class Pedido implements Logavel, Serializavel
     }
 }
 
-function registrarESerializar(Logavel&Serializavel $entidade): array
+function registerAndSerialize(Logavel&Serializavel $entity): array
 {
-    echo $entidade->getLogMessage() . PHP_EOL;
-    return $entidade->toArray();
+    echo $entity->getLogMessage() . PHP_EOL;
+    return $entity->toArray();
 }
 
-$pedido = new Pedido();
-print_r(registrarESerializar($pedido));
+$order = new Order();
+print_r(registerAndSerialize($order));
 ```
 
 ### `mixed`
@@ -282,20 +282,20 @@ O tipo `mixed` indica que o valor pode ser de **qualquer tipo** — `null`, `boo
 ```php
 <?php
 
-function processar(mixed $entrada): mixed
+function process(mixed $input): mixed
 {
-    if (is_array($entrada)) {
-        return array_map(strtoupper(...), $entrada);
+    if (is_array($input)) {
+        return array_map(strtoupper(...), $input);
     }
-    if (is_string($entrada)) {
-        return strtoupper($entrada);
+    if (is_string($input)) {
+        return strtoupper($input);
     }
-    return $entrada;
+    return $input;
 }
 
-var_dump(processar('hello'));        // string(5) "HELLO"
-var_dump(processar(['a', 'b']));     // array(2) { [0]=> "A", [1]=> "B" }
-var_dump(processar(42));             // int(42)
+var_dump(process('hello'));        // string(5) "HELLO"
+var_dump(process(['a', 'b']));     // array(2) { [0]=> "A", [1]=> "B" }
+var_dump(process(42));             // int(42)
 ```
 
 ### `void`
@@ -305,14 +305,14 @@ Indica que a função **não retorna valor**. Qualquer tentativa de usar o retor
 ```php
 <?php
 
-function logMensagem(string $msg): void
+function logMessage(string $msg): void
 {
     error_log($msg);
     // return $msg;  // Erro: função void não pode retornar valor
 }
 
-$resultado = logMensagem('teste');
-var_dump($resultado); // NULL
+$result = logMessage('teste');
+var_dump($result); // NULL
 ```
 
 ### `never` (PHP 8.1+)
@@ -322,20 +322,20 @@ Indica que a função **nunca retorna** — ela sempre lança uma exceção, cha
 ```php
 <?php
 
-function abortar(int $codigo, string $mensagem = ''): never
+function abort(int $code, string $message = ''): never
 {
-    http_response_code($codigo);
-    echo json_encode(['erro' => $mensagem]);
+    http_response_code($code);
+    echo json_encode(['error' => $message]);
     exit;
 }
 
-function redirecionar(string $url): never
+function redirect(string $url): never
 {
     header("Location: {$url}");
     exit;
 }
 
-// abortar(404, 'Página não encontrada');
+// abort(404, 'Página não encontrada');
 ```
 
 ⚠️ **Cuidado:** Se uma função declarada como `never` conseguir alcançar o fim do corpo sem lançar exceção ou interromper a execução, o PHP lançará um `TypeError`.
@@ -351,9 +351,9 @@ Toda função que não é `void` ou `never` deve retornar um valor compatível c
 ```php
 <?php
 
-function soma(int $a, int $b): int
+function sum(int $first, int $second): int
 {
-    return $a + $b;
+    return $first + $second;
 }
 ```
 
@@ -364,21 +364,21 @@ function soma(int $a, int $b): int
 ```php
 <?php
 
-function classificarNota(float $nota): string
+function classifyGrade(float $grade): string
 {
-    if ($nota >= 9.0) {
+    if ($grade >= 9.0) {
         return 'A';
     }
-    if ($nota >= 7.0) {
+    if ($grade >= 7.0) {
         return 'B';
     }
-    if ($nota >= 5.0) {
+    if ($grade >= 5.0) {
         return 'C';
     }
     return 'F';
 }
 
-echo classificarNota(8.5); // B
+echo classifyGrade(8.5); // B
 ```
 
 ### Retorno Condicional de Tipos (Union Types)
@@ -386,10 +386,10 @@ echo classificarNota(8.5); // B
 ```php
 <?php
 
-function encontrar(array $dados, string $chave): int|string|null
+function find(array $data, string $key): int|string|null
 {
-    if (array_key_exists($chave, $dados)) {
-        return $dados[$chave];
+    if (array_key_exists($key, $data)) {
+        return $data[$key];
     }
     return null;
 }
@@ -406,14 +406,14 @@ Variáveis definidas dentro de uma função têm escopo **local** — não são 
 ```php
 <?php
 
-function calcular(): void
+function calculate(): void
 {
-    $x = 10;        // escopo local
-    echo $x;        // 10
+    $localVar = 10;
+    echo $localVar;
 }
 
-calcular();
-// echo $x;         // Warning: Undefined variable $x
+calculate();
+// echo $localVar;         // Warning: Undefined variable $localVar
 ```
 
 ### Palavra-Chave `global`
@@ -423,17 +423,17 @@ A palavra-chave `global` importa uma variável do escopo global para dentro da f
 ```php
 <?php
 
-$contador = 0;
+$counter = 0;
 
-function incrementar(): void
+function increment(): void
 {
-    global $contador;
-    $contador++;
+    global $counter;
+    $counter++;
 }
 
-incrementar();
-incrementar();
-echo $contador; // 2
+increment();
+increment();
+echo $counter; // 2
 ```
 
 ### Array Superglobal `$GLOBALS`
@@ -445,12 +445,12 @@ Alternativa ao `global`, o array `$GLOBALS` contém todas as variáveis do escop
 
 $total = 100;
 
-function aplicarDesconto(float $percentual): void
+function applyDiscount(float $percentage): void
 {
-    $GLOBALS['total'] -= $GLOBALS['total'] * ($percentual / 100);
+    $GLOBALS['total'] -= $GLOBALS['total'] * ($percentage / 100);
 }
 
-aplicarDesconto(10);
+applyDiscount(10);
 echo $total; // 90
 ```
 
@@ -461,13 +461,13 @@ Para funções anônimas (closures), usa-se `use` para herdar variáveis do esco
 ```php
 <?php
 
-$multiplicador = 3;
+$multiplier = 3;
 
-$dobrar = function (int $valor) use ($multiplicador): int {
-    return $valor * $multiplicador;
+$double = function (int $value) use ($multiplier): int {
+    return $value * $multiplier;
 };
 
-echo $dobrar(5); // 15
+echo $double(5); // 15
 ```
 
 A herança por `use` é por valor. Para herdar por referência, prefixe com `&`:
@@ -475,15 +475,15 @@ A herança por `use` é por valor. Para herdar por referência, prefixe com `&`:
 ```php
 <?php
 
-$acumulador = 0;
+$accumulator = 0;
 
-$somar = function (int $valor) use (&$acumulador): void {
-    $acumulador += $valor;
+$add = function (int $value) use (&$accumulator): void {
+    $accumulator += $value;
 };
 
-$somar(10);
-$somar(5);
-echo $acumulador; // 15
+$add(10);
+$add(5);
+echo $accumulator; // 15
 ```
 
 ---
@@ -497,11 +497,11 @@ São funções sem nome, atribuíveis a variáveis, passáveis como argumento e 
 ```php
 <?php
 
-$saudacao = function (string $nome): string {
-    return "Olá, {$nome}!";
+$greeting = function (string $name): string {
+    return "Olá, {$name}!";
 };
 
-echo $saudacao('Ana'); // Olá, Ana!
+echo $greeting('Ana'); // Olá, Ana!
 ```
 
 ### Closures como Callbacks
@@ -509,13 +509,13 @@ echo $saudacao('Ana'); // Olá, Ana!
 ```php
 <?php
 
-$nomes = ['João', 'Maria', 'Pedro'];
+$names = ['João', 'Maria', 'Pedro'];
 
-$mapeados = array_map(function (string $nome): string {
-    return strtoupper($nome);
-}, $nomes);
+$mapped = array_map(function (string $name): string {
+    return strtoupper($name);
+}, $names);
 
-print_r($mapeados); // ['JOÃO', 'MARIA', 'PEDRO']
+print_r($mapped); // ['JOÃO', 'MARIA', 'PEDRO']
 ```
 
 ### Arrow Functions `fn =>` (PHP 7.4+)
@@ -525,12 +525,12 @@ Sintaxe concisa para closures de uma única expressão. Herdam variáveis do esc
 ```php
 <?php
 
-$multiplicador = 2;
-$valores = [1, 2, 3, 4, 5];
+$multiplier = 2;
+$values = [1, 2, 3, 4, 5];
 
-$resultado = array_map(fn(int $n): int => $n * $multiplicador, $valores);
+$result = array_map(fn(int $number): int => $number * $multiplier, $values);
 
-print_r($resultado); // [2, 4, 6, 8, 10]
+print_r($result); // [2, 4, 6, 8, 10]
 ```
 
 Arrow functions também suportam type hints:
@@ -538,9 +538,9 @@ Arrow functions também suportam type hints:
 ```php
 <?php
 
-$formatar = fn(int|float $valor): string => number_format($valor, 2, ',', '.');
+$format = fn(int|float $value): string => number_format($value, 2, ',', '.');
 
-echo $formatar(1234.5); // 1.234,50
+echo $format(1234.5); // 1.234,50
 ```
 
 💡 **Dica:** Use arrow functions para callbacks simples. Para lógica que requer múltiplas linhas ou statements (`if`, `foreach`), use closures tradicionais.
@@ -559,15 +559,15 @@ $upper = strtoupper(...);
 echo $upper('php é incrível'); // PHP É INCRÍVEL
 
 // Com array_map — antes (PHP < 8.1) vs depois
-$nomes = ['ana', 'carlos', 'bia'];
+$names = ['ana', 'carlos', 'bia'];
 
 // Antes:
-$maiusculos = array_map('strtoupper', $nomes);
+$uppercase = array_map('strtoupper', $names);
 
 // Agora (PHP 8.1+):
-$maiusculos = array_map(strtoupper(...), $nomes);
+$uppercase = array_map(strtoupper(...), $names);
 
-print_r($maiusculos); // ['ANA', 'CARLOS', 'BIA']
+print_r($uppercase); // ['ANA', 'CARLOS', 'BIA']
 ```
 
 ### Funciona com Métodos de Instância e Estáticos
@@ -575,26 +575,26 @@ print_r($maiusculos); // ['ANA', 'CARLOS', 'BIA']
 ```php
 <?php
 
-class Calculadora
+class Calculator
 {
-    public function dobrar(int $n): int
+    public function double(int $number): int
     {
-        return $n * 2;
+        return $number * 2;
     }
 
-    public static function triplicar(int $n): int
+    public static function triple(int $number): int
     {
-        return $n * 3;
+        return $number * 3;
     }
 }
 
-$calc = new Calculadora();
+$calc = new Calculator();
 
-$dobrar = $calc->dobrar(...);          // método de instância
-$triplicar = Calculadora::triplicar(...); // método estático
+$doubleFn = $calc->double(...);          // método de instância
+$tripleFn = Calculator::triple(...); // método estático
 
-echo $dobrar(10);     // 20
-echo $triplicar(10);  // 30
+echo $doubleFn(10);     // 20
+echo $tripleFn(10);  // 30
 ```
 
 ### `Closure::fromCallable()`
@@ -628,14 +628,14 @@ $logFn('Sistema iniciado'); // [INFO] Sistema iniciado
 ```php
 <?php
 
-$tarefa = function (string $nome): void {
-    $atual = Closure::getCurrent();
+$task = function (string $name): void {
+    $current = Closure::getCurrent();
     // Reflection sobre a própria closure
-    $ref = new ReflectionFunction($atual);
-    echo "Executando a closure '{$ref->getName()}' com parâmetro: {$nome}" . PHP_EOL;
+    $ref = new ReflectionFunction($current);
+    echo "Executando a closure '{$ref->getName()}' com parâmetro: {$name}" . PHP_EOL;
 };
 
-$tarefa('importar_dados');
+$task('importar_dados');
 // Executando a closure '{closure}' com parâmetro: importar_dados
 ```
 
@@ -644,18 +644,18 @@ Outro caso de uso — criar callbacks que se auto-referenciam:
 ```php
 <?php
 
-$contador = function (int $passo = 1) use (&$contador): void {
-    static $valor = 0;
-    $valor += $passo;
-    echo "Contador: {$valor}" . PHP_EOL;
+$counter = function (int $step = 1) use (&$counter): void {
+    static $value = 0;
+    $value += $step;
+    echo "Contador: {$value}" . PHP_EOL;
 
-    if ($valor < 10) {
-        $atual = Closure::getCurrent();
-        $atual($passo);
+    if ($value < 10) {
+        $current = Closure::getCurrent();
+        $current($step);
     }
 };
 
-$contador(2);
+$counter(2);
 // Contador: 2
 // Contador: 4
 // Contador: 6
@@ -674,14 +674,14 @@ Permitem que uma função aceite um número variável de argumentos, que são em
 ```php
 <?php
 
-function somarTudo(int ...$numeros): int
+function sumAll(int ...$numbers): int
 {
-    return array_sum($numeros);
+    return array_sum($numbers);
 }
 
-echo somarTudo(1, 2, 3);       // 6
-echo somarTudo(10, 20, 30, 40); // 100
-echo somarTudo();               // 0
+echo sumAll(1, 2, 3);       // 6
+echo sumAll(10, 20, 30, 40); // 100
+echo sumAll();               // 0
 ```
 
 ### Combinando com Parâmetros Fixos
@@ -689,17 +689,17 @@ echo somarTudo();               // 0
 ```php
 <?php
 
-function logComContexto(string $nivel, string $mensagem, mixed ...$contexto): void
+function logWithContext(string $level, string $message, mixed ...$context): void
 {
     $timestamp = date('Y-m-d H:i:s');
-    echo "[{$timestamp}] [{$nivel}] {$mensagem}" . PHP_EOL;
+    echo "[{$timestamp}] [{$level}] {$message}" . PHP_EOL;
 
-    if (!empty($contexto)) {
-        echo "Contexto: " . json_encode($contexto, JSON_UNESCAPED_UNICODE) . PHP_EOL;
+    if (!empty($context)) {
+        echo "Contexto: " . json_encode($context, JSON_UNESCAPED_UNICODE) . PHP_EOL;
     }
 }
 
-logComContexto('ERROR', 'Falha na conexão', 'host' => 'db.local', 'porta' => 5432);
+logWithContext('ERROR', 'Falha na conexão', 'host' => 'db.local', 'porta' => 5432);
 // [2026-08-04 10:30:00] [ERROR] Falha na conexão
 // Contexto: {"host":"db.local","porta":5432}
 ```
@@ -711,13 +711,13 @@ O operador spread também funciona ao **chamar** uma função, desempacotando um
 ```php
 <?php
 
-function criarLinha(string $a, string $b, string $c): string
+function createRow(string $col1, string $col2, string $col3): string
 {
-    return "{$a} | {$b} | {$c}";
+    return "{$col1} | {$col2} | {$col3}";
 }
 
-$dados = ['PHP', '8.5', '2026'];
-echo criarLinha(...$dados); // PHP | 8.5 | 2026
+$data = ['PHP', '8.5', '2026'];
+echo createRow(...$data); // PHP | 8.5 | 2026
 ```
 
 ---
@@ -729,14 +729,14 @@ Prefixar um parâmetro com `&` faz com que a função possa modificar a variáve
 ```php
 <?php
 
-function adicionarSufixo(string &$texto, string $sufixo): void
+function addSuffix(string &$text, string $suffix): void
 {
-    $texto .= $sufixo;
+    $text .= $suffix;
 }
 
-$nome = 'PHP';
-adicionarSufixo($nome, ' 8.5');
-echo $nome; // PHP 8.5
+$name = 'PHP';
+addSuffix($name, ' 8.5');
+echo $name; // PHP 8.5
 ```
 
 ### Retorno por Referência
@@ -746,13 +746,13 @@ echo $nome; // PHP 8.5
 
 $config = ['debug' => false, 'cache' => true];
 
-function &obterConfig(string $chave): mixed
+function &getConfig(string $key): mixed
 {
     global $config;
-    return $config[$chave];
+    return $config[$key];
 }
 
-$debug = &obterConfig('debug');
+$debug = &getConfig('debug');
 $debug = true;
 
 var_dump($config['debug']); // bool(true)
@@ -769,15 +769,15 @@ Uma função que chama a si mesma é **recursiva**. Toda recursão precisa de um
 ```php
 <?php
 
-function fatorial(int $n): int
+function factorial(int $n): int
 {
     if ($n <= 1) {
         return 1;                   // condição de parada
     }
-    return $n * fatorial($n - 1);    // chamada recursiva
+    return $n * factorial($n - 1);    // chamada recursiva
 }
 
-echo fatorial(5); // 120 (5 × 4 × 3 × 2 × 1)
+echo factorial(5); // 120 (5 × 4 × 3 × 2 × 1)
 ```
 
 ### Recursão com Array (Percorrer Estrutura em Árvore)
@@ -785,35 +785,35 @@ echo fatorial(5); // 120 (5 × 4 × 3 × 2 × 1)
 ```php
 <?php
 
-function listarCategorias(array $categorias, int $nivel = 0): void
+function listCategories(array $categories, int $level = 0): void
 {
-    foreach ($categorias as $cat) {
-        echo str_repeat('  ', $nivel) . "- {$cat['nome']}" . PHP_EOL;
-        if (!empty($cat['filhas'])) {
-            listarCategorias($cat['filhas'], $nivel + 1);
+    foreach ($categories as $cat) {
+        echo str_repeat('  ', $level) . "- {$cat['name']}" . PHP_EOL;
+        if (!empty($cat['children'])) {
+            listCategories($cat['children'], $level + 1);
         }
     }
 }
 
-$arvore = [
+$tree = [
     [
-        'nome'   => 'Eletrônicos',
-        'filhas' => [
-            ['nome' => 'Celulares', 'filhas' => []],
-            ['nome' => 'Notebooks', 'filhas' => []],
+        'name'   => 'Eletrônicos',
+        'children' => [
+            ['name' => 'Celulares', 'children' => []],
+            ['name' => 'Notebooks', 'children' => []],
         ],
     ],
     [
-        'nome'   => 'Livros',
-        'filhas' => [
-            ['nome' => 'Ficção',    'filhas' => []],
-            ['nome' => 'Técnicos',  'filhas' => []],
-            ['nome' => 'Biografias', 'filhas' => []],
+        'name'   => 'Livros',
+        'children' => [
+            ['name' => 'Ficção',    'children' => []],
+            ['name' => 'Técnicos',  'children' => []],
+            ['name' => 'Biografias', 'children' => []],
         ],
     ],
 ];
 
-listarCategorias($arvore);
+listCategories($tree);
 /*
 - Eletrônicos
   - Celulares
@@ -840,27 +840,27 @@ Marca um método que **sobrescreve** um método da classe pai. Se o método pai 
 
 class Animal
 {
-    public function emitirSom(): string
+    public function makeSound(): string
     {
         return 'som genérico';
     }
 }
 
-class Cachorro extends Animal
+class Dog extends Animal
 {
     #[\Override]
-    public function emitirSom(): string
+    public function makeSound(): string
     {
         return 'au au';
     }
 }
 
 // Se a classe pai não tiver o método, #[\Override] causa erro fatal:
-class Gato extends Animal
+class Cat extends Animal
 {
     // #[\Override]
-    // public function miar(): string { return 'miau'; }
-    // Erro: Gato::miar() não sobrescreve nenhum método
+    // public function meow(): string { return 'miau'; }
+    // Erro: Cat::meow() não sobrescreve nenhum método
 }
 ```
 
@@ -874,34 +874,34 @@ class Gato extends Animal
 <?php
 
 #[\NoDiscard]
-function gerarToken(): string
+function generateToken(): string
 {
     return bin2hex(random_bytes(32));
 }
 
 // Chamada correta:
-$token = gerarToken();
+$token = generateToken();
 
 // Chamada incorreta — o retorno é descartado, dispara notice:
-// gerarToken();
-// Notice: The return value of function gerarToken() should not be discarded
+// generateToken();
+// Notice: The return value of function generateToken() should not be discarded
 
 // Também funciona em métodos:
-class BancoDeDados
+class Database
 {
     #[\NoDiscard]
-    public function conectar(): self
+    public function connect(): self
     {
         // lógica de conexão
         return $this;
     }
 }
 
-$db = new BancoDeDados();
-$db->conectar(); // Notice: retorno descartado
+$db = new Database();
+$db->connect(); // Notice: retorno descartado
 
 // Correto:
-$db = (new BancoDeDados())->conectar();
+$db = (new Database())->connect();
 ```
 
 💡 **Dica:** `#[\NoDiscard]` é excelente para funções puras cujo retorno é o único propósito da chamada (ex: `array_map`, `strtoupper`), ou para métodos que retornam nova instância (fluent interfaces, imutáveis).

@@ -14,16 +14,16 @@ PDO (PHP Data Objects) é a interface recomendada para acesso a bancos de dados 
 <?php
 // MySQL
 $dsn = 'mysql:host=localhost;port=3306;dbname=curso_php;charset=utf8mb4';
-$usuario = 'root';
-$senha = '';
-$opcoes = [
+$user = 'root';
+$password = '';
+$options = [
     PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
     PDO::ATTR_EMULATE_PREPARES   => false,
 ];
 
 try {
-    $pdo = new PDO($dsn, $usuario, $senha, $opcoes);
+    $pdo = new PDO($dsn, $user, $password, $options);
     echo "Conectado ao MySQL com sucesso!<br>\n";
 } catch (PDOException $e) {
     die("Erro de conexão: " . $e->getMessage());
@@ -38,9 +38,8 @@ echo "Conectado ao SQLite!<br>\n";
 
 // PostgreSQL
 $dsnPg = 'pgsql:host=localhost;port=5432;dbname=curso_php';
-$pdoPg = new PDO($dsnPg, 'postgres', 'senha', [
-    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-]);
+$pdoPg = new PDO($dsnPg, 'postgres', 'password', [
+    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
 ```
 
 ### Opções Importantes do PDO
@@ -65,16 +64,16 @@ O PHP 8.4 introduziu subclasses específicas para cada driver, permitindo tipage
 // PHP 8.4+: subclasses específicas de driver
 $pdoMysql  = new Pdo\Mysql('host=localhost;dbname=app;charset=utf8mb4', 'root', '');
 $pdoSqlite = new Pdo\Sqlite('sqlite:' . __DIR__ . '/app.sqlite');
-$pdoPgsql  = new Pdo\Pgsql('host=localhost;dbname=app', 'postgres', 'senha');
+$pdoPgsql  = new Pdo\Pgsql('host=localhost;dbname=app', 'postgres', 'password');
 
 // Agora você pode tipar funções com o driver específico
-function buscarUsuariosMySQL(Pdo\Mysql $pdo): array {
-    return $pdo->query('SELECT * FROM usuarios')->fetchAll();
+function findUsersMySQL(Pdo\Mysql $pdo): array {
+    return $pdo->query('SELECT * FROM users')->fetchAll();
 }
 
 // $pdoMysql é do tipo Pdo\Mysql (que herda de PDO)
-buscarUsuariosMySQL($pdoMysql); // OK
-// buscarUsuariosMySQL($pdoSqlite); // Erro de tipo!
+findUsersMySQL($pdoMysql); // OK
+// findUsersMySQL($pdoSqlite); // Erro de 
 ```
 
 ---
@@ -89,27 +88,27 @@ $pdo = new PDO('sqlite:' . __DIR__ . '/app.sqlite', null, null, [
 
 // SQL para criar tabelas
 $sql = "
-    CREATE TABLE IF NOT EXISTS usuarios (
+    CREATE TABLE IF NOT EXISTS users (
         id         INTEGER PRIMARY KEY AUTOINCREMENT,
-        nome       TEXT    NOT NULL,
+        name       TEXT    NOT NULL,
         email      TEXT    NOT NULL UNIQUE,
-        senha      TEXT    NOT NULL,
+        password      TEXT    NOT NULL,
         ativo      INTEGER DEFAULT 1,
-        criado_em  TEXT    DEFAULT (datetime('now'))
+        created_at  TEXT    DEFAULT (datetime('now'))
     );
 
     CREATE TABLE IF NOT EXISTS posts (
         id         INTEGER PRIMARY KEY AUTOINCREMENT,
-        usuario_id INTEGER NOT NULL,
+        user_id INTEGER NOT NULL,
         titulo     TEXT    NOT NULL,
         conteudo   TEXT    NOT NULL,
-        criado_em  TEXT    DEFAULT (datetime('now')),
-        FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
+        created_at  TEXT    DEFAULT (datetime('now')),
+        FOREIGN KEY (user_id) REFERENCES users(id)
     );
 ";
 
 $pdo->exec($sql);
-echo "Tabelas criadas com sucesso!<br>\n";
+echo "Tabelas criadas com sucesso!<br
 ```
 
 > 💡 **Dica:** Use `exec()` para comandos SQL que **não retornam resultados** (CREATE, INSERT sem prepared statement, etc.). Retorna o número de linhas afetadas.
@@ -124,15 +123,15 @@ echo "Tabelas criadas com sucesso!<br>\n";
 <?php
 // ❌ NUNCA FAÇA ISSO!
 $id = $_GET['id'];
-$sql = "SELECT * FROM usuarios WHERE id = {$id}";
-// Um atacante pode injetar: 1; DROP TABLE usuarios; --
+$sql = "SELECT * FROM users WHERE id = {$id}";
+// Um atacante pode injetar: 1; DROP TABLE users; --
 
 // ✅ SEMPRE use prepared statements
 $id = $_GET['id'];
-$stmt = $pdo->prepare('SELECT * FROM usuarios WHERE id = :id');
+$stmt = $pdo->prepare('SELECT * FROM users WHERE id = :id');
 $stmt->bindParam(':id', $id, PDO::PARAM_INT);
 $stmt->execute();
-$usuario = $stmt->fetch();
+$user = $stmt->fet
 ```
 
 ### Placeholders Nomeados vs Interrogação
@@ -140,18 +139,18 @@ $usuario = $stmt->fetch();
 ```php
 <?php
 // Nomeados (recomendado)
-$stmt = $pdo->prepare('SELECT * FROM usuarios WHERE email = :email AND ativo = :ativo');
+$stmt = $pdo->prepare('SELECT * FROM users WHERE email = :email AND ativo = :ativo');
 $stmt->execute([
     ':email' => 'joao@email.com',
     ':ativo' => 1,
 ]);
 
 // Interrogação (posicional)
-$stmt = $pdo->prepare('SELECT * FROM usuarios WHERE email = ? AND ativo = ?');
+$stmt = $pdo->prepare('SELECT * FROM users WHERE email = ? AND ativo = ?');
 $stmt->execute(['joao@email.com', 1]);
 
 // Misturar não funciona!
-// ❌ $stmt->prepare('SELECT * FROM usuarios WHERE email = :email AND ativo = ?');
+// ❌ $stmt->prepare('SELECT * FROM users WHERE email = :email AND ativo =
 ```
 
 ### `bindParam()` vs `bindValue()`
@@ -159,20 +158,20 @@ $stmt->execute(['joao@email.com', 1]);
 ```php
 <?php
 // bindParam — vincula por REFERÊNCIA. A variável é lida no momento do execute().
-$nome = 'João';
-$stmt = $pdo->prepare('INSERT INTO usuarios (nome, email) VALUES (:nome, :email)');
-$stmt->bindParam(':nome', $nome);
+$name = 'João';
+$stmt = $pdo->prepare('INSERT INTO users (name, email) VALUES (:name, :email)');
+$stmt->bindParam(':name', $name);
 $stmt->bindValue(':email', 'joao@email.com');
 
-$nome = 'Maria'; // altera a referência
+$name = 'Maria'; // altera a referência
 $stmt->execute(); // Maria é inserida! (bindParam usou o valor atualizado)
 // email continua 'joao@email.com' (bindValue fixou o valor no momento da chamada)
 
 // bindParam com tipo
 $stmt->bindParam(':id', $id, PDO::PARAM_INT);
-$stmt->bindParam(':nome', $nome, PDO::PARAM_STR);
+$stmt->bindParam(':name', $name, PDO::PARAM_STR);
 $stmt->bindParam(':ativo', $ativo, PDO::PARAM_BOOL);
-$stmt->bindParam(':nulo', $nulo, PDO::PARAM_NULL);
+$stmt->bindParam(':nulo', $nulo, PDO::PARAM_N
 ```
 
 ### Tipos de Parâmetro PDO
@@ -191,17 +190,17 @@ $stmt->bindParam(':nulo', $nulo, PDO::PARAM_NULL);
 
 ```php
 <?php
-$stmt = $pdo->prepare('SELECT id, nome, email FROM usuarios LIMIT 3');
+$stmt = $pdo->prepare('SELECT id, name, email FROM users LIMIT 3');
 $stmt->execute();
 
 // FETCH_ASSOC — array associativo (RECOMENDADO)
 while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-    echo "{$row['id']}: {$row['nome']} — {$row['email']}<br>\n";
+    echo "{$row['id']}: {$row['name']} — {$row['email']}<br>\n";
 }
 
 // FETCH_OBJ — objeto stdClass
 while ($obj = $stmt->fetch(PDO::FETCH_OBJ)) {
-    echo "{$obj->id}: {$obj->nome}<br>\n";
+    echo "{$obj->id}: {$obj->name}<br>\n";
 }
 
 // FETCH_NUM — array indexado numericamente
@@ -215,35 +214,34 @@ while ($row = $stmt->fetch(PDO::FETCH_BOTH)) {
 }
 
 // fetchAll — todas as linhas de uma vez
-$usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
-foreach ($usuarios as $u) {
-    echo "{$u['nome']}<br>\n";
+$users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+foreach ($users as $u) {
+    echo "{$u['name']}<br>\n";
 }
 
 // fetchColumn — valor de uma única coluna
-$stmt = $pdo->prepare('SELECT COUNT(*) FROM usuarios');
+$stmt = $pdo->prepare('SELECT COUNT(*) FROM users');
 $stmt->execute();
 $total = $stmt->fetchColumn();
-echo "Total de usuários: {$total}<br>\n";
+echo "Total de usuários: {$total}<br
 ```
 
 ### FETCH_CLASS — Hidrata em objeto de classe
 
 ```php
 <?php
-class Usuario {
+class User {
     public int $id;
-    public string $nome;
+    public string $name;
     public string $email;
 }
 
-$stmt = $pdo->prepare('SELECT id, nome, email FROM usuarios LIMIT 5');
+$stmt = $pdo->prepare('SELECT id, name, email FROM users LIMIT 5');
 $stmt->execute();
 
-$usuarios = $stmt->fetchAll(PDO::FETCH_CLASS, Usuario::class);
-foreach ($usuarios as $u) {
-    echo "{$u->nome} <{$u->email}><br>\n";
-}
+$users = $stmt->fetchAll(PDO::FETCH_CLASS, User::class);
+foreach ($users as $u) {
+    echo "{$u->name} <{$u->email}><br>\
 ```
 
 ### Modo de Fetch Padrão
@@ -254,8 +252,8 @@ foreach ($usuarios as $u) {
 $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 
 // Agora todos os fetch() padrão retornam array associativo
-$stmt = $pdo->query('SELECT * FROM usuarios');
-$usuarios = $stmt->fetchAll();
+$stmt = $pdo->query('SELECT * FROM users');
+$users = $stmt->fetchA
 ```
 
 ---
@@ -267,32 +265,31 @@ $usuarios = $stmt->fetchAll();
 ```php
 <?php
 // Inserção simples
-$stmt = $pdo->prepare('INSERT INTO usuarios (nome, email, senha) VALUES (:nome, :email, :senha)');
+$stmt = $pdo->prepare('INSERT INTO users (name, email, password) VALUES (:name, :email, :password)');
 $stmt->execute([
-    ':nome'  => 'João Silva',
+    ':name'  => 'João Silva',
     ':email' => 'joao@email.com',
-    ':senha' => password_hash('senha123', PASSWORD_DEFAULT),
+    ':password' => password_hash('senha123', PASSWORD_DEFAULT),
 ]);
 
 $id = $pdo->lastInsertId();
 echo "Usuário inserido com ID: {$id}<br>\n";
 
 // Inserção múltipla (transação recomendada)
-$usuarios = [
-    ['nome' => 'Maria', 'email' => 'maria@email.com', 'senha' => password_hash('123456', PASSWORD_DEFAULT)],
-    ['nome' => 'Pedro', 'email' => 'pedro@email.com', 'senha' => password_hash('abc123', PASSWORD_DEFAULT)],
+$users = [
+    ['name' => 'Maria', 'email' => 'maria@email.com', 'password' => password_hash('123456', PASSWORD_DEFAULT)],
+    ['name' => 'Pedro', 'email' => 'pedro@email.com', 'password' => password_hash('abc123', PASSWORD_DEFAULT)],
 ];
 
-$stmt = $pdo->prepare('INSERT INTO usuarios (nome, email, senha) VALUES (:nome, :email, :senha)');
+$stmt = $pdo->prepare('INSERT INTO users (name, email, password) VALUES (:name, :email, :password)');
 
-foreach ($usuarios as $u) {
+foreach ($users as $u) {
     $stmt->execute([
-        ':nome'  => $u['nome'],
+        ':name'  => $u['name'],
         ':email' => $u['email'],
-        ':senha' => $u['senha'],
+        ':password' => $u['password'],
     ]);
-    echo "Inserido ID: " . $pdo->lastInsertId() . "<br>\n";
-}
+    echo "Inserido ID: " . $pdo->lastInsertId() . "<br>\
 ```
 
 ### READ (SELECT)
@@ -300,57 +297,57 @@ foreach ($usuarios as $u) {
 ```php
 <?php
 // Busca por ID
-$stmt = $pdo->prepare('SELECT * FROM usuarios WHERE id = :id');
+$stmt = $pdo->prepare('SELECT * FROM users WHERE id = :id');
 $stmt->execute([':id' => 1]);
-$usuario = $stmt->fetch();
+$user = $stmt->fetch();
 
-if ($usuario) {
-    echo "Nome: {$usuario['nome']}<br>\n";
-    echo "Email: {$usuario['email']}<br>\n";
+if ($user) {
+    echo "Nome: {$user['name']}<br>\n";
+    echo "Email: {$user['email']}<br>\n";
 } else {
     echo "Usuário não encontrado.<br>\n";
 }
 
 // Busca com LIKE
-$termo = '%joão%';
-$stmt = $pdo->prepare('SELECT * FROM usuarios WHERE nome LIKE :termo OR email LIKE :termo2');
-$stmt->execute([':termo' => $termo, ':termo2' => $termo]);
+$term = '%joão%';
+$stmt = $pdo->prepare('SELECT * FROM users WHERE name LIKE :term OR email LIKE :term2');
+$stmt->execute([':term' => $term, ':term2' => $term]);
 
 // Busca com ORDER BY e LIMIT
-$stmt = $pdo->prepare('SELECT * FROM usuarios ORDER BY nome ASC LIMIT :limite');
+$stmt = $pdo->prepare('SELECT * FROM users ORDER BY name ASC LIMIT :limite');
 $stmt->bindValue(':limite', 10, PDO::PARAM_INT);
 $stmt->execute();
 
 // Busca condicional
-$stmt = $pdo->prepare('SELECT * FROM usuarios WHERE ativo = :ativo');
+$stmt = $pdo->prepare('SELECT * FROM users WHERE ativo = :ativo');
 $stmt->bindValue(':ativo', 1, PDO::PARAM_BOOL);
-$stmt->execute();
+$stmt->execu
 ```
 
 ### UPDATE
 
 ```php
 <?php
-$stmt = $pdo->prepare('UPDATE usuarios SET nome = :nome, email = :email WHERE id = :id');
+$stmt = $pdo->prepare('UPDATE users SET name = :name, email = :email WHERE id = :id');
 $stmt->execute([
-    ':nome'  => 'João Silva Atualizado',
+    ':name'  => 'João Silva Atualizado',
     ':email' => 'joao.novo@email.com',
     ':id'    => 1,
 ]);
 
-$afetadas = $stmt->rowCount();
-echo "{$afetadas} linha(s) atualizada(s).<br>\n";
+$affected = $stmt->rowCount();
+echo "{$affected} linha(s) atualizada(s).<br
 ```
 
 ### DELETE
 
 ```php
 <?php
-$stmt = $pdo->prepare('DELETE FROM usuarios WHERE id = :id');
+$stmt = $pdo->prepare('DELETE FROM users WHERE id = :id');
 $stmt->execute([':id' => 3]);
 
-$afetadas = $stmt->rowCount();
-echo "{$afetadas} linha(s) removida(s).<br>\n";
+$affected = $stmt->rowCount();
+echo "{$affected} linha(s) removida(s).<br
 ```
 
 ---
@@ -365,13 +362,13 @@ try {
     $pdo->beginTransaction();
 
     // Insere o usuário
-    $stmt = $pdo->prepare('INSERT INTO usuarios (nome, email, senha) VALUES (?, ?, ?)');
-    $stmt->execute(['Carlos', 'carlos@email.com', password_hash('senha', PASSWORD_DEFAULT)]);
-    $usuarioId = $pdo->lastInsertId();
+    $stmt = $pdo->prepare('INSERT INTO users (name, email, password) VALUES (?, ?, ?)');
+    $stmt->execute(['Carlos', 'carlos@email.com', password_hash('password', PASSWORD_DEFAULT)]);
+    $userId = $pdo->lastInsertId();
 
     // Cria um post para o usuário
-    $stmt = $pdo->prepare('INSERT INTO posts (usuario_id, titulo, conteudo) VALUES (?, ?, ?)');
-    $stmt->execute([$usuarioId, 'Primeiro Post', 'Conteúdo do primeiro post.']);
+    $stmt = $pdo->prepare('INSERT INTO posts (user_id, titulo, conteudo) VALUES (?, ?, ?)');
+    $stmt->execute([$userId, 'Primeiro Post', 'Conteúdo do primeiro post.']);
 
     // Se tudo deu certo, confirma (commit)
     $pdo->commit();
@@ -380,37 +377,36 @@ try {
 } catch (Exception $e) {
     // Se algo deu errado, desfaz tudo (rollback)
     $pdo->rollBack();
-    echo "Erro: " . $e->getMessage() . " — Transação revertida.<br>\n";
-}
+    echo "Erro: " . $e->getMessage() . " — Transação revertida.<br>\
 ```
 
 ### Exemplo real: Transferência entre contas
 
 ```php
 <?php
-function transferir(PDO $pdo, int $contaOrigem, int $contaDestino, float $valor): bool {
+function transfer(PDO $pdo, int $sourceAccount, int $destAccount, float $amount): bool {
     try {
         $pdo->beginTransaction();
 
-        // Verifica saldo da origem
-        $stmt = $pdo->prepare('SELECT saldo FROM contas WHERE id = ? FOR UPDATE');
-        $stmt->execute([$contaOrigem]);
-        $saldo = $stmt->fetchColumn();
+        // Verifica balance da origem
+        $stmt = $pdo->prepare('SELECT balance FROM contas WHERE id = ? FOR UPDATE');
+        $stmt->execute([$sourceAccount]);
+        $balance = $stmt->fetchColumn();
 
-        if ($saldo === false) {
+        if ($balance === false) {
             throw new RuntimeException('Conta origem não encontrada.');
         }
-        if ($saldo < $valor) {
+        if ($balance < $amount) {
             throw new RuntimeException('Saldo insuficiente.');
         }
 
         // Debita da origem
-        $stmt = $pdo->prepare('UPDATE contas SET saldo = saldo - ? WHERE id = ?');
-        $stmt->execute([$valor, $contaOrigem]);
+        $stmt = $pdo->prepare('UPDATE contas SET balance = balance - ? WHERE id = ?');
+        $stmt->execute([$amount, $sourceAccount]);
 
         // Credita no destino
-        $stmt = $pdo->prepare('UPDATE contas SET saldo = saldo + ? WHERE id = ?');
-        $stmt->execute([$valor, $contaDestino]);
+        $stmt = $pdo->prepare('UPDATE contas SET balance = balance + ? WHERE id = ?');
+        $stmt->execute([$amount, $destAccount]);
 
         $pdo->commit();
         return true;
@@ -419,8 +415,7 @@ function transferir(PDO $pdo, int $contaOrigem, int $contaDestino, float $valor)
         $pdo->rollBack();
         error_log("Transferência falhou: " . $e->getMessage());
         return false;
-    }
-}
+  
 ```
 
 ---
@@ -430,18 +425,18 @@ function transferir(PDO $pdo, int $contaOrigem, int $contaDestino, float $valor)
 ```php
 <?php
 // Configuração
-$paginaAtual = max(1, (int) ($_GET['pagina'] ?? 1));
-$porPagina = 10;
-$offset = ($paginaAtual - 1) * $porPagina;
+$currentPage = max(1, (int) ($_GET['pagina'] ?? 1));
+$perPage = 10;
+$offset = ($currentPage - 1) * $perPage;
 
 // Contar total de registros
 $stmt = $pdo->query('SELECT COUNT(*) FROM posts');
-$totalRegistros = $stmt->fetchColumn();
-$totalPaginas = (int) ceil($totalRegistros / $porPagina);
+$totalRecords = $stmt->fetchColumn();
+$totalPages = (int) ceil($totalRecords / $perPage);
 
 // Buscar registros da página atual
-$stmt = $pdo->prepare('SELECT * FROM posts ORDER BY criado_em DESC LIMIT :limite OFFSET :offset');
-$stmt->bindValue(':limite', $porPagina, PDO::PARAM_INT);
+$stmt = $pdo->prepare('SELECT * FROM posts ORDER BY created_at DESC LIMIT :limite OFFSET :offset');
+$stmt->bindValue(':limite', $perPage, PDO::PARAM_INT);
 $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
 $stmt->execute();
 
@@ -449,17 +444,17 @@ $posts = $stmt->fetchAll();
 
 // Exibir resultados
 foreach ($posts as $post) {
-    echo "<h3>" . htmlspecialchars($post['titulo']) . "</h3>\n";
+    echo "<h3>" . htmlspecialchars($post['title']) . "</h3>\n";
 }
 
 // Links de navegação
 echo "<nav>\n";
-for ($i = 1; $i <= $totalPaginas; $i++) {
-    $classe = ($i === $paginaAtual) ? 'class="ativo"' : '';
-    echo "<a href='?pagina={$i}' {$classe}>{$i}</a> ";
+for ($i = 1; $i <= $totalPages; $i++) {
+    $class = ($i === $currentPage) ? 'class="ativo"' : '';
+    echo "<a href='?pagina={$i}' {$class}>{$i}</a> ";
 }
 echo "</nav>\n";
-echo "<p>Mostrando página {$paginaAtual} de {$totalPaginas}</p>\n";
+echo "<p>Mostrando página {$currentPage} de {$totalPages}</p
 ```
 
 ---
@@ -470,28 +465,28 @@ echo "<p>Mostrando página {$paginaAtual} de {$totalPaginas}</p>\n";
 <?php
 // VULNERÁVEL — NUNCA faça:
 $email = $_POST['email'];
-$senha = $_POST['senha'];
-$sql = "SELECT * FROM usuarios WHERE email = '{$email}' AND senha = '{$senha}'";
+$password = $_POST['password'];
+$sql = "SELECT * FROM users WHERE email = '{$email}' AND password = '{$password}'";
 
 // Se o atacante digitar no campo email:
 // ' OR 1=1 --
 // O SQL se torna:
-// SELECT * FROM usuarios WHERE email = '' OR 1=1 --' AND senha = 'qualquer'
+// SELECT * FROM users WHERE email = '' OR 1=1 --' AND password = 'qualquer'
 // Isso retorna TODOS os usuários!
 
 // Se o atacante digitar no campo email:
-// '; DROP TABLE usuarios; --
+// '; DROP TABLE users; --
 // O SQL se torna:
-// SELECT * FROM usuarios WHERE email = ''; DROP TABLE usuarios; --' AND senha = ''
+// SELECT * FROM users WHERE email = ''; DROP TABLE users; --' AND password = ''
 // A tabela é DELETADA!
 
 // PROTEGIDO — Prepared Statement:
-$stmt = $pdo->prepare('SELECT * FROM usuarios WHERE email = :email AND senha = :senha');
-$stmt->execute([':email' => $email, ':senha' => $senha]);
+$stmt = $pdo->prepare('SELECT * FROM users WHERE email = :email AND password = :password');
+$stmt->execute([':email' => $email, ':password' => $password]);
 
-// O SGBD trata email e senha como VALORES LITERAIS, nunca como código SQL.
+// O SGBD trata email e password como VALORES LITERAIS, nunca como código SQL.
 // Mesmo que o atacante digite ' OR 1=1 --, isso será tratado como uma
-// string literal e não como SQL executável.
+// string literal e não como SQL execut
 ```
 
 > 💡 **Dica:** Prepared statements enviam a estrutura da query e os dados separadamente ao SGBD. O banco compila a query primeiro, depois insere os parâmetros como valores literais. Isso torna a injeção impossível.
@@ -504,39 +499,39 @@ SQLite é perfeito para protótipos, aplicações de usuário único e estudos �
 
 ```php
 <?php
-class ConexaoSQLite {
-    private static ?PDO $instancia = null;
+class SQLiteConnection {
+    private static ?PDO $instance = null;
 
-    public static function get(string $caminhoBanco = null): PDO {
-        if (self::$instancia === null) {
-            $caminho = $caminhoBanco ?? __DIR__ . '/database.sqlite';
-            self::$instancia = new PDO('sqlite:' . $caminho, null, null, [
+    public static function get(string $dbPath = null): PDO {
+        if (self::$instance === null) {
+            $path = $dbPath ?? __DIR__ . '/database.sqlite';
+            self::$instance = new PDO('sqlite:' . $path, null, null, [
                 PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
             ]);
             // Habilita foreign keys no SQLite
-            self::$instancia->exec('PRAGMA foreign_keys = ON');
+            self::$instance->exec('PRAGMA foreign_keys = ON');
         }
-        return self::$instancia;
+        return self::$instance;
     }
 
     public static function inicializar(): void {
         $pdo = self::get();
         $pdo->exec("
-            CREATE TABLE IF NOT EXISTS usuarios (
+            CREATE TABLE IF NOT EXISTS users (
                 id        INTEGER PRIMARY KEY AUTOINCREMENT,
-                nome      TEXT NOT NULL,
+                name      TEXT NOT NULL,
                 email     TEXT NOT NULL UNIQUE,
-                senha     TEXT NOT NULL,
-                criado_em TEXT DEFAULT (datetime('now', 'localtime'))
+                password     TEXT NOT NULL,
+                created_at TEXT DEFAULT (datetime('now', 'localtime'))
             );
         ");
     }
 }
 
 // Uso
-$pdo = ConexaoSQLite::get();
-ConexaoSQLite::inicializar();
+$pdo = SQLiteConnection::get();
+SQLiteConnection::inicializ
 ```
 
 ---
@@ -554,7 +549,7 @@ ConexaoSQLite::inicializar();
 'mysql:host=localhost;port=3307;dbname=app;charset=utf8mb4'
 
 // Unix socket
-'mysql:unix_socket=/var/run/mysqld/mysqld.sock;dbname=app;charset=utf8mb4'
+'mysql:unix_socket=/var/run/mysqld/mysqld.sock;dbname=app;charset=utf
 ```
 
 ### SQLite
@@ -565,14 +560,14 @@ ConexaoSQLite::inicializar();
 'sqlite:/caminho/para/banco.sqlite'
 
 // Em memória (some ao final da execução)
-'sqlite::memory:'
+'sqlite::mem
 ```
 
 ### PostgreSQL
 
 ```php
 <?php
-'pgsql:host=localhost;port=5432;dbname=app;user=postgres;password=senha'
+'pgsql:host=localhost;port=5432;dbname=app;user=postgres;password=s
 ```
 
 ---
@@ -581,80 +576,80 @@ ConexaoSQLite::inicializar();
 
 ```php
 <?php
-abstract class Repositorio {
+abstract class Repository {
     public function __construct(
         protected PDO $pdo,
-        protected string $tabela
+        protected string $table
     ) {}
 
-    public function buscarPorId(int $id): ?array {
-        $stmt = $this->pdo->prepare("SELECT * FROM {$this->tabela} WHERE id = :id");
+    public function findById(int $id): ?array {
+        $stmt = $this->pdo->prepare("SELECT * FROM {$this->table} WHERE id = :id");
         $stmt->execute([':id' => $id]);
-        $resultado = $stmt->fetch();
-        return $resultado ?: null;
+        $result = $stmt->fetch();
+        return $result ?: null;
     }
 
-    public function buscarTodos(string $ordem = 'id ASC', int $limite = 100): array {
+    public function findAll(string $order = 'id ASC', int $limit = 100): array {
         $stmt = $this->pdo->prepare(
-            "SELECT * FROM {$this->tabela} ORDER BY {$ordem} LIMIT :limite"
+            "SELECT * FROM {$this->table} ORDER BY {$order} LIMIT :limite"
         );
-        $stmt->bindValue(':limite', $limite, PDO::PARAM_INT);
+        $stmt->bindValue(':limite', $limit, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetchAll();
     }
 
-    public function inserir(array $dados): int {
-        $colunas = implode(', ', array_keys($dados));
-        $placeholders = ':' . implode(', :', array_keys($dados));
+    public function insert(array $data): int {
+        $columns = implode(', ', array_keys($data));
+        $placeholders = ':' . implode(', :', array_keys($data));
 
         $stmt = $this->pdo->prepare(
-            "INSERT INTO {$this->tabela} ({$colunas}) VALUES ({$placeholders})"
+            "INSERT INTO {$this->table} ({$columns}) VALUES ({$placeholders})"
         );
-        $stmt->execute($dados);
+        $stmt->execute($data);
         return (int) $this->pdo->lastInsertId();
     }
 
-    public function atualizar(int $id, array $dados): int {
+    public function update(int $id, array $data): int {
         $sets = [];
-        foreach ($dados as $coluna => $valor) {
-            $sets[] = "{$coluna} = :{$coluna}";
+        foreach ($data as $column => $value) {
+            $sets[] = "{$column} = :{$column}";
         }
         $sets = implode(', ', $sets);
-        $dados[':id'] = $id;
+        $data[':id'] = $id;
 
         $stmt = $this->pdo->prepare(
-            "UPDATE {$this->tabela} SET {$sets} WHERE id = :id"
+            "UPDATE {$this->table} SET {$sets} WHERE id = :id"
         );
-        $stmt->execute($dados);
+        $stmt->execute($data);
         return $stmt->rowCount();
     }
 
-    public function deletar(int $id): int {
-        $stmt = $this->pdo->prepare("DELETE FROM {$this->tabela} WHERE id = :id");
+    public function delete(int $id): int {
+        $stmt = $this->pdo->prepare("DELETE FROM {$this->table} WHERE id = :id");
         $stmt->execute([':id' => $id]);
         return $stmt->rowCount();
     }
 
-    public function contar(): int {
-        return (int) $this->pdo->query("SELECT COUNT(*) FROM {$this->tabela}")->fetchColumn();
+    public function count(): int {
+        return (int) $this->pdo->query("SELECT COUNT(*) FROM {$this->table}")->fetchColumn();
     }
 }
 
 // Repositório de Usuários
-class UsuarioRepositorio extends Repositorio {
+class UserRepository extends Repository {
     public function __construct(PDO $pdo) {
-        parent::__construct($pdo, 'usuarios');
+        parent::__construct($pdo, 'users');
     }
 
-    public function buscarPorEmail(string $email): ?array {
-        $stmt = $this->pdo->prepare('SELECT * FROM usuarios WHERE email = :email');
+    public function findByEmail(string $email): ?array {
+        $stmt = $this->pdo->prepare('SELECT * FROM users WHERE email = :email');
         $stmt->execute([':email' => $email]);
-        $resultado = $stmt->fetch();
-        return $resultado ?: null;
+        $result = $stmt->fetch();
+        return $result ?: null;
     }
 
-    public function buscarAtivos(): array {
-        $stmt = $this->pdo->prepare('SELECT * FROM usuarios WHERE ativo = 1 ORDER BY nome');
+    public function findActive(): array {
+        $stmt = $this->pdo->prepare('SELECT * FROM users WHERE ativo = 1 ORDER BY name');
         $stmt->execute();
         return $stmt->fetchAll();
     }
@@ -665,13 +660,13 @@ $pdo = new PDO('sqlite:' . __DIR__ . '/app.sqlite', null, null, [
     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
 ]);
 
-$repo = new UsuarioRepositorio($pdo);
-$repo->inserir(['nome' => 'Ana', 'email' => 'ana@email.com', 'senha' => password_hash('123', PASSWORD_DEFAULT)]);
-$usuario = $repo->buscarPorEmail('ana@email.com');
-print_r($usuario);
+$repo = new UserRepository($pdo);
+$repo->insert(['name' => 'Ana', 'email' => 'ana@email.com', 'password' => password_hash('123', PASSWORD_DEFAULT)]);
+$user = $repo->findByEmail('ana@email.com');
+print_r($user);
 
-$todos = $repo->buscarAtivos();
-echo "Usuários ativos: " . count($todos) . "<br>\n";
+$all = $repo->findActive();
+echo "Usuários ativos: " . count($all) . "<br
 ```
 
 ---

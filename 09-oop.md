@@ -31,21 +31,21 @@ Uma **classe** é o molde (blueprint) que define propriedades e comportamentos. 
 ```php
 <?php
 
-class Produto
+class Product
 {
-    public string $nome;
-    public float $preco;
+    public string $name;
+    public float $price;
 }
 
-$p1 = new Produto();
-$p1->nome  = 'Notebook';
-$p1->preco = 3500.00;
+$product1 = new Product();
+$product1->name  = 'Notebook';
+$product1->price = 3500.00;
 
-$p2 = new Produto();
-$p2->nome  = 'Mouse';
-$p2->preco = 89.90;
+$product2 = new Product();
+$product2->name  = 'Mouse';
+$product2->price = 89.90;
 
-echo "{$p1->nome}: R$ {$p1->preco}"; // Notebook: R$ 3500
+echo "{$product1->name}: R$ {$product1->price}"; // Notebook: R$ 3500
 ```
 
 ### `$this` — Referência ao Objeto Atual
@@ -55,19 +55,19 @@ Dentro da classe, `$this` referencia a instância atual:
 ```php
 <?php
 
-class Mensagem
+class Message
 {
-    public string $texto;
+    public string $text;
 
-    public function exibir(): void
+    public function display(): void
     {
-        echo $this->texto;
+        echo $this->text;
     }
 }
 
-$m = new Mensagem();
-$m->texto = 'Olá, mundo!';
-$m->exibir(); // Olá, mundo!
+$message = new Message();
+$message->text = 'Olá, mundo!';
+$message->display(); // Olá, mundo!
 ```
 
 ---
@@ -85,41 +85,41 @@ Propriedades armazenam o estado de um objeto. Os modificadores de visibilidade c
 ```php
 <?php
 
-class ContaBancaria
+class BankAccount
 {
-    private string $titular;
-    private float $saldo = 0.0;
-    protected string $tipo = 'corrente';
+    private string $holder;
+    private float $balance = 0.0;
+    protected string $type = 'corrente';
 
-    public function __construct(string $titular)
+    public function __construct(string $holder)
     {
-        $this->titular = $titular;
+        $this->holder = $holder;
     }
 
-    public function depositar(float $valor): void
+    public function deposit(float $value): void
     {
-        if ($valor > 0) {
-            $this->saldo += $valor;
+        if ($value > 0) {
+            $this->balance += $value;
         }
     }
 
-    public function getSaldo(): float
+    public function getBalance(): float
     {
-        return $this->saldo;
+        return $this->balance;
     }
 
-    public function getTitular(): string
+    public function getHolder(): string
     {
-        return $this->titular;
+        return $this->holder;
     }
 }
 
-$conta = new ContaBancaria('João Silva');
-$conta->depositar(1000);
-echo $conta->getSaldo();   // 1000
+$account = new BankAccount('João Silva');
+$account->deposit(1000);
+echo $account->getBalance();   // 1000
 
-// $conta->saldo = 9999;   // Erro: propriedade private
-// $conta->tipo = 'poupanca'; // Erro: propriedade protected
+// $account->balance = 9999;   // Erro: propriedade private
+// $account->type = 'poupanca'; // Erro: propriedade protected
 ```
 
 ### Typed Properties (PHP 7.4+)
@@ -129,23 +129,23 @@ Propriedades tipadas são inicializadas com `null` por padrão (se nullable) ou 
 ```php
 <?php
 
-class Usuario
+class User
 {
-    public string $nome;
-    public int $idade;
-    public ?string $telefone = null;  // nullable, com valor default
-    public bool $ativo = true;
+    public string $name;
+    public int $age;
+    public ?string $phone = null;  // nullable, com valor default
+    public bool $active = true;
 }
 
-$u = new Usuario();
-$u->nome  = 'Maria';
-$u->idade = 28;
+$user = new User();
+$user->name  = 'Maria';
+$user->age = 28;
 
-// $u->nome = 123; // TypeError — esperava string
+// $u->name = 123; // TypeError — esperava string
 
 // Se tentarmos acessar sem inicializar (propriedade nao-nullable):
-// $u2 = new Usuario();
-// echo $u2->nome; // Erro: propriedade nao inicializada
+// $u2 = new User();
+// echo $u2->name; // Erro: propriedade nao inicializada
 ```
 
 💡 **Dica:** Sempre inicialize propriedades tipadas no constructor ou com valores default. Propriedades não inicializadas de tipos não-nullable causam `Error` fatal quando acessadas.
@@ -159,43 +159,43 @@ Métodos definem comportamentos. Seguem a mesma lógica de visibilidade das prop
 ```php
 <?php
 
-class Calculadora
+class Calculator
 {
-    public function somar(int $a, int $b): int
+    public function sum(int $first, int $second): int
     {
-        return $a + $b;
+        return $first + $second;
     }
 
-    protected function validarOperacao(string $op): bool
+    protected function validateOperation(string $operation): bool
     {
-        return in_array($op, ['+', '-', '*', '/']);
+        return in_array($operation, ['+', '-', '*', '/']);
     }
 
-    private function log(string $mensagem): void
+    private function log(string $message): void
     {
-        error_log("[Calculadora] {$mensagem}");
+        error_log("[Calculator] {$message}");
     }
 
-    public function executar(string $op, int $a, int $b): int|float
+    public function execute(string $operation, int $first, int $second): int|float
     {
-        if (!$this->validarOperacao($op)) {
-            throw new InvalidArgumentException("Operacao invalida: {$op}");
+        if (!$this->validateOperation($operation)) {
+            throw new InvalidArgumentException("Operacao invalida: {$operation}");
         }
 
-        $this->log("Executando {$a} {$op} {$b}");
+        $this->log("Executando {$first} {$operation} {$second}");
 
-        return match ($op) {
-            '+' => $a + $b,
-            '-' => $a - $b,
-            '*' => $a * $b,
-            '/' => $a / $b,
+        return match ($operation) {
+            '+' => $first + $second,
+            '-' => $first - $second,
+            '*' => $first * $second,
+            '/' => $first / $second,
         };
     }
 }
 
-$calc = new Calculadora();
-echo $calc->executar('*', 6, 7); // 42
-// $calc->validarOperacao('*');   // Erro: metodo protected
+$calc = new Calculator();
+echo $calc->execute('*', 6, 7); // 42
+// $calc->validateOperation('*');   // Erro: metodo protected
 // $calc->log('teste');           // Erro: metodo private
 ```
 
@@ -210,27 +210,27 @@ O construtor roda ao instanciar a classe com `new`:
 ```php
 <?php
 
-class Livro
+class Book
 {
-    private string $titulo;
-    private string $autor;
-    private int $ano;
+    private string $title;
+    private string $author;
+    private int $year;
 
-    public function __construct(string $titulo, string $autor, int $ano)
+    public function __construct(string $title, string $author, int $year)
     {
-        $this->titulo = $titulo;
-        $this->autor  = $autor;
-        $this->ano    = $ano;
+        $this->title = $title;
+        $this->author  = $author;
+        $this->year    = $year;
     }
 
-    public function getDescricao(): string
+    public function getDescription(): string
     {
-        return "{$this->titulo}, por {$this->autor} ({$this->ano})";
+        return "{$this->title}, por {$this->author} ({$this->year})";
     }
 }
 
-$livro = new Livro('PHP Moderno', 'Ana Costa', 2026);
-echo $livro->getDescricao(); // PHP Moderno, por Ana Costa (2026)
+$book = new Book('PHP Moderno', 'Ana Costa', 2026);
+echo $book->getDescription(); // PHP Moderno, por Ana Costa (2026)
 ```
 
 ### Constructor Promotion (PHP 8.0+)
@@ -241,60 +241,59 @@ Sintaxe concisa que declara **e atribui** propriedades nos parâmetros do constr
 <?php
 
 // Antes (PHP < 8.0):
-class LivroAntigo
+class OldBook
 {
-    private string $titulo;
-    private string $autor;
-    private int $ano;
+    private string $title;
+    private string $author;
+    private int $year;
 
-    public function __construct(string $titulo, string $autor, int $ano)
+    public function __construct(string $title, string $author, int $year)
     {
-        $this->titulo = $titulo;
-        $this->autor  = $autor;
-        $this->ano    = $ano;
+        $this->title = $title;
+        $this->author  = $author;
+        $this->year    = $year;
     }
 }
 
 // Depois (PHP 8.0+):
-class Livro
+class Book
 {
     public function __construct(
-        private string $titulo,
-        private string $autor,
-        private int $ano,
+        private string $title,
+        private string $author,
+        private int $year,
     ) {}
 
-    public function getDescricao(): string
+    public function getDescription(): string
     {
-        return "{$this->titulo}, por {$this->autor} ({$this->ano})";
+        return "{$this->title}, por {$this->author} ({$this->year})";
     }
 }
 
-$livro = new Livro('PHP Moderno', 'Ana Costa', 2026);
-echo $livro->getDescricao(); // PHP Moderno, por Ana Costa (2026)
-```
+$book = new Book('PHP Moderno', 'Ana Costa', 2026);
+echo $book->getDescription(); // PHP Moderno, por Ana Costa (2026)
 
 ### Constructor Promotion com Valores Default
 
 ```php
 <?php
 
-class Configuracao
+class Configuration
 {
     public function __construct(
         private string $host = 'localhost',
-        private int $porta = 3306,
-        private string $usuario = 'root',
+        private int $port = 3306,
+        private string $user = 'root',
         private bool $debug = false,
     ) {}
 
     public function getDsn(): string
     {
-        return "mysql:host={$this->host};port={$this->porta}";
+        return "mysql:host={$this->host};port={$this->port}";
     }
 }
 
-$config = new Configuracao(host: 'db.producao', debug: true);
+$config = new Configuration(host: 'db.producao', debug: true);
 echo $config->getDsn(); // mysql:host=db.producao;port=3306
 ```
 
@@ -305,23 +304,23 @@ Você pode ter lógica adicional no constructor mesmo usando promotion:
 ```php
 <?php
 
-class Pedido
+class Order
 {
-    private DateTimeImmutable $criadoEm;
+    private DateTimeImmutable $createdAt;
 
     public function __construct(
         private string $id,
-        private array $itens,
+        private array $items,
         private float $total,
     ) {
-        $this->criadoEm = new DateTimeImmutable();
-        $this->validar();
+        $this->createdAt = new DateTimeImmutable();
+        $this->validate();
     }
 
-    private function validar(): void
+    private function validate(): void
     {
-        if (empty($this->itens)) {
-            throw new InvalidArgumentException('Pedido deve ter ao menos um item');
+        if (empty($this->items)) {
+            throw new InvalidArgumentException('Order deve ter ao menos um item');
         }
     }
 }
@@ -336,63 +335,63 @@ Herança (`extends`) permite que uma classe filha reutilize e estenda propriedad
 ```php
 <?php
 
-class Veiculo
+class Vehicle
 {
     public function __construct(
-        protected string $marca,
-        protected string $modelo,
-        protected int $ano,
+        protected string $brand,
+        protected string $model,
+        protected int $year,
     ) {}
 
-    public function getDescricao(): string
+    public function getDescription(): string
     {
-        return "{$this->marca} {$this->modelo} ({$this->ano})";
+        return "{$this->brand} {$this->model} ({$this->year})";
     }
 
-    public function ligar(): string
+    public function start(): string
     {
-        return 'Veiculo ligado';
+        return 'Vehicle ligado';
     }
 }
 
-class Carro extends Veiculo
+class Car extends Vehicle
 {
     public function __construct(
-        string $marca,
-        string $modelo,
-        int $ano,
-        private int $portas = 4,
+        string $brand,
+        string $model,
+        int $year,
+        private int $doors = 4,
     ) {
-        parent::__construct($marca, $modelo, $ano);
+        parent::__construct($brand, $model, $year);
     }
 
     #[\Override]
-    public function ligar(): string
+    public function start(): string
     {
-        return 'Carro ligado — vrum vrum!';
+        return 'Car ligado — vrum vrum!';
     }
 
     public function getInfoCompleta(): string
     {
-        return parent::getDescricao() . " — {$this->portas} portas";
+        return parent::getDescription() . " — {$this->doors} portas";
     }
 }
 
-class Moto extends Veiculo
+class Motorcycle extends Vehicle
 {
     #[\Override]
-    public function ligar(): string
+    public function start(): string
     {
-        return 'Moto ligada — randandandan!';
+        return 'Motorcycle ligada — randandandan!';
     }
 }
 
-$carro = new Carro('Toyota', 'Corolla', 2026, 4);
-echo $carro->getInfoCompleta() . PHP_EOL; // Toyota Corolla (2026) — 4 portas
-echo $carro->ligar() . PHP_EOL;           // Carro ligado — vrum vrum!
+$car = new Car('Toyota', 'Corolla', 2026, 4);
+echo $car->getInfoCompleta() . PHP_EOL; // Toyota Corolla (2026) — 4 portas
+echo $car->start() . PHP_EOL;           // Car ligado — vrum vrum!
 
-$moto = new Moto('Honda', 'CB500', 2025);
-echo $moto->ligar();                       // Moto ligada — randandandan!
+$motorcycle = new Motorcycle('Honda', 'CB500', 2025);
+echo $motorcycle->start();                       // Motorcycle ligada — randandandan!
 ```
 
 ### `parent::`
@@ -404,23 +403,23 @@ A palavra-chave `parent::` acessa métodos e propriedades da classe pai:
 
 class LoggerBase
 {
-    protected function formatar(string $mensagem): string
+    protected function format(string $message): string
     {
-        return date('[Y-m-d H:i:s] ') . $mensagem;
+        return date('[Y-m-d H:i:s] ') . $message;
     }
 }
 
 class LoggerArquivo extends LoggerBase
 {
     #[\Override]
-    protected function formatar(string $mensagem): string
+    protected function format(string $message): string
     {
-        return parent::formatar($mensagem) . ' [ARQUIVO]';
+        return parent::format($message) . ' [ARQUIVO]';
     }
 
     public function log(string $msg): void
     {
-        echo $this->formatar($msg) . PHP_EOL;
+        echo $this->format($msg) . PHP_EOL;
     }
 }
 
@@ -452,13 +451,13 @@ interface JsonSerializableCustom
 class Evento implements Logavel, JsonSerializableCustom
 {
     public function __construct(
-        private string $nome,
-        private array $dados,
+        private string $name,
+        private array $dataPayload,
     ) {}
 
     public function getLogMessage(): string
     {
-        return "Evento: {$this->nome} — " . json_encode($this->dados);
+        return "Evento: {$this->name} — " . json_encode($this->dataPayload);
     }
 
     public function getLogLevel(): string
@@ -469,8 +468,8 @@ class Evento implements Logavel, JsonSerializableCustom
     public function toJson(): string
     {
         return json_encode([
-            'evento' => $this->nome,
-            'dados'  => $this->dados,
+            'evento' => $this->name,
+            'dados'  => $this->dataPayload,
         ], JSON_UNESCAPED_UNICODE);
     }
 }
@@ -500,14 +499,14 @@ interface Taxas
 
 class NotaFiscal implements Taxas
 {
-    public function calcularImpostos(float $valor): float
+    public function calculateImpostos(float $value): float
     {
-        return $valor * (Taxas::ICMS + Taxas::ISS + Taxas::PIS + Taxas::COFINS);
+        return $value * (Taxas::ICMS + Taxas::ISS + Taxas::PIS + Taxas::COFINS);
     }
 }
 
-$nf = new NotaFiscal();
-echo "Impostos: R$ " . $nf->calcularImpostos(1000);
+$invoice = new NotaFiscal();
+echo "Impostos: R$ " . $invoice->calculateImpostos(1000);
 // Impostos: R$ 322.5
 ```
 
@@ -551,22 +550,22 @@ Traits são mecanismos de **reutilização horizontal** de código. Permitem com
 
 trait Timestamps
 {
-    private DateTimeImmutable $criadoEm;
-    private ?DateTimeImmutable $atualizadoEm = null;
+    private DateTimeImmutable $createdAt;
+    private ?DateTimeImmutable $updatedAt = null;
 
     private function initTimestamps(): void
     {
-        $this->criadoEm = new DateTimeImmutable();
+        $this->createdAt = new DateTimeImmutable();
     }
 
     public function getCriadoEm(): DateTimeImmutable
     {
-        return $this->criadoEm;
+        return $this->createdAt;
     }
 
     public function touch(): void
     {
-        $this->atualizadoEm = new DateTimeImmutable();
+        $this->updatedAt = new DateTimeImmutable();
     }
 }
 
@@ -590,16 +589,16 @@ class Post
     use Timestamps, HasUuid;
 
     public function __construct(
-        private string $titulo,
-        private string $conteudo,
+        private string $title,
+        private string $content,
     ) {
         $this->initTimestamps();
         $this->initUuid();
     }
 
-    public function editar(string $conteudo): void
+    public function edit(string $content): void
     {
-        $this->conteudo = $conteudo;
+        $this->content = $content;
         $this->touch();
     }
 }
@@ -618,7 +617,7 @@ Se duas traits definem o mesmo método, use `insteadof`:
 
 trait LoggerJson
 {
-    public function formatarLog(string $msg): string
+    public function formatLog(string $msg): string
     {
         return json_encode(['mensagem' => $msg]);
     }
@@ -626,7 +625,7 @@ trait LoggerJson
 
 trait LoggerTexto
 {
-    public function formatarLog(string $msg): string
+    public function formatLog(string $msg): string
     {
         return "[LOG] {$msg}";
     }
@@ -635,14 +634,14 @@ trait LoggerTexto
 class MeuLogger
 {
     use LoggerJson, LoggerTexto {
-        LoggerJson::formatarLog insteadof LoggerTexto;  // usa o da LoggerJson
-        LoggerTexto::formatarLog as formatarLogTexto;   // alias
+        LoggerJson::formatLog insteadof LoggerTexto;  // usa o da LoggerJson
+        LoggerTexto::formatLog as formatLogTexto;   // alias
     }
 }
 
 $logger = new MeuLogger();
-echo $logger->formatarLog('teste');      // {"mensagem":"teste"}
-echo $logger->formatarLogTexto('teste');  // [LOG] teste
+echo $logger->formatLog('teste');      // {"mensagem":"teste"}
+echo $logger->formatLogTexto('teste');  // [LOG] teste
 ```
 
 ### Traits com Métodos Abstratos
@@ -650,29 +649,29 @@ echo $logger->formatarLogTexto('teste');  // [LOG] teste
 ```php
 <?php
 
-trait Nomeavel
+trait Nameable
 {
-    abstract public function getNome(): string;
+    abstract public function getName(): string;
 
-    public function getNomeExibicao(): string
+    public function getDisplayName(): string
     {
-        return mb_strtoupper($this->getNome());
+        return mb_strtoupper($this->getName());
     }
 }
 
-class Categoria
+class Category
 {
-    use Nomeavel;
+    use Nameable;
 
-    public function __construct(private string $nome) {}
+    public function __construct(private string $name) {}
 
-    public function getNome(): string
+    public function getName(): string
     {
-        return $this->nome;
+        return $this->name;
     }
 }
 
-echo (new Categoria('eletronicos'))->getNomeExibicao(); // ELETRONICOS
+echo (new Category('eletronicos'))->getDisplayName(); // ELETRONICOS
 ```
 
 ---
@@ -684,49 +683,49 @@ Classes abstratas (`abstract`) não podem ser instanciadas. Servem como base par
 ```php
 <?php
 
-abstract class Funcionario
+abstract class Employee
 {
     public function __construct(
-        protected string $nome,
-        protected float $salarioBase,
+        protected string $name,
+        protected float $baseSalary,
     ) {}
 
-    abstract public function calcularBonus(): float;
+    abstract public function calculateBonus(): float;
 
-    public function getSalarioTotal(): float
+    public function getTotalSalary(): float
     {
-        return $this->salarioBase + $this->calcularBonus();
+        return $this->baseSalary + $this->calculateBonus();
     }
 
-    public function getNome(): string
+    public function getName(): string
     {
-        return $this->nome;
+        return $this->name;
     }
 }
 
-class Desenvolvedor extends Funcionario
+class Developer extends Employee
 {
-    public function calcularBonus(): float
+    public function calculateBonus(): float
     {
-        return $this->salarioBase * 0.2; // 20%
+        return $this->baseSalary * 0.2; // 20%
     }
 }
 
-class Gerente extends Funcionario
+class Manager extends Employee
 {
-    public function calcularBonus(): float
+    public function calculateBonus(): float
     {
-        return $this->salarioBase * 0.5; // 50%
+        return $this->baseSalary * 0.5; // 50%
     }
 }
 
-$dev = new Desenvolvedor('Joao', 10000);
-$ger = new Gerente('Maria', 15000);
+$dev = new Developer('Joao', 10000);
+$manager = new Manager('Maria', 15000);
 
-echo "{$dev->getNome()}: R$ {$dev->getSalarioTotal()}" . PHP_EOL; // Joao: R$ 12000
-echo "{$ger->getNome()}: R$ {$ger->getSalarioTotal()}" . PHP_EOL; // Maria: R$ 22500
+echo "{$dev->getName()}: R$ {$dev->getTotalSalary()}" . PHP_EOL; // Joao: R$ 12000
+echo "{$manager->getName()}: R$ {$manager->getTotalSalary()}" . PHP_EOL; // Maria: R$ 22500
 
-// $f = new Funcionario('Teste', 1000); // Erro: classe abstrata
+// $employee = new Employee('Teste', 1000); // Erro: classe abstrata
 ```
 
 ---
@@ -738,7 +737,7 @@ Membros `static` pertencem à **classe**, não à instância. São acessados com
 ```php
 <?php
 
-class Contador
+class Counter
 {
     private static int $total = 0;
 
@@ -752,20 +751,20 @@ class Contador
         return self::$total;
     }
 
-    public static function resetar(): void
+    public static function reset(): void
     {
         self::$total = 0;
     }
 }
 
-new Contador();
-new Contador();
-new Contador();
+new Counter();
+new Counter();
+new Counter();
 
-echo Contador::getTotal(); // 3
+echo Counter::getTotal(); // 3
 
-Contador::resetar();
-echo Contador::getTotal(); // 0
+Counter::reset();
+echo Counter::getTotal(); // 0
 ```
 
 ### `self::` vs `static::`
@@ -804,28 +803,28 @@ Constantes de classe são declaradas com `const` e acessadas via `Classe::CONSTA
 ```php
 <?php
 
-class StatusPedido
+class StatusOrder
 {
-    public const string PENDENTE     = 'pendente';
-    public const string PROCESSANDO  = 'processando';
-    public const string ENVIADO      = 'enviado';
-    public const string ENTREGUE     = 'entregue';
-    public const string CANCELADO    = 'cancelado';
+    public const string PENDING     = 'pendente';
+    public const string PROCESSING  = 'processando';
+    public const string SHIPPED     = 'enviado';
+    public const string DELIVERED   = 'entregue';
+    public const string CANCELLED   = 'cancelado';
 
-    private const array STATUS_FINAIS = [
-        self::ENTREGUE,
-        self::CANCELADO,
+    private const array FINAL_STATUSES = [
+        self::DELIVERED,
+        self::CANCELLED,
     ];
 
     public static function isFinal(string $status): bool
     {
-        return in_array($status, self::STATUS_FINAIS, true);
+        return in_array($status, self::FINAL_STATUSES, true);
     }
 }
 
-$status = StatusPedido::PROCESSANDO;
-var_dump(StatusPedido::isFinal($status)); // bool(false)
-var_dump(StatusPedido::isFinal(StatusPedido::ENTREGUE)); // bool(true)
+$status = StatusOrder::PROCESSING;
+var_dump(StatusOrder::isFinal($status)); // bool(false)
+var_dump(StatusOrder::isFinal(StatusOrder::DELIVERED)); // bool(true)
 ```
 
 ### `final const` (PHP 8.1+)
@@ -859,25 +858,25 @@ Propriedades `readonly` só podem ser inicializadas **uma vez**, após o que se 
 ```php
 <?php
 
-class Cliente
+class Client
 {
     public function __construct(
         public readonly string $cpf,
-        public readonly string $nome,
-        public readonly DateTimeImmutable $dataCadastro = new DateTimeImmutable(),
+        public readonly string $name,
+        public readonly DateTimeImmutable $registrationDate = new DateTimeImmutable(),
     ) {}
 
     public function getAno(): int
     {
-        return (int) $this->dataCadastro->format('Y');
+        return (int) $this->registrationDate->format('Y');
     }
 }
 
-$c = new Cliente('123.456.789-00', 'Maria Silva');
-echo $c->nome;      // Maria Silva
-echo $c->getAno();  // 2026
+$client = new Client('123.456.789-00', 'Maria Silva');
+echo $client->name;      // Maria Silva
+echo $client->getAno();  // 2026
 
-// $c->nome = 'Outra'; // Erro: propriedade readonly
+// $client->name = 'Outra'; // Erro: propriedade readonly
 ```
 
 Propriedades `readonly` podem ser inicializadas **apenas** no constructor ou na declaração. Após isso, tornam-se imutáveis.
@@ -892,15 +891,15 @@ Se **todas** as propriedades de uma classe forem `readonly`, você pode marcar a
 readonly class Endereco
 {
     public function __construct(
-        public string $rua,
-        public string $cidade,
-        public string $uf,
-        public string $cep,
+        public string $street,
+        public string $city,
+        public string $state,
+        public string $zipCode,
     ) {}
 }
 
 $end = new Endereco('Av. Paulista', 'Sao Paulo', 'SP', '01310-100');
-echo "{$end->rua}, {$end->cidade} - {$end->uf}, {$end->cep}";
+echo "{$end->street}, {$end->city} - {$end->state}, {$end->zipCode}";
 // Av. Paulista, Sao Paulo - SP, 01310-100
 
 // $end->cidade = 'Rio'; // Erro: classe readonly
@@ -927,23 +926,23 @@ Classes `readonly`:
 
 class Item
 {
-    public function __construct(public string $nome) {}
+    public function __construct(public string $name) {}
 }
 
-class Carrinho
+class Cart
 {
     public function __construct(
-        public array $itens = [],
-        public DateTimeImmutable $criadoEm = new DateTimeImmutable(),
+        public array $items = [],
+        public DateTimeImmutable $createdAt = new DateTimeImmutable(),
     ) {}
 }
 
-$c1 = new Carrinho(itens: [new Item('Notebook')]);
+$c1 = new Cart(items: [new Item('Notebook')]);
 $c2 = clone $c1;
 
-$c2->itens[0]->nome = 'Mouse';
+$c2->items[0]->name = 'Mouse';
 
-echo $c1->itens[0]->nome; // Mouse — modificado! (shallow copy)
+echo $c1->items[0]->name; // Mouse — modificado! (shallow copy)
 ```
 
 ### `__clone()` — Controle sobre a Clonagem
@@ -956,15 +955,15 @@ O método mágico `__clone()` é chamado **após** a cópia superficial, permiti
 class Documento
 {
     public function __construct(
-        public string $titulo,
-        public DateTimeImmutable $criadoEm,
+        public string $title,
+        public DateTimeImmutable $createdAt,
         public ?self $relacionado = null,
     ) {}
 
     public function __clone(): void
     {
         // Atualiza a data no clone
-        $this->criadoEm = new DateTimeImmutable();
+        $this->createdAt = new DateTimeImmutable();
 
         // Deep clone do objeto relacionado
         if ($this->relacionado !== null) {
@@ -974,10 +973,10 @@ class Documento
 }
 
 $original = new Documento('Original', new DateTimeImmutable('2026-01-01'));
-$copia = clone $original;
+$copy = clone $original;
 
-echo $original->criadoEm->format('Y-m-d'); // 2026-01-01
-echo $copia->criadoEm->format('Y-m-d');    // 2026-08-04 (data atual)
+echo $original->createdAt->format('Y-m-d'); // 2026-01-01
+echo $copy->createdAt->format('Y-m-d');    // 2026-08-04 (data atual)
 ```
 
 ### Clone com Array de Propriedades — PHP 8.5 NOVIDADE!
@@ -987,30 +986,30 @@ echo $copia->criadoEm->format('Y-m-d');    // 2026-08-04 (data atual)
 ```php
 <?php
 
-class Produto
+class Product
 {
     public function __construct(
-        public readonly string $nome,
-        public readonly float $preco,
-        public readonly int $estoque = 0,
+        public readonly string $name,
+        public readonly float $price,
+        public readonly int $stock = 0,
     ) {}
 }
 
-$produto = new Produto('Notebook', 3500.00, 10);
+$product = new Product('Notebook', 3500.00, 10);
 
 // PHP 8.5+: clone com sobrescrita de propriedades
-$produtoComDesconto = clone $produto with ['preco' => 2999.00];
-$produtoSemEstoque  = clone $produto with ['estoque' => 0];
+$discountedProduct = clone $product with ['price' => 2999.00];
+$productOutOfStock  = clone $product with ['stock' => 0];
 
-echo $produto->preco;                    // 3500 (original inalterado)
-echo $produtoComDesconto->preco;         // 2999
-echo $produtoSemEstoque->estoque;        // 0
+echo $product->price;                    // 3500 (original inalterado)
+echo $discountedProduct->price;         // 2999
+echo $productOutOfStock->stock;        // 0
 
 // Clone com multiplas propriedades:
-$novoProduto = clone $produto with [
-    'nome'    => 'Notebook Pro',
-    'preco'   => 4500.00,
-    'estoque' => 20,
+$newProduct = clone $product with [
+    'name'    => 'Notebook Pro',
+    'price'   => 4500.00,
+    'stock'   => 20,
 ];
 ```
 
@@ -1019,16 +1018,16 @@ Isso funciona bem com propriedades `readonly`, onde você **não poderia** reatr
 ```php
 <?php
 
-readonly class Configuracao
+readonly class Configuration
 {
     public function __construct(
         public string $host,
-        public int $porta,
+        public int $port,
         public bool $debug = false,
     ) {}
 }
 
-$dev = new Configuracao('localhost', 3306, debug: true);
+$dev = new Configuration('localhost', 3306, debug: true);
 $prod = clone $dev with ['host' => 'db.producao', 'debug' => false];
 
 echo $dev->debug;  // true (inalterado)
@@ -1048,20 +1047,20 @@ echo $prod->debug; // false
 ```php
 <?php
 
-class Usuario
+class User
 {
-    public string $nomeCompleto {
-        get => mb_convert_case($this->nomeCompleto, MB_CASE_TITLE, 'UTF-8');
+    public string $fullName {
+        get => mb_convert_case($this->fullName, MB_CASE_TITLE, 'UTF-8');
     }
 
-    public function __construct(string $nome)
+    public function __construct(string $name)
     {
-        $this->nomeCompleto = $nome; // armazena o valor bruto; get transforma na leitura
+        $this->fullName = $name;
     }
 }
 
-$u = new Usuario('joao da silva');
-echo $u->nomeCompleto; // Joao Da Silva
+$user = new User('joao da silva');
+echo $user->fullName; // Joao Da Silva
 ```
 
 ### Hook `set`
@@ -1069,30 +1068,30 @@ echo $u->nomeCompleto; // Joao Da Silva
 ```php
 <?php
 
-class Produto
+class Product
 {
-    private float $precoBruto;
+    private float $rawPrice;
 
-    public float $preco {
-        get => $this->precoBruto;
-        set (float $valor) {
-            if ($valor < 0) {
+    public float $price {
+        get => $this->rawPrice;
+        set (float $value) {
+            if ($value < 0) {
                 throw new InvalidArgumentException('Preco nao pode ser negativo');
             }
-            $this->precoBruto = round($valor, 2);
+            $this->rawPrice = round($value, 2);
         }
     }
 
-    public function __construct(float $preco)
+    public function __construct(float $price)
     {
-        $this->preco = $preco;
+        $this->price = $price;
     }
 }
 
-$p = new Produto(99.999);
-echo $p->preco; // 100
+$product = new Product(99.999);
+echo $product->price; // 100
 
-// $p->preco = -10; // InvalidArgumentException
+// $product->price = -10; // InvalidArgumentException
 ```
 
 ### Propriedade Somente Leitura (read-only virtual property)
@@ -1100,22 +1099,22 @@ echo $p->preco; // 100
 ```php
 <?php
 
-class Retangulo
+class Rectangle
 {
     public function __construct(
-        private float $largura,
-        private float $altura,
+        private float $width,
+        private float $height,
     ) {}
 
     public float $area {
-        get => $this->largura * $this->altura;
+        get => $this->width * $this->height;
     } // sem set = somente leitura
 }
 
-$r = new Retangulo(10, 5);
-echo $r->area; // 50
+$rectangle = new Rectangle(10, 5);
+echo $rectangle->area; // 50
 
-// $r->area = 60; // Erro: propriedade nao tem set hook
+// $rectangle->area = 60; // Erro: propriedade nao tem set hook
 ```
 
 ### Propriedade Somente Escrita
@@ -1125,28 +1124,28 @@ echo $r->area; // 50
 
 class Logger
 {
-    private array $mensagens = [];
+    private array $messages = [];
 
-    public string $mensagem {
-        set (string $valor) {
-            $this->mensagens[] = date('[H:i:s] ') . $valor;
+    public string $message {
+        set (string $value) {
+            $this->messages[] = date('[H:i:s] ') . $value;
         }
     } // sem get = somente escrita
 
-    public function getMensagens(): array
+    public function getMessages(): array
     {
-        return $this->mensagens;
+        return $this->messages;
     }
 }
 
 $logger = new Logger();
-$logger->mensagem = 'Sistema iniciado';
-$logger->mensagem = 'Processamento concluido';
+$logger->message = 'Sistema iniciado';
+$logger->message = 'Processamento concluido';
 
-print_r($logger->getMensagens());
+print_r($logger->getMessages());
 // [[10:30:00] Sistema iniciado, [10:30:05] Processamento concluido]
 
-// echo $logger->mensagem; // Erro: propriedade nao tem get hook
+// echo $logger->message; // Erro: propriedade nao tem get hook
 ```
 
 ### Property Hooks em Interfaces
@@ -1154,20 +1153,20 @@ print_r($logger->getMensagens());
 ```php
 <?php
 
-interface Nomeavel
+interface Nameable
 {
-    public string $nomeCompleto { get; }
+    public string $fullName { get; }
 }
 
-class Pessoa implements Nomeavel
+class Person implements Nameable
 {
-    public string $nomeCompleto {
-        get => $this->primeiroNome . ' ' . $this->sobrenome;
+    public string $fullName {
+        get => $this->firstName . ' ' . $this->lastName;
     }
 
     public function __construct(
-        public string $primeiroNome,
-        public string $sobrenome,
+        public string $firstName,
+        public string $lastName,
     ) {}
 }
 ```
@@ -1183,39 +1182,39 @@ class Pessoa implements Nomeavel
 ```php
 <?php
 
-class Relatorio
+class Report
 {
     // Todos leem, mas apenas a classe modifica
-    public private(set) string $titulo;
+    public private(set) string $title;
 
     // Todos leem, classe e subclasses modificam
-    public protected(set) int $visualizacoes = 0;
+    public protected(set) int $views = 0;
 
-    public function __construct(string $titulo)
+    public function __construct(string $title)
     {
-        $this->titulo = $titulo;
+        $this->title = $title;
     }
 
-    public function incrementarVisualizacao(): void
+    public function incrementView(): void
     {
-        $this->visualizacoes++;
+        $this->views++;
     }
 }
 
-class RelatorioPremium extends Relatorio
+class ReportPremium extends Report
 {
-    public function resetarVisualizacoes(): void
+    public function resetViews(): void
     {
-        $this->visualizacoes = 0; // OK — protected(set)
-        // $this->titulo = 'novo';     // Erro — private(set) nao acessivel em subclasse
+        $this->views = 0; // OK — protected(set)
+        // $this->title = 'novo';     // Erro — private(set) nao acessivel em subclasse
     }
 }
 
-$rel = new Relatorio('Vendas Q3');
-echo $rel->titulo;              // Vendas Q3 — public get
+$report = new Report('Vendas Q3');
+echo $report->title;              // Vendas Q3 — public get
 
-// $rel->titulo = 'Q4';          // Erro — private(set)
-// $rel->visualizacoes = 100;    // Erro — protected(set)
+// $report->title = 'Q4';          // Erro — private(set)
+// $report->views = 100;    // Erro — protected(set)
 ```
 
 ### Sintaxes Suportadas
@@ -1243,34 +1242,34 @@ class Entidade
     }
 }
 
-// Exemplo 2: Contador somente incrementavel internamente
+// Exemplo 2: Counter somente incrementavel internamente
 class Visitante
 {
-    public protected(set) int $acessos = 0;
+    public protected(set) int $accessCount = 0;
 
     public function registrarAcesso(): void
     {
-        $this->acessos++;
+        $this->accessCount++;
     }
 }
 
-// Exemplo 3: Configuracao que so pode ser alterada via metodo
+// Exemplo 3: Configuration que so pode ser alterada via metodo
 class Conexao
 {
     public private(set) string $host;
-    public private(set) int $porta;
+    public private(set) int $port;
 
-    public function __construct(string $host, int $porta)
+    public function __construct(string $host, int $port)
     {
         $this->host  = $host;
-        $this->porta = $porta;
+        $this->port = $port;
     }
 
-    public function reconectar(string $host, int $porta): void
+    public function reconectar(string $host, int $port): void
     {
         $this->fechar();
         $this->host  = $host;
-        $this->porta = $porta;
+        $this->port = $port;
     }
 
     private function fechar(): void { /* ... */ }
@@ -1295,7 +1294,7 @@ class Modelo
     ) {}
 }
 
-class Usuario extends Modelo
+class User extends Modelo
 {
     // public string $tabela = 'usuarios'; // Erro: propriedade final nao pode ser sobrescrita
 }
@@ -1314,11 +1313,11 @@ abstract class EventoDominio
     ) {}
 }
 
-class UsuarioCriado extends EventoDominio
+class UserCriado extends EventoDominio
 {
     public function __construct(
         string $id,
-        public readonly string $nome,
+        public readonly string $name,
     ) {
         parent::__construct($id);
     }
@@ -1333,7 +1332,7 @@ class UsuarioCriado extends EventoDominio
 
 Métodos mágicos são interceptores chamados pelo PHP em situações específicas. Todos começam com `__`:
 
-### `__get($nome)` — Acesso a Propriedade Inacessível
+### `__get($name)` — Acesso a Propriedade Inacessível
 
 Chamado ao tentar **ler** uma propriedade que não existe ou é inacessível:
 
@@ -1342,47 +1341,47 @@ Chamado ao tentar **ler** uma propriedade que não existe ou é inacessível:
 
 class Container
 {
-    private array $dados = [];
+    private array $dataPayload = [];
 
-    public function __get(string $nome): mixed
+    public function __get(string $name): mixed
     {
-        return $this->dados[$nome] ?? null;
+        return $this->dataPayload[$name] ?? null;
     }
 }
 
-$c = new Container();
-echo $c->qualquer_chave; // null (sem erro!)
+$container = new Container();
+echo $container->qualquer_chave; // null (sem erro!)
 ```
 
-### `__set($nome, $valor)` — Escrita em Propriedade Inacessível
+### `__set($name, $valor)` — Escrita em Propriedade Inacessível
 
 ```php
 <?php
 
 class ConfigDinamica
 {
-    private array $valores = [];
+    private array $values = [];
 
-    public function __set(string $nome, mixed $valor): void
+    public function __set(string $name, mixed $value): void
     {
-        $this->valores[$nome] = $valor;
+        $this->values[$name] = $value;
     }
 
-    public function __get(string $nome): mixed
+    public function __get(string $name): mixed
     {
-        return $this->valores[$nome] ?? null;
+        return $this->values[$name] ?? null;
     }
 
     public function getAll(): array
     {
-        return $this->valores;
+        return $this->values;
     }
 }
 
 $config = new ConfigDinamica();
 $config->debug = true;
 $config->host  = 'localhost';
-$config->porta = 3306;
+$config->port = 3306;
 
 print_r($config->getAll());
 /*
@@ -1402,20 +1401,20 @@ Array
 
 class MicroOrm
 {
-    public function __call(string $metodo, array $args): mixed
+    public function __call(string $method, array $args): mixed
     {
-        if (str_starts_with($metodo, 'findBy')) {
-            $coluna = lcfirst(substr($metodo, 6));
-            return $this->findBy($coluna, $args[0]);
+        if (str_starts_with($method, 'findBy')) {
+            $column = lcfirst(substr($method, 6));
+            return $this->findBy($column, $args[0]);
         }
 
-        throw new BadMethodCallException("Metodo {$metodo} nao existe");
+        throw new BadMethodCallException("Metodo {$method} nao existe");
     }
 
-    private function findBy(string $coluna, mixed $valor): ?array
+    private function findBy(string $column, mixed $value): ?array
     {
         // simulacao de consulta
-        echo "SELECT * FROM tabela WHERE {$coluna} = {$valor}\n";
+        echo "SELECT * FROM tabela WHERE {$column} = {$value}\n";
         return null;
     }
 }
@@ -1433,19 +1432,19 @@ $orm->findByEmail('a@b.com'); // SELECT * FROM tabela WHERE email = a@b.com
 class Dinheiro
 {
     public function __construct(
-        private float $valor,
-        private string $moeda = 'BRL',
+        private float $value,
+        private string $currency = 'BRL',
     ) {}
 
     public function __toString(): string
     {
-        return 'R$ ' . number_format($this->valor, 2, ',', '.');
+        return 'R$ ' . number_format($this->value, 2, ',', '.');
     }
 }
 
-$preco = new Dinheiro(199.9);
-echo $preco;              // R$ 199,90
-echo "Preco: {$preco}";  // Preco: R$ 199,90
+$price = new Dinheiro(199.9);
+echo $price;              // R$ 199,90
+echo "Preco: {$price}";  // Preco: R$ 199,90
 ```
 
 ### `__invoke()` — Objeto como Função
@@ -1463,14 +1462,14 @@ class ValidadorEmail
     }
 }
 
-$validador = new ValidadorEmail();
+$validator = new ValidadorEmail();
 
-var_dump($validador('user@domain.com')); // bool(true)
-var_dump($validador('invalid'));         // bool(false)
+var_dump($validator('user@domain.com')); // bool(true)
+var_dump($validator('invalid'));         // bool(false)
 
 // Uso como callback:
 $emails = ['a@b.com', 'invalido', 'c@d.com'];
-$validos = array_filter($emails, $validador);
+$validos = array_filter($emails, $validator);
 print_r($validos); // ['a@b.com', 'c@d.com']
 ```
 
@@ -1479,28 +1478,28 @@ print_r($validos); // ['a@b.com', 'c@d.com']
 ```php
 <?php
 
-class Usuario
+class User
 {
     public function __construct(
-        private string $nome,
-        private string $senha,
+        private string $name,
+        private string $password,
         private string $email,
     ) {}
 
     public function __debugInfo(): array
     {
         return [
-            'nome'  => $this->nome,
+            'nome'  => $this->name,
             'email' => $this->email,
             'senha' => '***REDACTED***',
         ];
     }
 }
 
-$u = new Usuario('Maria', 'senha123', 'maria@email.com');
+$u = new User('Maria', 'senha123', 'maria@email.com');
 var_dump($u);
 /*
-object(Usuario)#1 (3) {
+object(User)#1 (3) {
   ["nome"]=> string(5) "Maria"
   ["email"]=> string(16) "maria@email.com"
   ["senha"]=> string(13) "***REDACTED***"
@@ -1521,42 +1520,42 @@ Late Static Binding (`static::`) resolve a referência na **classe que fez a cha
 
 abstract class Repository
 {
-    protected static string $tabela;
+    protected static string $table;
 
     public static function find(int $id): ?static
     {
-        $tabela = static::$tabela;  // LSB: resolve na subclasse
-        echo "SELECT * FROM {$tabela} WHERE id = {$id}" . PHP_EOL;
+        $table = static::$table;  // LSB: resolve na subclasse
+        echo "SELECT * FROM {$table} WHERE id = {$id}" . PHP_EOL;
         return $id > 0 ? new static() : null; // LSB: instancia a subclasse
     }
 
-    public static function tabela(): string
+    public static function table(): string
     {
-        return static::$tabela;
+        return static::$table;
     }
 }
 
-class UsuarioRepository extends Repository
+class UserRepository extends Repository
 {
-    protected static string $tabela = 'usuarios';
+    protected static string $table = 'usuarios';
 }
 
-class PedidoRepository extends Repository
+class OrderRepository extends Repository
 {
-    protected static string $tabela = 'pedidos';
+    protected static string $table = 'pedidos';
 }
 
-$user = UsuarioRepository::find(1);
+$user = UserRepository::find(1);
 // SELECT * FROM usuarios WHERE id = 1
 
-$pedido = PedidoRepository::find(42);
+$order = OrderRepository::find(42);
 // SELECT * FROM pedidos WHERE id = 42
 
-echo UsuarioRepository::tabela(); // usuarios
-echo PedidoRepository::tabela();  // pedidos
+echo UserRepository::table(); // usuarios
+echo OrderRepository::table();  // pedidos
 ```
 
-Sem `static::`, `self::$tabela` sempre retornaria o valor da classe `Repository` (que não está definido).
+Sem `static::`, `self::$table` sempre retornaria o valor da classe `Repository` (que não está definido).
 
 ---
 
@@ -1569,19 +1568,19 @@ Autoloading carrega classes quando são referenciadas pela primeira vez, elimina
 ```php
 <?php
 
-// Configuracao basica de autoloading
+// Configuration basica de autoloading
 spl_autoload_register(function (string $classe): void {
     // Converte namespace em caminho de arquivo
-    // Ex: App\Models\Usuario -> src/Models/Usuario.php
-    $arquivo = __DIR__ . '/src/' . str_replace('\\', '/', $classe) . '.php';
+    // Ex: App\Models\User -> src/Models/User.php
+    $file = __DIR__ . '/src/' . str_replace('\\', '/', $classe) . '.php';
 
-    if (file_exists($arquivo)) {
-        require_once $arquivo;
+    if (file_exists($file)) {
+        require_once $file;
     }
 });
 
 // Agora qualquer classe no namespace App sera carregada:
-// use App\Models\Usuario;
+// use App\Models\User;
 // use App\Services\EmailService;
 ```
 
@@ -1608,10 +1607,10 @@ Após rodar `composer dump-autoload`, todas as classes no diretório `src/` com 
 require_once __DIR__ . '/vendor/autoload.php';
 
 use App\Controllers\HomeController;
-use App\Models\Usuario;
+use App\Models\User;
 
 $controller = new HomeController();  // carregado
-$usuario     = new Usuario();        // carregado
+$user     = new User();        // carregado
 ```
 
 ---

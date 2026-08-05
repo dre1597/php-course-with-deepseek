@@ -15,10 +15,10 @@ XSS ocorre quando um atacante injeta JavaScript malicioso que roda no navegador 
 ```php
 <?php
 // NUNCA faça isso — o HTML do usuário é renderizado como código
-$nome = $_GET['nome'] ?? 'Visitante';
-echo "Olá, {$nome}!";
-// URL: pagina.php?nome=<script>alert('hackeado')</script>
-// Resultado: o script é executado!
+$name = $_GET['name'] ?? 'Visitante';
+echo "Olá, {$name}!";
+// URL: pagina.php?name=<script>alert('hackeado')</script>
+// Resultado: o script é execut
 ```
 
 ### ✅ Protegido com `htmlspecialchars()`
@@ -26,31 +26,31 @@ echo "Olá, {$nome}!";
 ```php
 <?php
 // SEMPRE escape no output
-$nome = $_GET['nome'] ?? 'Visitante';
-echo "Olá, " . htmlspecialchars($nome, ENT_QUOTES, 'UTF-8') . "!";
+$name = $_GET['name'] ?? 'Visitante';
+echo "Olá, " . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . "!";
 // Resultado no HTML: Olá, &lt;script&gt;alert('hackeado')&lt;/script&gt;!
-// O script é exibido como texto, não executado.
+// O script é exibido como texto, não execut
 ```
 
 ### Função Auxiliar para Output Seguro
 
 ```php
 <?php
-function h(string $texto): string {
-    return htmlspecialchars($texto, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+function h(string $text): string {
+    return htmlspecialchars($text, ENT_QUOTES | ENT_HTML5, 'UTF-8');
 }
 
 // Uso em templates PHP puro
 ?>
-<p>Nome: <?= h($usuario['nome']) ?></p>
-<p>Email: <?= h($usuario['email']) ?></p>
-<p>Bio: <?= nl2br(h($usuario['bio'])) ?></p>
+<p>Nome: <?= h($user['name']) ?></p>
+<p>Email: <?= h($user['email']) ?></p>
+<p>Bio: <?= nl2br(h($user['bio'])) ?></p>
 <?php
 
 // Em atributos HTML também:
 ?>
 <input type="text" value="<?= h($_GET['q'] ?? '') ?>">
-<a href="/perfil?id=<?= h($usuario['id']) ?>">Perfil</a>
+<a href="/perfil?id=<?= h($user['id']) ?>">Perfil
 ```
 
 ### Contextos Diferentes Exigem Escape Diferente
@@ -58,17 +58,17 @@ function h(string $texto): string {
 ```php
 <?php
 // Contexto HTML
-echo htmlspecialchars($dado, ENT_QUOTES, 'UTF-8');
+echo htmlspecialchars($data, ENT_QUOTES, 'UTF-8');
 
 // Contexto JavaScript (dentro de <script>)
-$dadoJS = json_encode($dado, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
-echo "<script>var nome = {$dadoJS};</script>";
+$encodedData = json_encode($data, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
+echo "<script>var name = {$encodedData};</script>";
 
 // Contexto URL (parâmetros)
-echo urlencode($dado);
+echo urlencode($data);
 
 // Contexto CSS
-// Evite inserir dados de usuário em CSS. Se inevitável, sanitize fortemente.
+// Evite inserir dados de usuário em CSS. Se inevitável, sanitize forteme
 ```
 
 > ⚠️ **Cuidado:** `htmlspecialchars()` escapa apenas no contexto HTML. Não protege dentro de `<script>`, `<style>` ou atributos como `onclick`. Cada contexto precisa do escape adequado.
@@ -82,18 +82,18 @@ Já abordado no Módulo 14, mas vale reforçar:
 ```php
 <?php
 // ❌ VULNERÁVEL
-$sql = "SELECT * FROM usuarios WHERE email = '{$_POST['email']}'";
+$sql = "SELECT * FROM users WHERE email = '{$_POST['email']}'";
 
 // ✅ PROTEGIDO — Prepared Statements
-$stmt = $pdo->prepare('SELECT * FROM usuarios WHERE email = :email');
+$stmt = $pdo->prepare('SELECT * FROM users WHERE email = :email');
 $stmt->execute([':email' => $_POST['email']]);
 
 // Prepared statement até para queries dinâmicas
-$ordem = in_array($_GET['ordem'], ['nome', 'email', 'id']) ? $_GET['ordem'] : 'id';
-$direcao = $_GET['direcao'] === 'desc' ? 'DESC' : 'ASC';
-$sql = "SELECT * FROM usuarios ORDER BY {$ordem} {$direcao}"; // whitelist segura
+$order = in_array($_GET['ordem'], ['name', 'email', 'id']) ? $_GET['ordem'] : 'id';
+$direction = $_GET['direcao'] === 'desc' ? 'DESC' : 'ASC';
+$sql = "SELECT * FROM users ORDER BY {$order} {$direction}";
 $stmt = $pdo->prepare($sql);
-$stmt->execute();
+$stmt->execut
 ```
 
 ---
@@ -103,22 +103,22 @@ $stmt->execute();
 ```php
 <?php
 // ==================== CADASTRO ====================
-$senhaPlana = $_POST['senha'] ?? '';
+$plainPassword = $_POST['password'] ?? '';
 
 // password_hash usa bcrypt por padrão (PHP 8.4+: custo padrão mudou de 10 para 12!)
-$hash = password_hash($senhaPlana, PASSWORD_DEFAULT);
+$hash = password_hash($plainPassword, PASSWORD_DEFAULT);
 echo "Hash gerado: {$hash}<br>\n";
 // Exemplo: $2y$12$eMqBv... (bcrypt, custo 12)
 
 // Opções personalizadas
-$opcoes = [
+$options = [
     'cost' => 12,            // PHP 8.4+: custo padrão subiu de 10 para 12
 ];
-$hashCustomizado = password_hash($senhaPlana, PASSWORD_BCRYPT, $opcoes);
+$customHash = password_hash($plainPassword, PASSWORD_BCRYPT, $options);
 
 // Usando Argon2id (requer PHP compilado com suporte)
 if (defined('PASSWORD_ARGON2ID')) {
-    $hashArgon = password_hash($senhaPlana, PASSWORD_ARGON2ID, [
+    $hashArgon = password_hash($plainPassword, PASSWORD_ARGON2ID, [
         'memory_cost' => 65536,  // 64 MB
         'time_cost'   => 4,
         'threads'     => 3,
@@ -128,35 +128,34 @@ if (defined('PASSWORD_ARGON2ID')) {
 
 // ==================== LOGIN ====================
 $email = $_POST['email'] ?? '';
-$senha = $_POST['senha'] ?? '';
+$password = $_POST['password'] ?? '';
 
-$stmt = $pdo->prepare('SELECT id, nome, email, senha FROM usuarios WHERE email = :email');
+$stmt = $pdo->prepare('SELECT id, name, email, password FROM users WHERE email = :email');
 $stmt->execute([':email' => $email]);
-$usuario = $stmt->fetch();
+$user = $stmt->fetch();
 
-if ($usuario && password_verify($senha, $usuario['senha'])) {
+if ($user && password_verify($password, $user['password'])) {
     // Senha correta!
     session_start();
-    $_SESSION['usuario_id'] = $usuario['id'];
-    $_SESSION['usuario_nome'] = $usuario['nome'];
+    $_SESSION['user_id'] = $user['id'];
+    $_SESSION['user_name'] = $user['name'];
     session_regenerate_id(true);
     header('Location: /dashboard.php');
     exit;
 } else {
     // Mensagem genérica — não revele se o email existe
-    echo "Email ou senha incorretos.";
+    echo "Email ou password incorretos.";
 }
 
 // Verificar se o hash precisa ser re-gerado (algoritmo ou custo mudou)
-if (password_needs_rehash($usuario['senha'], PASSWORD_DEFAULT)) {
-    $novoHash = password_hash($senha, PASSWORD_DEFAULT);
-    $stmt = $pdo->prepare('UPDATE usuarios SET senha = :senha WHERE id = :id');
-    $stmt->execute([':senha' => $novoHash, ':id' => $usuario['id']]);
-    echo "Hash atualizado.<br>\n";
-}
+if (password_needs_rehash($user['password'], PASSWORD_DEFAULT)) {
+    $newHash = password_hash($password, PASSWORD_DEFAULT);
+    $stmt = $pdo->prepare('UPDATE users SET password = :password WHERE id = :id');
+    $stmt->execute([':password' => $newHash, ':id' => $user['id']]);
+    echo "Hash atualizado.<br>\n
 ```
 
-> **PHP 8.4+** — Custo padrão do bcrypt mudou de 10 para 12, oferecendo maior segurança contra ataques de força bruta. Hashes existentes continuam válidos, mas `password_needs_rehash()` pode ser usado para re-hashear com o novo custo.
+> **PHP 8.4+** — Custo padrão do bcrypt mudou de 10 para 12, oferecendo maior segurança contra ataques de força bruta. Hashes existentes continuam válidos, mas `password_needs_rehash()` pode ser usado para re-hash com o novo custo.
 
 > **PHP 8.4+** — Suporte a password Argon2 via OpenSSL nos builds que usam a extensão OpenSSL.
 
@@ -164,42 +163,41 @@ if (password_needs_rehash($usuario['senha'], PASSWORD_DEFAULT)) {
 
 ```php
 <?php
-function validarForcaSenha(string $senha): array {
-    $erros = [];
+function validatePasswordStrength(string $password): array {
+    $errors = [];
 
-    if (strlen($senha) < 8) {
-        $erros[] = 'A senha deve ter no mínimo 8 caracteres.';
+    if (strlen($password) < 8) {
+        $errors[] = 'A password deve ter no mínimo 8 caracteres.';
     }
 
-    if (!preg_match('/[A-Z]/', $senha)) {
-        $erros[] = 'A senha deve conter ao menos uma letra maiúscula.';
+    if (!preg_match('/[A-Z]/', $password)) {
+        $errors[] = 'A password deve conter ao menos uma letra maiúscula.';
     }
 
-    if (!preg_match('/[a-z]/', $senha)) {
-        $erros[] = 'A senha deve conter ao menos uma letra minúscula.';
+    if (!preg_match('/[a-z]/', $password)) {
+        $errors[] = 'A password deve conter ao menos uma letra minúscula.';
     }
 
-    if (!preg_match('/[0-9]/', $senha)) {
-        $erros[] = 'A senha deve conter ao menos um número.';
+    if (!preg_match('/[0-9]/', $password)) {
+        $errors[] = 'A password deve conter ao menos um número.';
     }
 
-    if (!preg_match('/[^A-Za-z0-9]/', $senha)) {
-        $erros[] = 'A senha deve conter ao menos um caractere especial.';
+    if (!preg_match('/[^A-Za-z0-9]/', $password)) {
+        $errors[] = 'A password deve conter ao menos um caractere especial.';
     }
 
-    return $erros;
+    return $errors;
 }
 
 // Uso
-$senha = $_POST['senha'] ?? '';
-$errosSenha = validarForcaSenha($senha);
-if (!empty($errosSenha)) {
+$password = $_POST['password'] ?? '';
+$passwordErrors = validatePasswordStrength($password);
+if (!empty($passwordErrors)) {
     echo "<ul>\n";
-    foreach ($errosSenha as $erro) {
-        echo "<li>" . h($erro) . "</li>\n";
+    foreach ($passwordErrors as $error) {
+        echo "<li>" . h($error) . "</li>\n";
     }
-    echo "</ul>\n";
-}
+    echo "</ul>\n
 ```
 
 ---
@@ -225,7 +223,7 @@ if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST
 }
 
 // Renovar token após uso (opcional, aumenta segurança)
-$_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+$_SESSION['csrf_token'] = bin2hex(random_bytes(3
 ```
 
 ### CSRF + SameSite Cookies
@@ -233,13 +231,13 @@ $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 ```php
 <?php
 // Cookies SameSite já ajudam na proteção CSRF
-setcookie('sessao', 'valor', [
+setcookie('session', 'value', [
     'samesite' => 'Strict', // ou Lax
 ]);
 
 // Strict: cookie nunca enviado em requisições cross-site
 // Lax: cookie enviado apenas em GET cross-site (ex: clique em link)
-// None: sempre enviado (requer Secure)
+// None: sempre enviado (requer Sec
 ```
 
 ---
@@ -248,75 +246,67 @@ setcookie('sessao', 'valor', [
 
 ```php
 <?php
-function uploadSeguro(array $arquivo, string $diretorio, array $opcoes = []): array {
-    // Opções com valores padrão seguros
-    $opcoes = array_merge([
-        'tamanho_maximo'  => 5 * 1024 * 1024, // 5 MB
-        'extensoes'       => ['jpg', 'jpeg', 'png', 'gif', 'webp'],
-        'tipos_mime'      => ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
-        'renomear'        => true,
-    ], $opcoes);
+function uploadSeguro(array $file, string $dir, array $options = []): array {
+    $options = array_merge([
+        'max_size'   => 5 * 1024 * 1024,
+        'extensions' => ['jpg', 'jpeg', 'png', 'gif', 'webp'],
+        'mime_types' => ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
+        'rename'     => true,
+    ], $options);
 
-    $erros = [];
+    $errors = [];
 
-    // Verifica erro do upload
-    if ($arquivo['error'] !== UPLOAD_ERR_OK) {
-        $erros[] = 'Erro no upload: código ' . $arquivo['error'];
-        return ['sucesso' => false, 'erros' => $erros];
+    if ($file['error'] !== UPLOAD_ERR_OK) {
+        $errors[] = 'Erro no upload: código ' . $file['error'];
+        return ['success' => false, 'errors' => $errors];
     }
 
-    // Verifica tamanho
-    if ($arquivo['size'] > $opcoes['tamanho_maximo']) {
-        $erros[] = 'Arquivo maior que o permitido (' . ($opcoes['tamanho_maximo'] / 1024 / 1024) . ' MB).';
+    if ($file['size'] > $options['max_size']) {
+        $errors[] = 'Arquivo maior que o permitido (' . ($options['max_size'] / 1024 / 1024) . ' MB).';
     }
 
-    // Verifica tipo MIME real (não confia no client)
     $finfo = finfo_open(FILEINFO_MIME_TYPE);
-    $mimeReal = finfo_file($finfo, $arquivo['tmp_name']);
+    $realMime = finfo_file($finfo, $file['tmp_name']);
     finfo_close($finfo);
 
-    if (!in_array($mimeReal, $opcoes['tipos_mime'])) {
-        $erros[] = "Tipo de arquivo '{$mimeReal}' não permitido.";
+    if (!in_array($realMime, $options['mime_types'])) {
+        $errors[] = "Tipo de arquivo '{$realMime}' não permitido.";
     }
 
-    // Verifica extensão
-    $extensao = strtolower(pathinfo($arquivo['name'], PATHINFO_EXTENSION));
-    if (!in_array($extensao, $opcoes['extensoes'])) {
-        $erros[] = "Extensão '{$extensao}' não permitida.";
+    $extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+    if (!in_array($extension, $options['extensions'])) {
+        $errors[] = "Extensão '{$extension}' não permitida.";
     }
 
-    if (!empty($erros)) {
-        return ['sucesso' => false, 'erros' => $erros];
+    if (!empty($errors)) {
+        return ['success' => false, 'errors' => $errors];
     }
 
-    // Cria diretório se não existe
-    if (!is_dir($diretorio)) {
-        mkdir($diretorio, 0755, true);
+    if (!is_dir($dir)) {
+        mkdir($dir, 0755, true);
     }
 
-    // Gera nome seguro
-    if ($opcoes['renomear']) {
-        $nomeFinal = bin2hex(random_bytes(16)) . '.' . $extensao;
+    if ($options['rename']) {
+        $fileName = bin2hex(random_bytes(16)) . '.' . $extension;
     } else {
-        $nomeSeguro = preg_replace('/[^a-zA-Z0-9._-]/', '_', $arquivo['name']);
-        $nomeFinal = $nomeSeguro;
+        $safeName = preg_replace('/[^a-zA-Z0-9._-]/', '_', $file['name']);
+        $fileName = $safeName;
     }
 
-    $destino = rtrim($diretorio, '/') . '/' . $nomeFinal;
+    $destination = rtrim($dir, '/') . '/' . $fileName;
 
-    if (move_uploaded_file($arquivo['tmp_name'], $destino)) {
+    if (move_uploaded_file($file['tmp_name'], $destination)) {
         return [
-            'sucesso'      => true,
-            'nome_original' => $arquivo['name'],
-            'nome_final'   => $nomeFinal,
-            'caminho'      => $destino,
-            'tamanho'      => $arquivo['size'],
-            'tipo'         => $mimeReal,
+            'success'       => true,
+            'original_name' => $file['name'],
+            'final_name'    => $fileName,
+            'path'          => $destination,
+            'size'          => $file['size'],
+            'type'          => $realMime,
         ];
     }
 
-    return ['sucesso' => false, 'erros' => ['Falha ao mover o arquivo.']];
-}
+    return ['success' => false, 'errors' => ['Falha ao mover o arquivo.']
 ```
 
 > ⚠️ **Cuidado:** Nunca use o nome original de arquivos de upload. Um atacante pode enviar `../../../etc/passwd` como nome. Sempre renomeie.
@@ -344,7 +334,7 @@ session_set_cookie_params([
 ]);
 
 // Header HSTS no PHP
-header('Strict-Transport-Security: max-age=31536000; includeSubDomains; preload');
+header('Strict-Transport-Security: max-age=31536000; includeSubDomains; preloa
 ```
 
 ---
@@ -368,14 +358,14 @@ header('Referrer-Policy: strict-origin-when-cross-origin');
 header('Permissions-Policy: camera=(), microphone=(), geolocation=()');
 
 // Desabilitar exposição da versão do PHP
-// No php.ini: expose_php = Off
+// No php.ini: expose_php =
 ```
 
 ### Função para aplicar todos os headers
 
 ```php
 <?php
-function aplicarHeadersSeguranca(): void {
+function applySecurityHeaders(): void {
     header('X-Content-Type-Options: nosniff');
     header('X-Frame-Options: SAMEORIGIN');
     header('Referrer-Policy: strict-origin-when-cross-origin');
@@ -396,7 +386,7 @@ function aplicarHeadersSeguranca(): void {
 }
 
 // Chamar no início de cada requisição
-aplicarHeadersSeguranca();
+applySecurityHeader
 ```
 
 ---
@@ -408,23 +398,23 @@ aplicarHeadersSeguranca();
 ```php
 <?php
 // ❌ NUNCA FAÇA ISSO
-$dbSenha = 'supersenha123';
+$dbPassword = 'supersenha123';
 $apiKey  = 'sk-abc123xyz';
 
 // ✅ Use variáveis de ambiente
-$dbSenha = getenv('DB_PASSWORD');
+$dbPassword = getenv('DB_PASSWORD');
 $apiKey  = getenv('API_KEY');
 
 // Ou via $_ENV (se variables_order incluir E)
-$dbSenha = $_ENV['DB_PASSWORD'] ?? getenv('DB_PASSWORD');
+$dbPassword = $_ENV['DB_PASSWORD'] ?? getenv('DB_PASSWORD');
 
 // Ou via arquivo .env com biblioteca vlucas/phpdotenv
 // composer require vlucas/phpdotenv
 
 // Configuração centralizada
 class Config {
-    public static function get(string $chave, mixed $padrao = null): mixed {
-        return getenv($chave) ?: $padrao;
+    public static function get(string $key, mixed $default = null): mixed {
+        return getenv($key) ?: $default;
     }
 
     public static function dbHost(): string  { return self::get('DB_HOST', 'localhost'); }
@@ -439,8 +429,7 @@ $pdo = new PDO(
     "mysql:host=" . Config::dbHost() . ";dbname=" . Config::dbName() . ";charset=utf8mb4",
     Config::dbUser(),
     Config::dbPass(),
-    [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
-);
+    [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
 ```
 
 ### `.gitignore` Essencial
@@ -458,6 +447,7 @@ node_modules/
 !/uploads/.gitkeep
 .DS_Store
 Thumbs.db
+
 ```
 
 ---
@@ -467,48 +457,48 @@ Thumbs.db
 ```php
 <?php
 class RateLimiter {
-    private string $diretorioCache;
+    private string $cacheDir;
 
-    public function __construct(string $diretorioCache = null) {
-        $this->diretorioCache = $diretorioCache ?? sys_get_temp_dir();
+    public function __construct(string $cacheDir = null) {
+        $this->cacheDir = $cacheDir ?? sys_get_temp_dir();
     }
 
-    public function tentar(string $chave, int $maxTentativas = 5, int $janelaSegundos = 300): bool {
-        $arquivo = $this->diretorioCache . '/rate_' . md5($chave) . '.json';
-        $agora = time();
+    public function attempt(string $key, int $maxAttempts = 5, int $windowSeconds = 300): bool {
+        $file = $this->cacheDir . '/rate_' . md5($key) . '.json';
+        $now = time();
 
-        $dados = [];
-        if (file_exists($arquivo)) {
-            $conteudo = file_get_contents($arquivo);
-            $dados = json_decode($conteudo, true) ?? [];
+        $data = [];
+        if (file_exists($file)) {
+            $content = file_get_contents($file);
+            $data = json_decode($content, true) ?? [];
         }
 
         // Remove tentativas fora da janela
-        $dados = array_filter($dados, fn($t) => $t > ($agora - $janelaSegundos));
+        $data = array_filter($data, fn($timestamp) => $timestamp > ($now - $windowSeconds));
 
         // Verifica limite
-        if (count($dados) >= $maxTentativas) {
+        if (count($data) >= $maxAttempts) {
             return false;
         }
 
         // Registra tentativa
-        $dados[] = $agora;
-        file_put_contents($arquivo, json_encode($dados), LOCK_EX);
+        $data[] = $now;
+        file_put_contents($file, json_encode($data), LOCK_EX);
 
         return true;
     }
 
-    public function tempoRestante(string $chave, int $janelaSegundos = 300): int {
-        $arquivo = $this->diretorioCache . '/rate_' . md5($chave) . '.json';
-        if (!file_exists($arquivo)) {
+    public function remainingTime(string $key, int $windowSeconds = 300): int {
+        $file = $this->cacheDir . '/rate_' . md5($key) . '.json';
+        if (!file_exists($file)) {
             return 0;
         }
-        $dados = json_decode(file_get_contents($arquivo), true) ?? [];
-        if (empty($dados)) {
+        $data = json_decode(file_get_contents($file), true) ?? [];
+        if (empty($data)) {
             return 0;
         }
-        $maisAntiga = min($dados);
-        return max(0, $maisAntiga + $janelaSegundos - time());
+        $oldest = min($data);
+        return max(0, $oldest + $windowSeconds - time());
     }
 }
 
@@ -516,16 +506,15 @@ class RateLimiter {
 $ip = $_SERVER['REMOTE_ADDR'];
 $limiter = new RateLimiter();
 
-if (!$limiter->tentar("login:{$ip}", maxTentativas: 5, janelaSegundos: 300)) {
-    $restante = $limiter->tempoRestante("login:{$ip}", 300);
+    if (!$limiter->attempt("login:{$ip}", maxAttempts: 5, windowSeconds: 300)) {
+    $remaining = $limiter->remainingTime("login:{$ip}", 300);
     http_response_code(429);
-    die("Muitas tentativas. Aguarde {$restante} segundos.");
+    die("Muitas tentativas. Aguarde {$remaining} segundos.");
 }
 
 // Processa login...
-if ($loginFalhou) {
-    echo "Email ou senha incorretos.";
-}
+if ($loginFailed) {
+    echo "Email ou password incorretos.
 ```
 
 ---
@@ -535,25 +524,24 @@ if ($loginFalhou) {
 ```php
 <?php
 // ❌ Comparação NÃO segura — vulnerável a timing attack
-if ($tokenRecebido === $tokenEsperado) {
+if ($receivedToken === $expectedToken) {
     // ...
 }
 
 // ✅ Comparação segura — tempo constante
-if (hash_equals($tokenEsperado, $tokenRecebido)) {
+if (hash_equals($expectedToken, $receivedToken)) {
     // ...
 }
 
 // Exemplo: verificação de token de API
-function verificarTokenAPI(string $tokenRecebido): bool {
-    $tokenReal = getenv('API_TOKEN');
-    return hash_equals($tokenReal, $tokenRecebido);
+function verifyAPIToken(string $receivedToken): bool {
+    $actualToken = getenv('API_TOKEN');
+    return hash_equals($actualToken, $receivedToken);
 }
 
 // Exemplo: verificação de CSRF
 if (!hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'] ?? '')) {
-    die('Token CSRF inválido.');
-}
+    die('Token CSRF inválido.'
 ```
 
 > 💡 **Dica:** `===` para de comparar no primeiro byte diferente, revelando (pelo tempo de resposta) quantos bytes do token estão corretos. `hash_equals()` compara todos os bytes de uma vez, em tempo constante.
@@ -604,6 +592,7 @@ max_input_time = 60
 
 ; Limitar memória
 memory_limit = 128M
+
 ```
 
 ---
@@ -631,59 +620,58 @@ memory_limit = 128M
 <?php
 // checklist-seguranca.php — Rode em desenvolvimento para auditar sua aplicação
 
-class AuditorSeguranca {
-    private array $avisos = [];
+class SecurityAuditor {
+    private array $warnings = [];
 
-    public function auditar(): array {
+    public function audit(): array {
         // PHP Version
         if (version_compare(PHP_VERSION, '8.2', '<')) {
-            $this->avisos[] = "PHP " . PHP_VERSION . " está desatualizado. Use 8.2+.";
+            $this->warnings[] = "PHP " . PHP_VERSION . " está desatualizado. Use 8.2+.";
         }
 
         // expose_php
         if (ini_get('expose_php')) {
-            $this->avisos[] = "'expose_php' está ligado. Desabilite em produção.";
+            $this->warnings[] = "'expose_php' está ligado. Desabilite em produção.";
         }
 
         // display_errors
         if (ini_get('display_errors')) {
-            $this->avisos[] = "'display_errors' está ligado. Desabilite em produção.";
+            $this->warnings[] = "'display_errors' está ligado. Desabilite em produção.";
         }
 
         // Session security
         if (!ini_get('session.cookie_httponly')) {
-            $this->avisos[] = "'session.cookie_httponly' desabilitado.";
+            $this->warnings[] = "'session.cookie_httponly' desabilitado.";
         }
 
         if (!ini_get('session.use_strict_mode')) {
-            $this->avisos[] = "'session.use_strict_mode' desabilitado.";
+            $this->warnings[] = "'session.use_strict_mode' desabilitado.";
         }
 
         // allow_url_include
         if (ini_get('allow_url_include')) {
-            $this->avisos[] = "'allow_url_include' está ligado. DESABILITE IMEDIATAMENTE!";
+            $this->warnings[] = "'allow_url_include' está ligado. DESABILITE IMEDIATAMENTE!";
         }
 
-        return $this->avisos;
+        return $this->warnings;
     }
 
-    public function getAvisos(): array {
-        return $this->avisos;
+    public function getWarnings(): array {
+        return $this->warnings;
     }
 }
 
-$auditor = new AuditorSeguranca();
-$resultados = $auditor->auditar();
+$auditor = new SecurityAuditor();
+$results = $auditor->audit();
 
-if (empty($resultados)) {
+if (empty($results)) {
     echo "Nenhum problema crítico encontrado.<br>\n";
 } else {
     echo "<h3>Problemas de segurança detectados:</h3>\n<ul>\n";
-    foreach ($resultados as $aviso) {
-        echo "<li>" . h($aviso) . "</li>\n";
+    foreach ($results as $warning) {
+        echo "<li>" . h($warning) . "</li>\n";
     }
-    echo "</ul>\n";
-}
+    echo "</ul>\n
 ```
 
 ---
@@ -694,45 +682,45 @@ if (empty($resultados)) {
 <?php
 // security.php — Inclua este arquivo no bootstrap da sua aplicação
 
-function h(string $texto): string {
-    return htmlspecialchars($texto, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+function h(string $text): string {
+    return htmlspecialchars($text, ENT_QUOTES | ENT_HTML5, 'UTF-8');
 }
 
-function gerarTokenCSRF(): string {
+function generateCSRFToken(): string {
     if (empty($_SESSION['csrf_token'])) {
         $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
     }
     return $_SESSION['csrf_token'];
 }
 
-function verificarTokenCSRF(): void {
+function verifyCSRFToken(): void {
     if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
         http_response_code(403);
         die('Requisição inválida.');
     }
 }
 
-function sanitizarInput(string $dado): string {
-    return trim(strip_tags($dado));
+function sanitizeInput(string $data): string {
+    return trim(strip_tags($data));
 }
 
-function validarEmail(string $email): string|false {
+function validateEmail(string $email): string|false {
     return filter_var(trim($email), FILTER_VALIDATE_EMAIL);
 }
 
-function hashSenha(string $senha): string {
-    return password_hash($senha, PASSWORD_DEFAULT);
+function hashPassword(string $password): string {
+    return password_hash($password, PASSWORD_DEFAULT);
 }
 
-function verificarSenha(string $senha, string $hash): bool {
-    return password_verify($senha, $hash);
+function verifyPassword(string $password, string $hash): bool {
+    return password_verify($password, $hash);
 }
 
-function gerarTokenAleatorio(int $bytes = 32): string {
+function generateRandomToken(int $bytes = 32): string {
     return bin2hex(random_bytes($bytes));
 }
 
-function redirecionarSeguro(string $url): never {
+function secureRedirect(string $url): never {
     $url = filter_var($url, FILTER_VALIDATE_URL)
         ?? filter_var($url, FILTER_SANITIZE_URL);
 
@@ -740,22 +728,21 @@ function redirecionarSeguro(string $url): never {
     exit;
 }
 
-function ipCliente(): string {
+function clientIp(): string {
     return $_SERVER['HTTP_X_FORWARDED_FOR']
         ?? $_SERVER['HTTP_CLIENT_IP']
         ?? $_SERVER['REMOTE_ADDR']
         ?? '0.0.0.0';
 }
 
-function requerHTTPS(): void {
+function requireHTTPS(): void {
     if (
         empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] === 'off'
     ) {
         $url = 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
         header('Location: ' . $url, true, 301);
         exit;
-    }
-}
+   
 ```
 
 ---

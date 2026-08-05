@@ -1,4 +1,4 @@
-# Projeto 02: Lista de Tarefas (To-Do List)
+# Projeto 02: Lista de Tasks (To-Do List)
 
 ## Objetivo
 
@@ -22,9 +22,9 @@ projetos/todolist/
 // ==========================================
 session_start();
 
-// Inicializa lista de tarefas
-if (!isset($_SESSION['tarefas'])) {
-    $_SESSION['tarefas'] = [];
+// Inicializa lista de tasks
+if (!isset($_SESSION['tasks'])) {
+    $_SESSION['tasks'] = [];
 }
 
 // Inicializa IDs automáticos
@@ -33,52 +33,52 @@ if (!isset($_SESSION['proximo_id'])) {
 }
 
 // Inicializa mensagem flash
-$mensagem = '';
-$tipoMensagem = '';
+$message = '';
+$messageType = '';
 
 // ========== AÇÕES ==========
-$acao = $_GET['acao'] ?? ($_POST['acao'] ?? '');
+$action = $_GET['action'] ?? ($_POST['action'] ?? '');
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && $acao === 'adicionar') {
-    $descricao = trim($_POST['descricao'] ?? '');
-    $categoria = trim($_POST['categoria'] ?? 'geral');
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'add') {
+    $description = trim($_POST['description'] ?? '');
+    $category = trim($_POST['category'] ?? 'geral');
 
-    if ($descricao === '') {
-        $mensagem = 'A descrição da tarefa é obrigatória.';
-        $tipoMensagem = 'erro';
-    } elseif (strlen($descricao) > 200) {
-        $mensagem = 'A tarefa deve ter no máximo 200 caracteres.';
-        $tipoMensagem = 'erro';
-    } elseif (!in_array($categoria, ['geral', 'trabalho', 'pessoal', 'estudo'])) {
-        $mensagem = 'Categoria inválida.';
-        $tipoMensagem = 'erro';
+    if ($description === '') {
+        $message = 'A descrição da tarefa é obrigatória.';
+        $messageType = 'erro';
+    } elseif (strlen($description) > 200) {
+        $message = 'A tarefa deve ter no máximo 200 caracteres.';
+        $messageType = 'erro';
+    } elseif (!in_array($category, ['geral', 'trabalho', 'pessoal', 'estudo'])) {
+        $message = 'Category inválida.';
+        $messageType = 'erro';
     } else {
-        $_SESSION['tarefas'][] = [
+        $_SESSION['tasks'][] = [
             'id'            => $_SESSION['proximo_id']++,
-            'descricao'     => $descricao,
-            'categoria'     => $categoria,
-            'concluida'     => false,
-            'criada_em'     => date('Y-m-d H:i:s'),
+            'description'     => $description,
+            'category'     => $category,
+            'completed'     => false,
+            'created_at'     => date('Y-m-d H:i:s'),
         ];
-        $mensagem = 'Tarefa adicionada com sucesso!';
-        $tipoMensagem = 'sucesso';
+        $message = 'Task adicionada com sucesso!';
+        $messageType = 'success';
     }
     // Redireciona para evitar reenvio
-    $_SESSION['flash_mensagem'] = $mensagem;
-    $_SESSION['flash_tipo'] = $tipoMensagem;
+    $_SESSION['flash_message'] = $message;
+    $_SESSION['flash_type'] = $messageType;
     header('Location: index.php');
     exit;
 }
 
-if ($acao === 'concluir' && isset($_GET['id'])) {
+if ($action === 'toggle' && isset($_GET['id'])) {
     $id = (int) $_GET['id'];
-    foreach ($_SESSION['tarefas'] as &$tarefa) {
-        if ($tarefa['id'] === $id) {
-            $tarefa['concluida'] = !$tarefa['concluida'];
-            $_SESSION['flash_mensagem'] = $tarefa['concluida']
-                ? 'Tarefa marcada como concluída!'
-                : 'Tarefa reaberta.';
-            $_SESSION['flash_tipo'] = 'sucesso';
+    foreach ($_SESSION['tasks'] as &$task) {
+        if ($task['id'] === $id) {
+            $task['completed'] = !$task['completed'];
+            $_SESSION['flash_message'] = $task['completed']
+                ? 'Task marcada como concluída!'
+                : 'Task reaberta.';
+            $_SESSION['flash_type'] = 'success';
             break;
         }
     }
@@ -86,64 +86,64 @@ if ($acao === 'concluir' && isset($_GET['id'])) {
     exit;
 }
 
-if ($acao === 'remover' && isset($_GET['id'])) {
+if ($action === 'remove' && isset($_GET['id'])) {
     $id = (int) $_GET['id'];
-    $tarefasFiltradas = array_filter($_SESSION['tarefas'], fn($t) => $t['id'] !== $id);
-    if (count($tarefasFiltradas) < count($_SESSION['tarefas'])) {
-        $_SESSION['tarefas'] = array_values($tarefasFiltradas);
-        $_SESSION['flash_mensagem'] = 'Tarefa removida.';
-        $_SESSION['flash_tipo'] = 'sucesso';
+    $filteredTasks = array_filter($_SESSION['tasks'], fn($task) => $task['id'] !== $id);
+    if (count($filteredTasks) < count($_SESSION['tasks'])) {
+        $_SESSION['tasks'] = array_values($filteredTasks);
+        $_SESSION['flash_message'] = 'Task removida.';
+        $_SESSION['flash_type'] = 'success';
     }
     header('Location: index.php');
     exit;
 }
 
-if ($acao === 'limpar_concluidas') {
-    $_SESSION['tarefas'] = array_values(array_filter(
-        $_SESSION['tarefas'],
-        fn($t) => !$t['concluida']
+if ($action === 'clear_completed') {
+    $_SESSION['tasks'] = array_values(array_filter(
+        $_SESSION['tasks'],
+        fn($task) => !$task['completed']
     ));
-    $_SESSION['flash_mensagem'] = 'Tarefas concluídas removidas.';
-    $_SESSION['flash_tipo'] = 'sucesso';
+    $_SESSION['flash_message'] = 'Tasks concluídas removidas.';
+    $_SESSION['flash_type'] = 'success';
     header('Location: index.php');
     exit;
 }
 
 // Recupera flash message
-$mensagem = $_SESSION['flash_mensagem'] ?? '';
-$tipoMensagem = $_SESSION['flash_tipo'] ?? '';
-unset($_SESSION['flash_mensagem'], $_SESSION['flash_tipo']);
+$message = $_SESSION['flash_message'] ?? '';
+$messageType = $_SESSION['flash_type'] ?? '';
+unset($_SESSION['flash_message'], $_SESSION['flash_type']);
 
 // Estatísticas
-$totalTarefas = count($_SESSION['tarefas']);
-$concluidas = count(array_filter($_SESSION['tarefas'], fn($t) => $t['concluida']));
-$pendentes = $totalTarefas - $concluidas;
+$totalTasks = count($_SESSION['tasks']);
+$completedCount = count(array_filter($_SESSION['tasks'], fn($task) => $task['completed']));
+$pendingCount = $totalTasks - $completedCount;
 
 // Filtro
-$filtro = $_GET['filtro'] ?? 'todas';
-if ($filtro === 'concluidas') {
-    $tarefasExibidas = array_filter($_SESSION['tarefas'], fn($t) => $t['concluida']);
-} elseif ($filtro === 'pendentes') {
-    $tarefasExibidas = array_filter($_SESSION['tarefas'], fn($t) => !$t['concluida']);
-} elseif ($filtro !== 'todas' && in_array($filtro, ['geral', 'trabalho', 'pessoal', 'estudo'])) {
-    $tarefasExibidas = array_filter($_SESSION['tarefas'], fn($t) => $t['categoria'] === $filtro);
+$filter = $_GET['filtro'] ?? 'todas';
+if ($filter === 'concluidas') {
+    $displayedTasks = array_filter($_SESSION['tasks'], fn($task) => $task['completed']);
+} elseif ($filter === 'pendentes') {
+    $displayedTasks = array_filter($_SESSION['tasks'], fn($task) => !$task['completed']);
+} elseif ($filter !== 'todas' && in_array($filter, ['geral', 'trabalho', 'pessoal', 'estudo'])) {
+    $displayedTasks = array_filter($_SESSION['tasks'], fn($task) => $task['category'] === $filter);
 } else {
-    $tarefasExibidas = $_SESSION['tarefas'];
+    $displayedTasks = $_SESSION['tasks'];
 }
 
 // Ordenação: não concluídas primeiro, depois por data (mais recente no topo)
-usort($tarefasExibidas, function ($a, $b) {
-    if ($a['concluida'] !== $b['concluida']) {
-        return $a['concluida'] ? 1 : -1;
+usort($displayedTasks, function ($first, $second) {
+    if ($first['completed'] !== $second['completed']) {
+        return $first['completed'] ? 1 : -1;
     }
-    return strcmp($b['criada_em'], $a['criada_em']);
+    return strcmp($second['created_at'], $first['created_at']);
 });
 
-function hh(string $texto): string {
-    return htmlspecialchars($texto, ENT_QUOTES, 'UTF-8');
+function hh(string $text): string {
+    return htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
 }
 
-function emojiCategoria(string $cat): string {
+function emojiCategory(string $cat): string {
     return match ($cat) {
         'trabalho' => '💼',
         'pessoal'  => '🏠',
@@ -330,7 +330,7 @@ function emojiCategoria(string $cat): string {
         .filtro-link:hover { border-color: #6366f1; color: #6366f1; }
         .filtro-link.ativo  { background: #6366f1; color: white; border-color: #6366f1; }
 
-        .lista-tarefas { list-style: none; }
+        .lista-tasks { list-style: none; }
 
         .tarefa {
             display: flex;
@@ -348,11 +348,11 @@ function emojiCategoria(string $cat): string {
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
 
-        .tarefa.concluida {
+        .tarefa.completed {
             opacity: 0.6;
         }
 
-        .tarefa.concluida .descricao {
+        .tarefa.completed .description {
             text-decoration: line-through;
             color: #94a3b8;
         }
@@ -375,7 +375,7 @@ function emojiCategoria(string $cat): string {
 
         .tarefa .checkbox:hover { border-color: #6366f1; }
 
-        .tarefa.concluida .checkbox {
+        .tarefa.completed .checkbox {
             background: #10b981;
             border-color: #10b981;
             color: white;
@@ -383,7 +383,7 @@ function emojiCategoria(string $cat): string {
 
         .tarefa .conteudo { flex: 1; min-width: 0; }
 
-        .tarefa .descricao {
+        .tarefa .description {
             font-size: 0.95rem;
             word-break: break-word;
         }
@@ -410,7 +410,7 @@ function emojiCategoria(string $cat): string {
         .badge-pessoal  { background: #fce7f3; color: #9d174d; }
         .badge-estudo   { background: #fef3c7; color: #92400e; }
 
-        .btn-remover {
+        .btn-remove {
             background: none;
             border: none;
             cursor: pointer;
@@ -420,7 +420,7 @@ function emojiCategoria(string $cat): string {
             padding: 4px 8px;
         }
 
-        .btn-remover:hover { opacity: 1; }
+        .btn-remove:hover { opacity: 1; }
 
         .vazio {
             text-align: center;
@@ -455,49 +455,49 @@ function emojiCategoria(string $cat): string {
 <body>
 <div class="app">
     <header>
-        <h1>📝 Minhas Tarefas</h1>
+        <h1>📝 Minhas Tasks</h1>
         <p>Organize seu dia com PHP puro</p>
     </header>
 
     <!-- Estatísticas -->
     <div class="stats">
         <div class="stat-card total">
-            <span class="numero"><?= $totalTarefas ?></span>
+            <span class="numero"><?= $totalTasks ?></span>
             <span class="rotulo">Total</span>
         </div>
         <div class="stat-card pendentes">
-            <span class="numero"><?= $pendentes ?></span>
+            <span class="numero"><?= $pendingCount ?></span>
             <span class="rotulo">Pendentes</span>
         </div>
         <div class="stat-card concluidas">
-            <span class="numero"><?= $concluidas ?></span>
+            <span class="numero"><?= $completedCount ?></span>
             <span class="rotulo">Concluídas</span>
         </div>
     </div>
 
     <!-- Barra de progresso -->
-    <?php if ($totalTarefas > 0): ?>
-    <?php $percentual = round(($concluidas / $totalTarefas) * 100); ?>
+    <?php if ($totalTasks > 0): ?>
+    <?php $percentage = round(($completedCount / $totalTasks) * 100); ?>
     <div class="progresso">
-        <div class="barra" style="width: <?= $percentual ?>%"></div>
+        <div class="barra" style="width: <?= $percentage ?>%"></div>
     </div>
-    <p class="progresso-label"><?= $percentual ?>% concluído</p>
+    <p class="progresso-label"><?= $percentage ?>% concluído</p>
     <?php endif; ?>
 
     <!-- Mensagem flash -->
-    <?php if ($mensagem): ?>
-        <div class="mensagem <?= $tipoMensagem ?>"><?= hh($mensagem) ?></div>
+    <?php if ($message): ?>
+        <div class="mensagem <?= $messageType ?>"><?= hh($message) ?></div>
     <?php endif; ?>
 
     <!-- Formulário -->
     <div class="form-tarefa">
         <form method="post" action="index.php">
-            <input type="hidden" name="acao" value="adicionar">
+            <input type="hidden" name="action" value='add'>
             <div class="form-row">
-                <input type="text" name="descricao"
+                <input type="text" name="description"
                        placeholder="O que você precisa fazer?" maxlength="200"
                        autocomplete="off" autofocus>
-                <select name="categoria">
+                <select name="category">
                     <option value="geral">Geral</option>
                     <option value="trabalho">Trabalho</option>
                     <option value="pessoal">Pessoal</option>
@@ -505,10 +505,10 @@ function emojiCategoria(string $cat): string {
                 </select>
             </div>
             <div class="form-acoes">
-                <button type="submit" class="btn btn-primary">Adicionar Tarefa</button>
-                <?php if ($concluidas > 0): ?>
-                    <a href="index.php?acao=limpar_concluidas" class="btn btn-danger"
-                       onclick="return confirm('Remover todas as tarefas concluídas?')">
+                <button type="submit" class="btn btn-primary">Adicionar Task</button>
+                <?php if ($completedCount > 0): ?>
+                    <a href="index.php?action=clear_completed" class="btn btn-danger"
+                       onclick="return confirm('Remover todas as tasks concluídas?')">
                         Limpar Concluídas
                     </a>
                 <?php endif; ?>
@@ -519,7 +519,7 @@ function emojiCategoria(string $cat): string {
     <!-- Filtros -->
     <div class="filtros">
         <?php
-        $filtros = [
+        $filters = [
             'todas'       => 'Todas',
             'pendentes'   => 'Pendentes',
             'concluidas'  => 'Concluídas',
@@ -528,43 +528,43 @@ function emojiCategoria(string $cat): string {
             'pessoal'     => 'Pessoal',
             'estudo'      => 'Estudo',
         ];
-        foreach ($filtros as $valor => $rotulo):
-            $classeAtivo = ($filtro === $valor) ? 'ativo' : '';
+        foreach ($filters as $filterValue => $label):
+            $activeClass = ($filter === $filterValue) ? 'ativo' : '';
         ?>
-            <a href="index.php?filtro=<?= $valor ?>" class="filtro-link <?= $classeAtivo ?>">
-                <?= hh($rotulo) ?>
+            <a href="index.php?filtro=<?= $filterValue ?>" class="filtro-link <?= $activeClass ?>">
+                <?= hh($label) ?>
             </a>
         <?php endforeach; ?>
     </div>
 
-    <!-- Lista de Tarefas -->
-    <?php if (empty($tarefasExibidas)): ?>
+    <!-- Lista de Tasks -->
+    <?php if (empty($displayedTasks)): ?>
         <div class="vazio">
             <span class="icone">🎉</span>
             <p>Nenhuma tarefa encontrada. Adicione uma acima!</p>
         </div>
     <?php else: ?>
-        <ul class="lista-tarefas">
-            <?php foreach ($tarefasExibidas as $tarefa): ?>
-            <?php $classeConcluida = $tarefa['concluida'] ? 'concluida' : ''; ?>
-            <li class="tarefa <?= $classeConcluida ?>">
-                <a href="index.php?acao=concluir&id=<?= $tarefa['id'] ?>"
+        <ul class="lista-tasks">
+            <?php foreach ($displayedTasks as $task): ?>
+            <?php $completedClass = $task['completed'] ? 'completed' : ''; ?>
+            <li class="tarefa <?= $completedClass ?>">
+                <a href="index.php?action=toggle&id=<?= $task['id'] ?>"
                    class="checkbox"
-                   title="<?= $tarefa['concluida'] ? 'Reabrir' : 'Concluir' ?>">
+                   title="<?= $task['completed'] ? 'Reabrir' : 'Concluir' ?>">
                     ✓
                 </a>
                 <div class="conteudo">
-                    <span class="descricao"><?= hh($tarefa['descricao']) ?></span>
+                    <span class="description"><?= hh($task['description']) ?></span>
                     <div class="meta">
-                        <span class="badge badge-<?= $tarefa['categoria'] ?>">
-                            <?= emojiCategoria($tarefa['categoria']) ?>
-                            <?= ucfirst($tarefa['categoria']) ?>
+                        <span class="badge badge-<?= $task['category'] ?>">
+                            <?= emojiCategory($task['category']) ?>
+                            <?= ucfirst($task['category']) ?>
                         </span>
-                        <span><?= hh($tarefa['criada_em']) ?></span>
+                        <span><?= hh($task['created_at']) ?></span>
                     </div>
                 </div>
-                <a href="index.php?acao=remover&id=<?= $tarefa['id'] ?>"
-                   class="btn-remover"
+                <a href="index.php?action=remove&id=<?= $task['id'] ?>"
+                   class="btn-remove"
                    title="Remover tarefa"
                    onclick="return confirm('Remover esta tarefa?')">
                     🗑️
@@ -575,7 +575,6 @@ function emojiCategoria(string $cat): string {
     <?php endif; ?>
 </div>
 </body>
-</html>
 ```
 
 ---
@@ -584,7 +583,7 @@ function emojiCategoria(string $cat): string {
 
 ```bash
 php -S localhost:8080 -t /caminho/para/projetos/todolist/
-# Acesse http://localhost:8080
+# Acesse http://localhost
 ```
 
 ---
