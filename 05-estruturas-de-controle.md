@@ -2,15 +2,13 @@
 
 ## `if`, `else`, `elseif`
 
-A estrutura condicional mais fundamental:
-
 ```php
 <?php
 
 $age = 20;
 
 if ($age >= 18) {
-    echo "Maior de idade";
+    echo "Adult";
 }
 ```
 
@@ -22,9 +20,9 @@ if ($age >= 18) {
 $temperature = 15;
 
 if ($temperature >= 30) {
-    echo "Muito quente";
+    echo "Very hot";
 } else {
-    echo "Temperatura agradável";
+    echo "Pleasant temperature";
 }
 ```
 
@@ -36,15 +34,15 @@ if ($temperature >= 30) {
 $hour = 14;
 
 if ($hour < 6) {
-    echo "Madrugada";
+    echo "Early morning";
 } elseif ($hour < 12) {
-    echo "Manhã";
+    echo "Morning";
 } elseif ($hour < 18) {
-    echo "Tarde";
+    echo "Afternoon";
 } elseif ($hour < 24) {
-    echo "Noite";
+    echo "Night";
 } else {
-    echo "Horário inválido";
+    echo "Invalid time";
 }
 ```
 
@@ -59,15 +57,15 @@ $isLoggedIn = true;
 $hasPermission = false;
 
 if ($isLoggedIn && $hasPermission) {
-    echo "Acesso concedido ao painel admin";
+    echo "Access granted: admin panel";
 } elseif ($isLoggedIn && !$hasPermission) {
-    echo "Login OK, mas sem permissão de admin. Redirecionando...";
+    echo "Logged in but no admin permission. Redirecting...";
 } else {
-    echo "Faça login para continuar";
+    echo "Please log in first";
 }
 ```
 
-### Validação de entrada com `if`
+### Input validation with `if`
 
 ```php
 <?php
@@ -78,22 +76,22 @@ $password = $_POST['password'] ?? '';
 $errors = [];
 
 if ($email === '') {
-    $errors[] = 'O email é obrigatório.';
+    $errors[] = 'Email is required.';
 } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    $errors[] = 'Formato de email inválido.';
+    $errors[] = 'Invalid email format.';
 }
 
 if ($password === '') {
-    $errors[] = 'A senha é obrigatória.';
+    $errors[] = 'Password is required.';
 } elseif (strlen($password) < 8) {
-    $errors[] = 'A senha deve ter no mínimo 8 caracteres.';
+    $errors[] = 'Password must be at least 8 characters.';
 }
 
 if ($errors === []) {
-    echo "Tudo validado! Prosseguindo...";
+    echo "All good! Proceeding...";
 } else {
     foreach ($errors as $error) {
-        echo "Erro: {$error}\n";
+        echo "Error: {$error}\n";
     }
 }
 ```
@@ -111,36 +109,36 @@ $weekDay = 3;
 
 switch ($weekDay) {
     case 1:
-        echo "Domingo";
+        echo "Sunday";
         break;
     case 2:
-        echo "Segunda-feira";
+        echo "Monday";
         break;
     case 3:
-        echo "Terça-feira";
+        echo "Tuesday";
         break;
     case 4:
-        echo "Quarta-feira";
+        echo "Wednesday";
         break;
     case 5:
-        echo "Quinta-feira";
+        echo "Thursday";
         break;
     case 6:
-        echo "Sexta-feira";
+        echo "Friday";
         break;
     case 7:
-        echo "Sábado";
+        echo "Saturday";
         break;
     default:
-        echo "Dia inválido";
+        echo "Invalid day";
         break;
 }
-// Saída: Terça-feira
+// Output: Tuesday
 ```
 
-### Fall-through (sem `break`)
+### Fall-through (without `break`)
 
-Sem `break`, a execução "cai" para o próximo `case`:
+Without `break`, execution "falls through" to the next `case`:
 
 ```php
 <?php
@@ -156,28 +154,28 @@ switch ($month) {
     case 8:
     case 10:
     case 12:
-        echo "31 dias";
+        echo "31 days";
         break;
     case 4:
     case 6:
     case 9:
     case 11:
-        echo "30 dias";
+        echo "30 days";
         break;
     case 2:
-        // Ano bissexto?
+        // Leap year?
         $days = ($year % 4 === 0 && $year % 100 !== 0) || ($year % 400 === 0) ? 29 : 28;
-        echo "{$days} dias";
+        echo "{$days} days";
         break;
     default:
-        echo "Mês inválido";
+        echo "Invalid month";
 }
-// Saída: 29 dias (2024 é bissexto)
+// Output: 29 days (2024 is a leap year)
 ```
 
-### Comparação no `switch`
+### Comparison in `switch`
 
-`switch` usa comparação **frouxa** (`==`), não estrita (`===`):
+`switch` uses **loose** comparison (`==`), not strict (`===`):
 
 ```php
 <?php
@@ -186,53 +184,49 @@ $value = 0;
 
 switch ($value) {
     case false:
-        echo "Entrou no false"; // Executa este! Porque 0 == false
+        echo "Matched false"; // This runs! Because 0 == false
         break;
     case 0:
-        echo "Entrou no 0";
+        echo "Matched 0";
         break;
 }
 
-// ⚠️ Cuidado: switch usa ==, não ===
-// "0" matcha com 0, false matcha com 0, null matcha com 0...
+// Watch out: switch uses ==, not ===
+// "0" matches 0, false matches 0, null matches 0...
 ```
 
-> ⚠️ **Cuidado**: `switch` utiliza comparação frouxa (`==`). Para comparação estrita,
-prefira `match` (PHP 8.0+).
+> **Cuidado**: `switch` usa comparação frouxa (`==`). `"0"` matcha com `0`, `false` matcha com `0`, `null` matcha com `0`... Para comparação estrita, prefira `match` (PHP 8.0+).
 
-### `switch` com múltiplos valores de entrada (alternativa)
-
-Às vezes você quer avaliar condições complexas, não só valores fixos:
+### `switch(true)` for complex conditions
 
 ```php
 <?php
 
-// Técnica: switch(true) para condições complexas
+// Technique: switch(true) for complex conditions
 $grade = 8.5;
-$attendance = 85; // porcentagem
-
+$attendance = 85; // percentage
 switch (true) {
     case $grade >= 7 && $attendance >= 75:
-        echo "Aprovado";
+        echo "Approved";
         break;
     case $grade >= 5 && $attendance >= 75:
-        echo "Recuperação";
+        echo "Recovery exam";
         break;
     case $attendance < 75:
-        echo "Reprovado por falta";
+        echo "Failed due to absences";
         break;
     default:
-        echo "Reprovado por nota";
+        echo "Failed by grade";
         break;
 }
-// Saída: Aprovado
+// Output: Approved
 ```
 
 ---
 
 ## `match` — PHP 8.0+
 
-`match` é uma expressão mais moderna, segura e concisa comparada ao `switch`:
+`match` é uma expressão que retorna valor, usa comparação estrita (`===`), e é mais concisa que `switch`:
 
 ### Vantagens sobre `switch`
 
@@ -269,18 +263,18 @@ echo $message; // Not Found
 ```php
 <?php
 
-$day = 'sabado';
+$day = 'saturday';
 
 $dayType = match ($day) {
-    'segunda', 'terca', 'quarta', 'quinta', 'sexta' => 'Dia útil',
-    'sabado', 'domingo' => 'Fim de semana',
-    default => 'Dia inválido',
+    'monday', 'tuesday', 'wednesday', 'thursday', 'friday' => 'Weekday',
+    'saturday', 'sunday' => 'Weekend',
+    default => 'Invalid day',
 };
 
-echo $dayType; // Fim de semana
+echo $dayType; // Weekend
 ```
 
-### Expressões como corpo do braço
+### Expressions as branch bodies
 
 ```php
 <?php
@@ -291,17 +285,17 @@ $discountType = 'blackfriday';
 $finalPrice = match ($discountType) {
     'vip'         => $value * 0.7,           // 30% off
     'blackfriday' => $value * 0.5,           // 50% off
-    'assinante'   => $value * 0.85,          // 15% off
-    default       => $value,                 // preço cheio
+    'subscriber'  => $value * 0.85,          // 15% off
+    default       => $value,                 // full price
 };
 
-echo "Preço original: R$ " . number_format($value, 2, ',', '.') . "\n";
-echo "Preço final: R$ " . number_format($finalPrice, 2, ',', '.') . "\n";
-// Preço original: R$ 150,00
-// Preço final: R$ 75,00
+echo "Original price: R$ " . number_format($value, 2, ',', '.') . "\n";
+echo "Final price: R$ " . number_format($finalPrice, 2, ',', '.') . "\n";
+// Original price: R$ 150,00
+// Final price: R$ 75,00
 ```
 
-### `match` com enums
+### `match` with enums
 
 ```php
 <?php
@@ -309,28 +303,28 @@ echo "Preço final: R$ " . number_format($finalPrice, 2, ',', '.') . "\n";
 enum PaymentMethod: string
 {
     case Pix     = 'pix';
-    case BankSlip  = 'boleto';
-    case Credit = 'credito';
-    case Debit  = 'debito';
+    case BankSlip  = 'bank_slip';
+    case Credit = 'credit';
+    case Debit  = 'debit';
 }
 
 function getProcessingFee(PaymentMethod $method): float
 {
     return match ($method) {
-        PaymentMethod::Pix     => 0.00,   // sem taxa
-        PaymentMethod::BankSlip  => 3.50,   // taxa fixa
+        PaymentMethod::Pix     => 0.00,   // no fee
+        PaymentMethod::BankSlip  => 3.50,   // flat fee
         PaymentMethod::Credit => 0.0499, // 4.99%
         PaymentMethod::Debit  => 0.0299, // 2.99%
     };
-    // Não precisa de default: enum cobre todos os casos
-    // Se um novo case for adicionado ao enum, o PHP emitirá
-    // um UnhandledMatchError em tempo de execução
+    // No default needed: enum covers all cases.
+    // If a new case is added to the enum, PHP will throw
+    // an UnhandledMatchError at runtime.
 }
 
 echo getProcessingFee(PaymentMethod::Pix); // 0.0
 ```
 
-### `match(true)` para condições complexas
+### `match(true)` for complex conditions
 
 ```php
 <?php
@@ -339,36 +333,36 @@ $grade = 8.5;
 $attendance = 85;
 
 $result = match (true) {
-    $grade >= 9 && $attendance >= 90  => 'Aprovado com louvor',
-    $grade >= 7 && $attendance >= 75  => 'Aprovado',
-    $grade >= 5 && $attendance >= 75  => 'Recuperação',
-    $attendance < 75                 => 'Reprovado por falta',
-    default                          => 'Reprovado por nota',
+    $grade >= 9 && $attendance >= 90  => 'Approved with honors',
+    $grade >= 7 && $attendance >= 75  => 'Approved',
+    $grade >= 5 && $attendance >= 75  => 'Recovery exam',
+    $attendance < 75                 => 'Failed due to absences',
+    default                          => 'Failed by grade',
 };
 
-echo $result; // Aprovado
+echo $result; // Approved
 ```
 
-### `match` sem `default` e `UnhandledMatchError`
+### `match` without `default` and `UnhandledMatchError`
 
-Se nenhum braço corresponder e não houver `default`, o PHP lança `\UnhandledMatchError`:
+If no branch matches and there's no `default`, PHP throws `\UnhandledMatchError`:
 
 ```php
 <?php
 
-$direction = 'norte';
+$direction = 'north';
 
 try {
     $command = match ($direction) {
-        'cima'    => 'Mover para cima',
-        'baixo'   => 'Mover para baixo',
-        'esquerda' => 'Mover para esquerda',
-        'direita' => 'Mover para direita',
+        'up'       => 'Move up',
+        'down'     => 'Move down',
+        'left'     => 'Move left',
+        'right'    => 'Move right',
     };
 } catch (\UnhandledMatchError $e) {
-    echo "Direção '{$direction}' não reconhecida.";
+    echo "Direction '{$direction}' not recognized.";
 }
-// Direção 'norte' não reconhecida.
+// Direction 'north' not recognized.
 ```
 
 ---
@@ -385,29 +379,29 @@ Executa o bloco **enquanto** a condição for verdadeira. O PHP verifica a condi
 $counter = 1;
 
 while ($counter <= 5) {
-    echo "Iteração {$counter}\n";
+    echo "Iteration {$counter}\n";
     $counter++;
 }
-// Iteração 1
-// Iteração 2
-// Iteração 3
-// Iteração 4
-// Iteração 5
+// Iteration 1
+// Iteration 2
+// Iteration 3
+// Iteration 4
+// Iteration 5
 ```
 
 ```php
 <?php
 
-// Leitura de arquivo linha por linha com while
-$handle = fopen('dados.csv', 'r');
+// Reading a CSV file line by line with while
+$handle = fopen('data.csv', 'r');
 if ($handle === false) {
-    die('Não foi possível abrir o arquivo');
+    die('Could not open the file');
 }
 
 $lineNumber = 0;
 while (($line = fgetcsv($handle)) !== false) {
     $lineNumber++;
-    echo "Linha {$lineNumber}: " . implode(' | ', $line) . "\n";
+    echo "Line {$lineNumber}: " . implode(' | ', $line) . "\n";
 }
 fclose($handle);
 ```
@@ -424,21 +418,21 @@ $maxAttempts = 3;
 
 do {
     $attempts++;
-    echo "Tentativa {$attempts} de {$maxAttempts}\n";
+    echo "Attempt {$attempts} out of {$maxAttempts}\n";
 
-    // Simula uma operação que pode falhar
+    // Simulates an operation that might fail
     $success = random_int(0, 1) === 1;
 
     if ($success) {
-        echo "Operação concluída com sucesso!\n";
+        echo "Operation completed successfully!\n";
         break;
     }
 
-    echo "Falhou. ";
+    echo "Failed. ";
 } while ($attempts < $maxAttempts);
 
 if ($attempts === $maxAttempts && !$success) {
-    echo "Todas as tentativas falharam.\n";
+    echo "All attempts failed.\n";
 }
 ```
 
@@ -449,7 +443,7 @@ if ($attempts === $maxAttempts && !$success) {
 ```php
 <?php
 
-// for (inicialização; condição; incremento)
+// for (initialization; condition; increment)
 for ($i = 0; $i < 5; $i++) {
     echo "i = {$i}\n";
 }
@@ -460,40 +454,40 @@ for ($i = 0; $i < 5; $i++) {
 // i = 4
 ```
 
-### Múltiplas variáveis no `for`
+### Multiple variables in `for`
 
 ```php
 <?php
 
-// Contagem crescente e decrescente simultânea
+// Simultaneous increment and decrement
 for ($i = 0, $j = 10; $i <= 10; $i++, $j--) {
-    echo "i = {$i}, j = {$j}, soma = " . ($i + $j) . "\n";
+    echo "i = {$i}, j = {$j}, sum = " . ($i + $j) . "\n";
 }
 ```
 
-### `for` sem algumas expressões
+### `for` with omitted expressions
 
 ```php
 <?php
 
-// Sem inicialização (variável inicializada fora)
+// No initialization (variable set outside)
 $i = 0;
 for (; $i < 5; $i++) {
     echo "{$i} ";
 }
 echo "\n";
 
-// Sem incremento (feito dentro do bloco)
+// No increment (done inside the block)
 for ($i = 0; $i < 5;) {
     echo "{$i} ";
     $i++;
 }
 echo "\n";
 
-// Loop infinito com for (todas as expressões vazias)
-// for (;;) { ... } — equivalente a while(true) { ... }
+// Infinite loop with for (all expressions empty)
+// for (;;) { ... } — equivalent to while(true) { ... }
 
-// Sem condição (vira loop infinito — útil com break interno)
+// No condition (infinite loop — useful with internal break)
 $i = 0;
 for (;;) {
     if ($i >= 5) {
@@ -505,12 +499,12 @@ for (;;) {
 // 0 1 2 3 4
 ```
 
-### Aplicação: tabuada
+### Application: multiplication table
 
 ```php
 <?php
 
-echo "Tabuada do 7:\n";
+echo "Multiplication table for 7:\n";
 echo str_repeat('─', 20) . "\n";
 
 for ($multiplier = 1; $multiplier <= 10; $multiplier++) {
@@ -518,7 +512,7 @@ for ($multiplier = 1; $multiplier <= 10; $multiplier++) {
     echo "7 × " . str_pad($multiplier, 2, ' ', STR_PAD_LEFT) . " = " . str_pad($result, 2, ' ', STR_PAD_LEFT) . "\n";
 }
 /*
-Tabuada do 7:
+Multiplication table for 7:
 ────────────────────
 7 ×  1 =  7
 7 ×  2 = 14
@@ -528,15 +522,15 @@ Tabuada do 7:
 */
 ```
 
-### Aplicação: gerar HTML com `for`
+### Application: HTML generation with `for`
 
 ```php
 <?php
 
 $months = [
-    'Janeiro', 'Fevereiro', 'Março', 'Abril',
-    'Maio', 'Junho', 'Julho', 'Agosto',
-    'Setembro', 'Outubro', 'Novembro', 'Dezembro',
+    'January', 'February', 'March', 'April',
+    'May', 'June', 'July', 'August',
+    'September', 'October', 'November', 'December',
 ];
 
 echo "<select name='mes'>\n";
@@ -552,55 +546,55 @@ echo "</select>\n";
 
 ## `foreach`
 
-A forma mais idiomática de iterar sobre arrays e objetos iteráveis em PHP.
+Itera sobre arrays e objetos iteráveis:
 
-### Apenas valores
+### Values only
 
 ```php
 <?php
 
-$fruits = ['maçã', 'banana', 'laranja', 'uva', 'morango'];
+$fruits = ['apple', 'banana', 'orange', 'grape', 'strawberry'];
 
 foreach ($fruits as $fruit) {
-    echo "Fruta: {$fruit}\n";
+    echo "Fruit: {$fruit}\n";
 }
 ```
 
-### Chave e valor
+### Key and value
 
 ```php
 <?php
 
 $user = [
-    'name'   => 'Carlos Eduardo',
-    'email'  => 'carlos@exemplo.com',
+    'name'   => 'John Smith',
+    'email'  => 'john@example.com',
     'age'    => 34,
-    'city'   => 'Belo Horizonte',
+    'city'   => 'New York',
 ];
 
 foreach ($user as $key => $value) {
     echo ucfirst($key) . ": {$value}\n";
 }
-// Nome: Carlos Eduardo
-// Email: carlos@exemplo.com
-// Idade: 34
-// Cidade: Belo Horizonte
+// Name: John Smith
+// Email: john@example.com
+// Age: 34
+// City: New York
 ```
 
-### `foreach` com arrays aninhados
+### `foreach` with nested arrays
 
 ```php
 <?php
 
 $products = [
-    ['name' => 'Notebook',    'price' => 3500.00, 'stock' => 12],
+    ['name' => 'Laptop',      'price' => 3500.00, 'stock' => 12],
     ['name' => 'Monitor 27"', 'price' => 1200.00, 'stock' => 5],
-    ['name' => 'Teclado',     'price' => 250.00,  'stock' => 30],
+    ['name' => 'Keyboard',    'price' => 250.00,  'stock' => 30],
     ['name' => 'Mouse',       'price' => 120.00,  'stock' => 0],
 ];
 
 echo "┌──────┬────────────────────┬──────────┬─────────┐\n";
-echo "│ ID   │ Produto            │ Preço    │ Estoque │\n";
+echo "│ ID   │ Product            │ Price    │ Stock   │\n";
 echo "├──────┼────────────────────┼──────────┼─────────┤\n";
 
 foreach ($products as $id => $product) {
@@ -609,7 +603,7 @@ foreach ($products as $id => $product) {
     $priceStr  = 'R$ ' . str_pad(number_format($product['price'], 2, ',', '.'), 7, ' ', STR_PAD_LEFT);
     $stockStr  = str_pad($product['stock'], 7, ' ', STR_PAD_LEFT);
 
-    $status = $product['stock'] > 0 ? '' : ' (esgotado)';
+    $status = $product['stock'] > 0 ? '' : ' (out of stock)';
 
     echo "│ {$idStr} │ {$nameStr} │ {$priceStr} │ {$stockStr} │{$status}\n";
 }
@@ -617,45 +611,45 @@ foreach ($products as $id => $product) {
 echo "└──────┴────────────────────┴──────────┴─────────┘\n";
 ```
 
-### Modificando arrays com `foreach` (por referência)
+### Modifying arrays with `foreach` (by reference)
 
 ```php
 <?php
 
 $numbers = [1, 2, 3, 4, 5];
 
-// Por valor: NÃO altera o array original
+// By value: does NOT modify the original array
 foreach ($numbers as $num) {
-    $num *= 2; // $num é uma cópia
+    $num *= 2; // $num is a copy
 }
-print_r($numbers); // [1, 2, 3, 4, 5] — inalterado
+print_r($numbers); // [1, 2, 3, 4, 5] — unchanged
 
-// Por referência: ALTERA o array original
+// By reference: MODIFIES the original array
 foreach ($numbers as &$num) {
     $num *= 2;
 }
-unset($num); // IMPORTANTE: desfazer a referência após o loop!
+unset($num); // IMPORTANT: break the reference after the loop!
 print_r($numbers); // [2, 4, 6, 8, 10]
 ```
 
-> ⚠️ **Cuidado**: Sempre chame `unset()` na variável de referência após o loop.
-> Caso contrário, a última referência permanece, causando bugs sutis:
+> **Cuidado**: Sempre chame `unset()` na variável de referência após o loop.
+> A última referência persiste e causa bugs sutis:
 >
 > ```php
 > <?php
 > $arr = [1, 2, 3];
 > foreach ($arr as &$v) { $v *= 2; }
-> // Esqueceu o unset($v)!
+> // Oops, forgot unset($v)!
 > foreach ($arr as $v) { echo $v; }
-> // Último elemento é sobrescrito inesperadamente!
+> // Last element gets overwritten unexpectedly!
 > ```
 
-### `foreach` em objetos iteráveis
+### `foreach` with iterable objects
 
 ```php
 <?php
 
-// Qualquer objeto que implemente Traversable pode ser usado em foreach
+// Any object implementing Traversable can be used with foreach
 
 class Counter implements \Iterator
 {
@@ -680,22 +674,22 @@ foreach ($counter as $index => $value) {
 }
 ```
 
-### `foreach` com `$key => $value` em arrays indexados
+### `foreach` with `$key => $value` on indexed arrays
 
 ```php
 <?php
 
-$colors = ['vermelho', 'verde', 'azul'];
+$colors = ['red', 'green', 'blue'];
 
 foreach ($colors as $index => $color) {
     echo "[{$index}] = {$color}\n";
 }
-// [0] = vermelho
-// [1] = verde
-// [2] = azul
+// [0] = red
+// [1] = green
+// [2] = blue
 ```
 
-### `foreach` em strings (com `str_split`)
+### `foreach` over strings (with `mb_str_split`)
 
 ```php
 <?php
@@ -704,11 +698,11 @@ $text = "PHP";
 $characters = mb_str_split($text); // PHP 7.4+
 
 foreach ($characters as $i => $char) {
-    echo "Posição {$i}: {$char}\n";
+    echo "Position {$i}: {$char}\n";
 }
-// Posição 0: P
-// Posição 1: H
-// Posição 2: P
+// Position 0: P
+// Position 1: H
+// Position 2: P
 ```
 
 ---
@@ -717,33 +711,33 @@ foreach ($characters as $i => $char) {
 
 ### `break`
 
-Interrompe a execução do loop atual:
+Stops the current loop immediately:
 
 ```php
 <?php
 
-echo "Procurando o número 7...\n";
+echo "Searching for number 7...\n";
 
 $numbers = [1, 3, 5, 7, 9, 11, 13];
 
 foreach ($numbers as $position => $number) {
-    echo "  Verificando posição {$position}: {$number}\n";
+    echo "  Checking position {$position}: {$number}\n";
     if ($number === 7) {
-        echo "  → Encontrado na posição {$position}!\n";
-        break; // Para o loop imediatamente
+        echo "  → Found at position {$position}!\n";
+        break; // Stops the loop immediately
     }
 }
 /*
-Procurando o número 7...
-  Verificando posição 0: 1
-  Verificando posição 1: 3
-  Verificando posição 2: 5
-  Verificando posição 3: 7
-  → Encontrado na posição 3!
+Searching for number 7...
+  Checking position 0: 1
+  Checking position 1: 3
+  Checking position 2: 5
+  Checking position 3: 7
+  → Found at position 3!
 */
 ```
 
-### `break N` (quebrando múltiplos níveis)
+### `break N` (breaking multiple levels)
 
 ```php
 <?php
@@ -761,8 +755,8 @@ foreach ($matrix as $rowIndex => $row) {
     foreach ($row as $columnIndex => $value) {
         echo "  [{$rowIndex}][{$columnIndex}] = {$value}\n";
         if ($value === $target) {
-            echo "  → Encontrado em [{$rowIndex}][{$columnIndex}]\n";
-            break 2; // Sai de AMBOS os foreach
+            echo "  → Found at [{$rowIndex}][{$columnIndex}]\n";
+            break 2; // Exits BOTH foreach loops
         }
     }
 }
@@ -770,16 +764,16 @@ foreach ($matrix as $rowIndex => $row) {
 
 ### `continue`
 
-Pula para a próxima iteração do loop:
+Skips to the next iteration of the loop:
 
 ```php
 <?php
 
-echo "Números pares entre 1 e 10:\n";
+echo "Even numbers between 1 and 10:\n";
 
 for ($i = 1; $i <= 10; $i++) {
     if ($i % 2 !== 0) {
-        continue; // Pula números ímpares
+        continue; // Skip odd numbers
     }
     echo "  {$i}\n";
 }
@@ -799,52 +793,52 @@ $matrix = [
 foreach ($matrix as $row) {
     foreach ($row as $value) {
         if ($value % 2 === 0) {
-            continue 2; // Pula para a PRÓXIMA LINHA
+            continue 2; // Skip to the NEXT ROW
         }
-        echo "{$value} "; // Só imprime ímpares
+        echo "{$value} "; // Only prints odd numbers
     }
     echo "\n";
 }
-// 1 -> próxima linha (2 é par)
-// -> próxima linha (4 é par)
-// 7 9 -> (8 é par)
+// 1 -> next row (2 is even)
+// -> next row (4 is even)
+// 7 9 -> (8 is even)
 ```
 
-### `break` e `continue` em `switch`
+### `break` and `continue` in `switch`
 
-Em `switch`, `break` encerra o switch, `continue` age como `break`:
+In `switch`, `break` exits the switch; `continue` acts like `break`:
 
 ```php
 <?php
 
-// Dentro de um switch aninhado em um loop:
-$values = [1, 2, 3, 'fim'];
+// Inside a switch nested in a loop:
+$values = [1, 2, 3, 'end']; // keeping 'end' for clarity (used as sentinel)
 
 foreach ($values as $value) {
-    if ($value === 'fim') {
-        break; // Sai do foreach
+    if ($value === 'end') {
+        break; // Exits foreach
     }
 
     switch ($value) {
         case 1:
-            echo "um\n";
-            break; // Sai do switch
+            echo "one\n";
+            break; // Exits switch
         case 2:
-            echo "dois\n";
-            continue 2; // Sai do switch E continua o foreach (próxima iteração)
+            echo "two\n";
+            continue 2; // Exits switch AND continues foreach (next iteration)
         case 3:
-            echo "três — esta linha nunca será atingida\n";
+            echo "three — this line never runs\n";
             break;
     }
 
-    echo "Após o switch (value {$value})\n";
+    echo "After switch (value {$value})\n";
 }
 /*
-Saída:
-um
-Após o switch (valor 1)
-dois
-três — esta linha nunca será atingida
+Output:
+one
+After switch (value 1)
+two
+three — this line never runs
 */
 ```
 
@@ -852,7 +846,7 @@ três — esta linha nunca será atingida
 
 ## `goto`
 
-PHP suporta `goto`, mas seu uso é desencorajado. Pode tornar o código impossível de manter.
+PHP suporta `goto`. Raramente necessário. Use com moderação:
 
 ```php
 <?php
@@ -869,12 +863,12 @@ loop_start:
 // 1 2 3 4 5
 ```
 
-### Caso de uso raro: sair de loops muito aninhados
+### Rare use case: breaking out of deeply nested loops
 
 ```php
 <?php
 
-// goto pode ser útil como alternativa a break N em casos muito complexos
+// goto can replace break N in very complex cases
 foreach ($data as $group) {
     foreach ($group as $item) {
         foreach ($item as $subItem) {
@@ -887,28 +881,27 @@ foreach ($data as $group) {
 }
 
 clean_exit:
-    echo "Processamento concluído ou interrompido.\n";
+    echo "Processing complete or interrupted.\n";
 ```
 
-> ⚠️ **Cuidado**: O `goto` NÃO pode entrar em funções, classes, loops ou
-> estruturas de controle. Só pode saltar dentro do mesmo escopo.
+> **Cuidado**: `goto` NÃO pode entrar em funções, classes, loops ou estruturas de controle. Só salta dentro do mesmo escopo.
 
 ```php
 <?php
-// Isso NÃO funciona:
-goto dentro;
+// This does NOT work:
+goto inside;
 for ($i = 0; $i < 5; $i++) {
-    dentro:
+    inside:
     echo "{$i}\n";
 }
-// Erro: goto into loop
+// Fatal error: 'goto' into loop
 ```
 
 ---
 
 ## `return`
 
-Dentro de uma função, `return` encerra a execução e retorna um valor. Fora de função, retorna o controle do script (útil em includes condicionais).
+Inside a function, `return` stops execution and returns a value. Outside a function, it returns control of the script (useful in conditional includes).
 
 ```php
 <?php
@@ -916,27 +909,27 @@ Dentro de uma função, `return` encerra a execução e retorna um valor. Fora d
 function divide(float $a, float $b): float
 {
     if ($b === 0.0) {
-        throw new \DivisionByZeroError('Divisão por zero');
+        throw new \DivisionByZeroError('Division by zero');
     }
     return $a / $b;
-    // Código após return nunca é executado
-    echo "Esta linha nunca será impressa";
+    // Code after return never runs
+    echo "This line is never printed";
 }
 
 $result = divide(10, 2);
 echo $result; // 5
 ```
 
-### `return` em arquivos incluídos
+### `return` in included files
 
 ```php
 <?php
 // config.php
 return [
     'host'     => 'localhost',
-    'database' => 'banco_dev',
+    'database' => 'dev_db',
     'username' => 'root',
-    'password' => 'senha123',
+    'password' => 'password123',
 ];
 ```
 
@@ -953,7 +946,7 @@ echo $config['host']; // localhost
 
 ### `declare(strict_types=1)`
 
-Já vimos nos módulos anteriores. Deve ser a primeira instrução do arquivo:
+Deve ser a primeira instrução do arquivo:
 
 ```php
 <?php
@@ -965,12 +958,12 @@ function add(int $a, int $b): int
     return $a + $b;
 }
 
-// add(1, "2"); // TypeError com strict_types
+// add(1, "2"); // TypeError with strict_types
 ```
 
 ### `declare(ticks=N)`
 
-Define um "tick" — um evento que ocorre a cada `N` statements executados:
+Define um "tick" — um evento que dispara a cada `N` statements executados:
 
 ```php
 <?php
@@ -987,10 +980,10 @@ register_tick_function('tickHandler');
 $a = 1;
 $b = 2;
 $c = $a + $b;
-// Imprime "tick!" a cada statement
+// Prints "tick!" after each statement
 ```
 
-`ticks` quase nunca são usados. Ferramentas como profilers podem usá-los.
+`ticks` raramente são usados. Profilers e ferramentas de debug podem usá-los.
 
 ### `declare(encoding='UTF-8')`
 
@@ -1001,30 +994,30 @@ Especifica a codificação do script (PHP 5.6+):
 
 declare(encoding='UTF-8');
 
-// O script é interpretado como UTF-8
+// The script is interpreted as UTF-8
 ```
 
 ---
 
-## Sintaxe alternativa para templates
+## Alternative syntax for templates
 
-PHP oferece uma sintaxe alternativa para estruturas de controle, ideal para templates onde se mescla HTML:
+PHP oferece sintaxe alternativa para estruturas de controle, ideal pra templates com HTML:
 
 ### `if:` / `endif;`
 
 ```php
 <?php if ($isLoggedIn): ?>
     <div class="dashboard">
-        <h2>Bem-vindo, <?= htmlspecialchars($user['name']) ?></h2>
-        <a href="/perfil">Meu Perfil</a>
+        <h2>Welcome, <?= htmlspecialchars($user['name']) ?></h2>
+        <a href="/profile">My Profile</a>
     </div>
 <?php else: ?>
     <div class="login-box">
-        <h2>Entrar</h2>
+        <h2>Login</h2>
         <form method="post" action="/login">
             <input type="email" name="email" placeholder="Email">
-            <input type="password" name="password" placeholder="Senha">
-            <button type="submit">Entrar</button>
+            <input type="password" name="password" placeholder="Password">
+            <button type="submit">Login</button>
         </form>
     </div>
 <?php endif; ?>
@@ -1037,14 +1030,14 @@ PHP oferece uma sintaxe alternativa para estruturas de controle, ideal para temp
     <thead>
         <tr>
             <th>#</th>
-            <th>Produto</th>
-            <th>Preço</th>
-            <th>Estoque</th>
+            <th>Product</th>
+            <th>Price</th>
+            <th>Stock</th>
         </tr>
     </thead>
     <tbody>
     <?php foreach ($products as $i => $product): ?>
-        <tr class="<?= $product['stock'] === 0 ? 'esgotado' : '' ?>">
+        <tr class="<?= $product['stock'] === 0 ? 'out-of-stock' : '' ?>">
             <td><?= $i + 1 ?></td>
             <td><?= htmlspecialchars($product['name']) ?></td>
             <td>R$ <?= number_format($product['price'], 2, ',', '.') ?></td>
@@ -1058,8 +1051,8 @@ PHP oferece uma sintaxe alternativa para estruturas de controle, ideal para temp
 ### `for:` / `endfor;`
 
 ```php
-<select name="ano">
-    <option value="">Selecione o ano</option>
+<select name="year">
+    <option value="">Select year</option>
     <?php for ($year = date('Y'); $year >= 2000; $year--): ?>
         <option value="<?= $year ?>"><?= $year ?></option>
     <?php endfor; ?>
@@ -1069,12 +1062,12 @@ PHP oferece uma sintaxe alternativa para estruturas de controle, ideal para temp
 ### `while:` / `endwhile;`
 
 ```php
-<h2>Posts recentes</h2>
+<h2>Recent posts</h2>
 <?php while ($post = $posts->fetch()): ?>
     <article>
-        <h3><?= htmlspecialchars($post['titulo']) ?></h3>
-        <p><?= nl2br(htmlspecialchars($post['resumo'])) ?></p>
-        <time><?= date('d/m/Y', strtotime($post['data_publicacao'])) ?></time>
+        <h3><?= htmlspecialchars($post['title']) ?></h3>
+        <p><?= nl2br(htmlspecialchars($post['summary'])) ?></p>
+        <time><?= date('m/d/Y', strtotime($post['published_at'])) ?></time>
     </article>
 <?php endwhile; ?>
 ```
@@ -1086,31 +1079,31 @@ PHP oferece uma sintaxe alternativa para estruturas de controle, ideal para temp
     <?php case 'admin': ?>
         <nav class="admin-menu">
             <a href="/admin/dashboard">Dashboard</a>
-            <a href="/admin/usuarios">Usuários</a>
-            <a href="/admin/config">Configurações</a>
+            <a href="/admin/users">Users</a>
+            <a href="/admin/settings">Settings</a>
         </nav>
         <?php break; ?>
 
     <?php case 'editor': ?>
         <nav class="editor-menu">
             <a href="/editor/posts">Posts</a>
-            <a href="/editor/midia">Mídia</a>
+            <a href="/editor/media">Media</a>
         </nav>
         <?php break; ?>
 
     <?php default: ?>
         <nav class="user-menu">
-            <a href="/perfil">Perfil</a>
-            <a href="/meus-posts">Meus Posts</a>
+            <a href="/profile">Profile</a>
+            <a href="/my-posts">My Posts</a>
         </nav>
 <?php endswitch; ?>
 ```
 
 ---
 
-## Exemplo integrador
+## Putting it all together
 
-Um script que combina várias estruturas de controle:
+A script combining multiple control structures:
 
 ```php
 <?php
@@ -1166,13 +1159,13 @@ function isPrime(int $n): bool
     return true;
 }
 
-// Teste
+// Run it
 $numbers = [-7, -3, 0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 17, 0, 42];
 $result = classifyNumbers($numbers);
 
 foreach ($result as $category => $values) {
     if ($category === 'zeros') {
-        echo "Zeros encontrados: {$values}\n";
+        echo "Zeros found: {$values}\n";
     } else {
         echo ucfirst($category) . ": " . implode(', ', $values) . "\n";
     }
@@ -1182,13 +1175,13 @@ Even: 2, 4, 6, 8, 10, 42
 Odd: 7, 3, 3, 5, 7, 9, 11, 13, 17
 Primes: 2, 7, 3, 3, 5, 7, 11, 13, 17
 Negatives: -7, -3
-Zeros encontrados: 2
+Zeros found: 2
 */
 ```
 
 ---
 
-## 📚 Referências
+## Referências
 
 - **if/else/elseif**: [php.net/manual/pt_BR/control-structures.if.php](https://www.php.net/manual/pt_BR/control-structures.if.php)
 - **switch**: [php.net/manual/pt_BR/control-structures.switch.php](https://www.php.net/manual/pt_BR/control-structures.switch.php)
@@ -1207,4 +1200,4 @@ Zeros encontrados: 2
 
 ## Próximo módulo
 
-[→ 06 — Funções (em breve)](./06-funcoes.md)
+[→ 06 — Functions](./06-funcoes.md)
