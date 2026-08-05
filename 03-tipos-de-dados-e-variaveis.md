@@ -9,7 +9,7 @@ Toda variável em PHP começa com `$`:
 ```php
 <?php
 
-$name = "Maria";
+$name = "Mary";
 $age = 30;
 $height = 1.72;
 $active = true;
@@ -20,14 +20,14 @@ Nomes de variáveis são **case-sensitive**:
 ```php
 <?php
 
-$name = "João";
-$Nome = "Maria";
-$NOME = "Carlos";
+$name = "John";
+$alternateName = "Mary";
+$alternateFullName = "Charles";
 
-echo $name; // João
-echo $Nome; // Maria
-echo $NOME; // Carlos
-// Três variáveis diferentes!
+echo $name;
+echo $alternateName;
+echo $alternateFullName;
+// Three different variables!
 ```
 
 ### Regras de nomenclatura
@@ -41,47 +41,86 @@ echo $NOME; // Carlos
 ```php
 <?php
 
-// ✅ Válidos
+// ✅ Valid
 $_variable = 1;
-$userName = "ana";
+$userName = "Anna";
 $total2 = 100;
-$coffee = "quente";          // Unicode — funciona, mas evite
-$variable = "válido";
-$ç = "çaracter especial";  // Funciona, mas péssima prática
+$café = "hot";              // Unicode — works, but avoid
+$válida = "valid";
+$specialChar = "special";   // Works, but terrible practice
 
-// ❌ Inválidos
-// $1lugar = "erro";        // Não pode começar com número
-// $meu-nome = "erro";      // Hífen não é permitido
-// $meu nome = "erro";      // Espaço não é permitido
+// ❌ Invalid
+// $1place = "error";       // Cannot start with a number
+// $my-name = "error";      // Hyphen not allowed
+// $my name = "error";      // Space not allowed
 ```
 
 ### Atribuição por valor vs referência
 
-```php
-<?php
-
-// Atribuição por valor (padrão)
-$a = 10;
-$b = $a;       // $b recebe uma CÓPIA do valor de $a
-$a = 20;
-echo $b;       // 10 (não foi afetado pela mudança em $a)
-```
+Por padrão, PHP atribui por **cópia** (igual C com structs). O `&` cria um
+**alias** — mesma ideia de referência do C++, ambos apontam pro mesmo
+`zval` interno.
 
 ```php
 <?php
 
-// Atribuição por referência (&)
-$a = 10;
-$b = &$a;      // $b referencia o MESMO valor que $a
-$a = 20;
-echo $b;       // 20 (aponta pro mesmo lugar na memória)
+$first = 10;
+$second = $first;   // Copy
+$first = 20;
+echo $second;       // 10 — independent copy
 
-$b = 30;
-echo $a;       // 30 (as duas variáveis estão ligadas)
+$first = 10;
+$second = &$first;  // Reference (alias)
+$first = 20;
+echo $second;       // 20 — same zval
+
+$second = 30;
+echo $first;        // 30 — both see the change
 ```
 
-> ⚠️ **Cuidado**: Referências podem causar efeitos colaterais difíceis de depurar.
-> Use apenas quando necessário.
+#### Uso real: `foreach` com referência
+
+O cenário mais comum é modificar elementos de um array **no lugar**,
+sem criar array novo:
+
+```php
+<?php
+
+$prices = [100, 200, 300];
+
+// Without reference — does NOT modify $prices
+foreach ($prices as $price) {
+    $price *= 1.1;  // Modifies the copy, original untouched
+}
+print_r($prices);  // [100, 200, 300]
+
+// With reference — modifies in-place
+foreach ($prices as &$price) {
+    $price *= 1.1;
+}
+unset($price);      // CRUCIAL: unset after foreach with reference!
+print_r($prices);  // [110, 220, 330]
+```
+
+> ⚠️ O `unset($price)` depois do `foreach &` é obrigatório. Sem ele, `$price`
+> continua como alias do último elemento e qualquer uso posterior da variável
+> sobrescreve o array sem você perceber.
+
+> 💡 **Por baixo dos panos**: toda variável PHP é representada internamente
+> por um `zval` — uma struct do Zend Engine que guarda tipo, valor e
+> refcount. Atribuição por valor aloca um `zval` novo e copia o dado.
+> Atribuição por referência (`&`) faz as duas variáveis apontarem pro
+> **mesmo** `zval` — é um alias, não uma cópia.
+>
+> ```c
+> // struct interna do Zend Engine (simplificada)
+> typedef struct _zval_struct {
+>     zend_value        value;      // union: o dado em si
+>     zend_uchar        type;       // IS_STRING, IS_LONG, etc.
+>     zend_uchar        type_flags;
+>     uint32_t          gc_info;    // refcount + flags
+> } zval;
+> ```
 
 ### Variáveis variáveis
 
@@ -89,10 +128,10 @@ echo $a;       // 30 (as duas variáveis estão ligadas)
 <?php
 
 $field = "name";
-$$field = "Beatriz";   // Cria $name = "Beatriz"
+$$field = "Beatrice";
 
-echo $name;            // Beatriz
-echo $$field;          // Beatriz
+echo $name;
+echo $$field;
 ```
 
 > ⚠️ **Cuidado**: Variáveis variáveis são confusas e quase nunca necessárias.
@@ -117,33 +156,33 @@ Números sem casas decimais. O tamanho depende da plataforma (32 ou 64 bits):
 ```php
 <?php
 
-$a = 42;          // Decimal
-$b = -17;         // Negativo
-$c = 0b1010;      // Binário: 10 (prefixo 0b)
-$d = 0o755;       // Octal: 493 (prefixo 0o, PHP 8.1+)
-$e = 0xFF;        // Hexadecimal: 255 (prefixo 0x)
-$f = 1_000_000;   // Separador numérico (PHP 7.4+): 1000000
+$decimal = 42;
+$negative = -17;
+$binary = 0b1010;      // 10
+$octal = 0o755;        // 493
+$hex = 0xFF;           // 255
+$thousands = 1_000_000;
 
-echo PHP_INT_MAX;  // 9223372036854775807 (64 bits)
+echo PHP_INT_MAX;  // 9223372036854775807 (64-bit)
 echo PHP_INT_MIN;  // -9223372036854775808
 ```
 
 > 💡 **Dica**: Use `_` como separador de milhares para legibilidade:
-> `$orcamento = 1_500_000;` no lugar de `$orcamento = 1500000;`
+> `$budget = 1_500_000;` no lugar de `$budget = 1500000;`
 
 ### `float` (ponto flutuante)
 
 ```php
 <?php
 
-$a = 1.5;
-$b = -0.33;
-$c = 1.2e3;       // 1200 (notação científica)
-$d = 7E-10;       // 0.0000000007
-$e = 0.1 + 0.2;   // ⚠️ 0.30000000000000004 (imprecisão IEEE 754)
+$simple = 1.5;
+$negativeFloat = -0.33;
+$scientific = 1.2e3;
+$tiny = 7E-10;
+$imprecise = 0.1 + 0.2;  // 0.30000000000000004 (IEEE 754 imprecision)
 
-echo PHP_FLOAT_MAX;  // 1.7976931348623E+308
-echo PHP_FLOAT_MIN;  // 2.2250738585072E-308
+echo PHP_FLOAT_MAX;
+echo PHP_FLOAT_MIN;
 ```
 
 > ⚠️ **Cuidado**: Operações com float podem ter imprecisão. Para cálculos
@@ -152,17 +191,15 @@ echo PHP_FLOAT_MIN;  // 2.2250738585072E-308
 
 ```php
 <?php
-// Comparando floats com segurança
+
 $result = 0.1 + 0.2;
-$expected  = 0.3;
+$expected = 0.3;
 
-// Jeito errado:
-if ($result === 0.3) { /* nunca executa */ }
+if ($result === 0.3) { /* never executes */ }
 
-// Jeito certo: usar epsilon
 $epsilon = 0.00001;
 if (abs($result - $expected) < $epsilon) {
-    echo "Iguais (com tolerância)";
+    echo "Equal (with tolerance)";
 }
 ```
 
@@ -175,7 +212,7 @@ $enabled = true;
 $disabled = false;
 
 echo true;   // "1"
-echo false;  // "" (string vazia)
+echo false;  // "" (empty string)
 
 var_dump(true);  // bool(true)
 var_dump(false); // bool(false)
@@ -186,19 +223,18 @@ Valores que o PHP trata como `false` em contexto booleano (falsy):
 ```php
 <?php
 
-// Todos estes são false quando convertidos para bool:
 $falsy = [
     false,      // boolean false
     0,          // integer zero
     0.0,        // float zero
-    -0,         // integer zero negativo
-    -0.0,       // float zero negativo
-    '',         // string vazia
+    -0,         // negative integer zero
+    -0.0,       // negative float zero
+    '',         // empty string
     '0',        // string "0"
-    [],         // array vazio
+    [],         // empty array
     null,       // null
-    // SimpleXML objects criados de tags vazias
-    // (instâncias internas específicas)
+    // SimpleXML objects created from empty tags
+    // (specific internal instances)
 ];
 
 foreach ($falsy as $value) {
@@ -212,28 +248,30 @@ foreach ($falsy as $value) {
 <?php
 
 // 4 formas de declarar strings:
-$s1 = 'Aspas simples';        // Sem interpolação, sem escapes (exceto \\ e \')
-$s2 = "Aspas duplas";         // Interpola variáveis, interpreta escapes
+$s1 = 'Single quotes';       // No interpolation, no escapes (except \\ and \')
+$s2 = "Double quotes";       // Interpolates variables, interprets escapes
 $s3 = <<<EOT
-Heredoc: funciona como aspas duplas
+Heredoc: works like double quotes
 EOT;
 $s4 = <<<'EOT'
-Nowdoc: funciona como aspas simples
+Nowdoc: works like single quotes
 EOT;
 ```
 
 #### Aspas simples vs aspas duplas
 
+**Convenção da comunidade**: use aspas simples como padrão. Só recorra a
+aspas duplas quando precisar de interpolação ou escapes (`\n`, `\t`, etc.).
+Quando você vê aspas duplas, já sabe que tem algo dinâmico ali.
+
 ```php
 <?php
 
-$name = "Carlos";
+$name = "Charles";
 
-// Aspas simples: NÃO interpreta variáveis nem escapes especiais
-echo 'Olá, $name!\n';  // Olá, $name!\n
+echo 'Hello, $name!\n';
 
-// Aspas duplas: interpreta variáveis e escapes (\n, \t, \\, \$)
-echo "Olá, $name!\n";  // Olá, Carlos! (com quebra de linha)
+echo "Hello, $name!\n";
 ```
 
 #### Interpolação de strings
@@ -241,47 +279,55 @@ echo "Olá, $name!\n";  // Olá, Carlos! (com quebra de linha)
 ```php
 <?php
 
-$fruit = "maçã";
+$fruit = "apple";
 $quantity = 5;
 
-// Simples
-echo "Eu tenho $quantity $fruit(s).";
-// Eu tenho 5 maçã(s).
+echo "I have $quantity $fruit(s).";
 
-// Com chaves (recomendado para clareza)
-echo "Eu tenho {$quantity} {$fruit}(s).";
+echo "I have {$quantity} {$fruit}(s).";
 
-// Acessando arrays e objetos
-$product = ['name' => 'Caneta', 'price' => 2.50];
-echo "Produto: {$product['name']} custa R\$ {$product['price']}";
+$product = ['name' => 'Pen', 'price' => 2.50];
+echo "Product: {$product['name']} costs \$ {$product['price']}";
 
 class Item {
-    public string $name = 'Caderno';
+    public string $name = 'Notebook';
 }
 $item = new Item();
 echo "Item: {$item->name}";
 
-// Expressões dentro de chaves
-echo "Total: {$quantity * 2.50}";  // PHP 8.1+ ???
+// Expressions are NOT allowed in interpolation
+$total = $quantity * 2.50;
+echo "Total: {$total}";
+
+// Or use concatenation
+echo "Total: " . ($quantity * 2.50);
 ```
 
 #### Heredoc
 
+Sintaxe para strings **multilinha** que funciona como **aspas duplas**:
+interpola variáveis e interpreta escapes (`\n`, `\t`).
+
+A ideia é evitar concatenação infinita ou escape de aspas quando você tem
+um bloco grande de texto (HTML, SQL, templates). O identificador de
+abertura (`<<<HTML`) e fechamento podem ser qualquer nome; a linha do
+fechamento **não pode ter nada além do nome e ponto-e-vírgula**.
+
 ```php
 <?php
 
-$name = "Mundo";
-$versao = PHP_VERSION;
+$name = "World";
+$version = PHP_VERSION;
 
 $html = <<<HTML
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Olá, {$name}!</title>
+    <title>Hello, {$name}!</title>
 </head>
 <body>
-    <h1>Bem-vindo, {$name}</h1>
-    <p>Rodando PHP {$versao}</p>
+    <h1>Welcome, {$name}</h1>
+    <p>Running PHP {$version}</p>
 </body>
 </html>
 HTML;
@@ -289,46 +335,57 @@ HTML;
 echo $html;
 ```
 
+A partir do PHP 7.3, o fechador **pode ser indentado**. O nível de
+indentação do fechador define quantos espaços/tabs são removidos do
+início de cada linha do conteúdo:
+
 ```php
 <?php
-// Heredoc com indentação flexível (PHP 7.3+)
-// O marcador de fechamento pode ser indentado
 
-function gerarEmail(): string
+function generateEmail(): string
 {
-    $user = "João";
+    $user = "John";
 
     return <<<TEMPLATE
-        Olá, {$user}!
+        Hello, {$user}!
 
-        Seu pedido foi confirmado.
+        Your order has been confirmed.
 
-        Atenciosamente,
-        Equipe
-        TEMPLATE;  // A indentação do fechador define a indentação do texto
+        Sincerely,
+        Team
+        TEMPLATE;
 }
 
-echo gerarEmail();
+echo generateEmail();
 ```
+
+> ⚠️ **Cuidado**: nada pode aparecer na linha do fechador além do nome dele.
+> Nem espaço, nem comentário. `HTML; // comment` **quebra**.
 
 #### Nowdoc
 
+É o Heredoc, só que funciona como **aspas simples**: **nada** é
+interpretado. Nem variável, nem escape. O identificador de abertura
+precisa estar entre aspas simples (`<<<'TEXT'`).
+
+Útil quando o texto contém `$` literal (JavaScript, shell scripts,
+expressões regulares) e você não quer que o PHP confunda com variável.
+
 ```php
 <?php
 
-// Nowdoc: como aspas simples — NADA é interpretado
-$name = "Maria";
+$name = "Mary";
 
-$text = <<<'TEXTO'
-Olá, $name!
-Aqui não há interpolação de variáveis.
-Nem escapes: \n \t
-TEXTO;
+$text = <<<'TEXT'
+Hello, $name!
+No variable interpolation here.
+No escapes either: \n \t
+TEXT;
 
 echo $text;
-// Olá, $name!
-// Aqui não há interpolação de variáveis.
-// Nem escapes: \n \t
+// Output: Hello, $name!
+//         No variable interpolation here.
+//         No escapes either: \n \t
 ```
 
 ---
@@ -347,9 +404,9 @@ function add(int $a, int $b): int
     return $a + $b;
 }
 
-echo add(5, 3);    // 8
-echo add(5, "3");  // 8 (coerção: string "3" → int 3)
-// add(5, "abc");  // TypeError se strict_types=1
+echo add(5, 3);
+echo add(5, "3");
+// add(5, "abc");  // TypeError if strict_types=1
 ```
 
 ### Tipos em propriedades (PHP 7.4+ / 8.0+)
@@ -417,7 +474,7 @@ echo formatId("ABC");  // "ABC"
 // Retorno com union type
 function findUser(string $id): ?array
 {
-    // ?array é açúcar sintático para array|null
+    // ?array is syntactic sugar for array|null
     $users = [
         '1' => ['name' => 'Alice'],
         '2' => ['name' => 'Bob'],
@@ -426,13 +483,13 @@ function findUser(string $id): ?array
 }
 
 // Union com mais de 2 tipos
-function process(mixed $value): int|float|string
+function process(mixed $value): int|float|string  // mixed = any type (see 'mixed' section below)
 {
     return match (true) {
         is_int($value)   => $value * 2,
         is_float($value) => round($value, 2),
         is_string($value) => strtoupper($value),
-        default          => throw new \InvalidArgumentException('Tipo inválido'),
+        default          => throw new \InvalidArgumentException('Invalid type'),
     };
 }
 ```
@@ -481,17 +538,17 @@ class Service implements HasName, HasPrice
     public function getPrice(): float { return $this->hourlyRate * $this->hours; }
 }
 
-// A função aceita QUALQUER objeto que implemente AMBAS as interfaces
+// Accepts ANY object that implements BOTH interfaces
 function displayPrice(HasName& HasPrice $item): string
 {
-    return "{$item->getName()}: R\$ " . number_format($item->getPrice(), 2, ',', '.');
+    return "{$item->getName()}: \$ " . number_format($item->getPrice(), 2, '.', ',');
 }
 
-$product = new Product('Teclado', 250.00);
-$service = new Service('Consultoria', 150.00, 3);
+$product = new Product('Keyboard', 250.00);
+$service = new Service('Consulting', 150.00, 3);
 
-echo displayPrice($product); // Teclado: R$ 250,00
-echo displayPrice($service); // Consultoria: R$ 450,00
+echo displayPrice($product);
+echo displayPrice($service);
 ```
 
 ### Tipos nullable (`?Tipo`)
@@ -501,18 +558,18 @@ echo displayPrice($service); // Consultoria: R$ 450,00
 
 function findById(int $id): ?string
 {
-    // ?string é equivalente a string|null
+    // ?string is equivalent to string|null
     if ($id === 0) {
         return null;
     }
-    return "Registro #{$id}";
+    return "Record #{$id}";
 }
 
 $result = findById(0);
-var_dump($result); // NULL
+var_dump($result);
 
 $result = findById(42);
-var_dump($result); // string(12) "Registro #42"
+var_dump($result);
 ```
 
 ---
@@ -521,7 +578,20 @@ var_dump($result); // string(12) "Registro #42"
 
 ### `mixed` (PHP 8.0+)
 
-Aceita qualquer tipo. É o tipo "coringa":
+`mixed` equivale a: `array|bool|callable|int|float|null|object|resource|string`
+— ou seja, **qualquer coisa**. Antes do PHP 8.0, você simplesmente omitia o tipo
+e o parâmetro/retorno era `mixed` implicitamente. O tipo explícito deixa sua
+intenção clara: "sei que pode vir qualquer coisa, não foi esquecimento".
+
+Regras importantes:
+
+- **Já inclui `null`**. `mixed` sozinho aceita `null`. `?mixed` não faz
+  sentido e é redundante.
+- **Não participa de union type**. `mixed|int` é inválido — se já aceita tudo,
+  não faz sentido restringir.
+- **Herança**: você pode *estreitar* `mixed`. Um parâmetro `mixed` no pai
+  pode virar `string` no filho (contravariância). Um retorno `mixed` no pai
+  pode virar `int` no filho (covariância).
 
 ```php
 <?php
@@ -532,10 +602,16 @@ function debug(mixed $value): void
 }
 
 debug(42);
-debug("texto");
+debug("text");
 debug([1, 2, 3]);
 debug(null);
 debug(new stdClass());
+
+// Return type mixed — useful for generic helpers
+function safeGet(array $data, string $key, mixed $default = null): mixed
+{
+    return $data[$key] ?? $default;
+}
 ```
 
 ### `void` (PHP 7.1+)
@@ -548,9 +624,7 @@ Indica que a função **não retorna nada**:
 function logMessage(string $msg): void
 {
     error_log($msg);
-    // Não pode ter return com valor
-    // return 1; // Erro!
-    return; // OK: return vazio
+    return;
 }
 ```
 
@@ -582,9 +656,9 @@ function invalidType(): never
 
 ```php
 <?php
+// false as standalone type (PHP 8.1+)
 
-// false como tipo standalone (PHP 8.1+)
-// Útil para funções que retornam false como indicador de falha
+// Useful for functions that return false as failure indicator
 function strpos_fake(string $haystack, string $needle): int|false
 {
     $pos = strpos($haystack, $needle);
@@ -594,8 +668,8 @@ function strpos_fake(string $haystack, string $needle): int|false
 // null como tipo standalone (PHP 8.2+)
 function getConfig(string $key): string|null
 {
-    // string|null ao invés de ?string (equivalente)
-    $config = ['app' => 'MeuApp'];
+    // string|null instead of ?string (equivalent)
+    $config = ['app' => 'MyApp'];
     return $config[$key] ?? null;
 }
 ```
@@ -605,11 +679,11 @@ function getConfig(string $key): string|null
 ```php
 <?php
 
-// PHP 8.2+ permite true como tipo (útil em union types)
+// PHP 8.2+ allows true as a type (useful in union types)
 interface Validatable
 {
     public function validate(): true|string;
-    // Retorna true se válido, ou string com mensagem de erro
+    // Returns true if valid, or error message string
 }
 
 class Email implements Validatable
@@ -619,7 +693,7 @@ class Email implements Validatable
     public function validate(): true|string
     {
         if (!filter_var($this->value, FILTER_VALIDATE_EMAIL)) {
-            return "Email '{$this->value}' inválido";
+            return "Email '{$this->value}' is invalid";
         }
         return true;
     }
@@ -637,26 +711,26 @@ Por padrão, o PHP faz **coerção de tipos** (type juggling). Para forçar tipo
 
 declare(strict_types=1);
 
-function add(int $a, int $b): int
+function add(int $first, int $second): int
 {
-    return $a + $b;
+    return $first + $second;
 }
 
-echo add(5, 3);     // 8 — OK
-echo add(5, "3");   // TypeError! "3" não é int
+echo add(5, 3);
+echo add(5, "3");     // TypeError! "3" is not int
 ```
 
 ```php
 <?php
 
-// Sem strict_types (padrão): coerção acontece
-function add(int $a, int $b): int
+// Without strict_types (default): coercion happens
+function sum(int $first, int $second): int
 {
-    return $a + $b;
+    return $first + $second;
 }
 
-echo add(5, "3");   // 8 — a string "3" é convertida para int 3
-echo add(5, "3.7"); // 8 — float 3.7 → int 3 (perda de precisão!)
+echo sum(5, "3");      // 8 — string "3" coerced to int 3
+echo sum(5, "3.7");    // 8 — float 3.7 → int 3 (precision loss!)
 ```
 
 > 💡 **Dica**: **SEMPRE** use `declare(strict_types=1);` no topo de cada arquivo.
@@ -671,11 +745,10 @@ echo add(5, "3.7"); // 8 — float 3.7 → int 3 (perda de precisão!)
 
 $value = 42;
 
-// Obtém o tipo como string
-echo gettype($value);             // "integer"
-echo get_debug_type($value);      // "int" (PHP 8.0+, mais preciso)
+echo gettype($value);
+echo get_debug_type($value);      // "int" (PHP 8.0+, more precise)
 
-// Verificações booleanas
+// Boolean checks
 var_dump(is_int($value));         // bool(true)
 var_dump(is_float($value));       // bool(false)
 var_dump(is_string($value));      // bool(false)
@@ -683,28 +756,28 @@ var_dump(is_bool($value));        // bool(false)
 var_dump(is_array($value));       // bool(false)
 var_dump(is_object($value));      // bool(false)
 var_dump(is_null($value));        // bool(false)
-var_dump(is_numeric($value));     // bool(true) — é número?
-var_dump(is_scalar($value));      // bool(true) — é escalar?
-var_dump(is_callable($value));    // bool(false)
-var_dump(is_iterable($value));    // bool(false)
-var_dump(isset($value));          // bool(true) — está definida e não é null?
-var_dump(empty($value));          // bool(false) — é falsy?
+var_dump(is_numeric($value));
+var_dump(is_scalar($value));
+var_dump(is_callable($value));
+var_dump(is_iterable($value));
+var_dump(isset($value));
+var_dump(empty($value));
 
 // isset vs empty vs is_null
 $var = null;
-var_dump(isset($var));  // false — variável null é "não setada"
-var_dump(empty($var));  // true  — null é "vazio"
-var_dump(is_null($var));// true  — é null mesmo
+var_dump(isset($var));
+var_dump(empty($var));
+var_dump(is_null($var));
 
 $var = 0;
-var_dump(isset($var));  // true  — está definida
-var_dump(empty($var));  // true  — 0 é "vazio"
-var_dump(is_null($var));// false — não é null
+var_dump(isset($var));
+var_dump(empty($var));
+var_dump(is_null($var));
 
 $var = false;
-var_dump(isset($var));  // true
-var_dump(empty($var));  // true  — false é "vazio"
-var_dump(is_null($var));// false
+var_dump(isset($var));
+var_dump(empty($var));
+var_dump(is_null($var));
 ```
 
 ### `settype()`
@@ -714,10 +787,9 @@ var_dump(is_null($var));// false
 
 $value = "123";
 settype($value, "int");
-echo $value;        // 123
-var_dump($value);   // int(123)
+echo $value;
+var_dump($value);
 
-// Equivalente ao cast explícito:
 $value = (int) "123";
 ```
 
@@ -725,41 +797,52 @@ $value = (int) "123";
 
 ## Arrays — Introdução
 
+Em PHP, array é uma estrutura só que serve pra tudo: lista, dicionário,
+fila, pilha, conjunto. Por baixo é um **ordered map** (hash map ordenado
+por inserção). A distinção entre "indexado" e "associativo" é só o tipo
+da chave — a estrutura é a mesma.
+
 ### Arrays indexados
+
+Chaves são **inteiros sequenciais** começando do 0. Equivalente a listas
+em Python ou arrays em JS:
 
 ```php
 <?php
 
-// Sintaxe moderna (PHP 5.4+)
-$fruits = ['maçã', 'banana', 'laranja', 'uva'];
+$fruits = ['apple', 'banana', 'orange', 'grape'];
+// Internamente é: [0 => 'apple', 1 => 'banana', 2 => 'orange', 3 => 'grape']
 
-// Sintaxe antiga (ainda válida)
-$fruits = array('maçã', 'banana', 'laranja', 'uva');
+echo $fruits[0];        // apple
+echo $fruits[2];        // orange
 
-echo $fruits[0];       // maçã
-echo $fruits[2];       // laranja
-
-$fruits[] = 'morango'; // Adiciona no final
-echo $fruits[4];       // morango
+// Append: PHP acha a maior chave int + 1
+$fruits[] = 'strawberry';  // Vira índice 4
+echo $fruits[4];            // strawberry
 ```
 
 ### Arrays associativos
+
+Chaves são **strings** (ou podem ser mixadas com ints). Equivalente a
+dicts em Python ou objetos em JS usados como map:
 
 ```php
 <?php
 
 $user = [
-    'name'      => 'Ana Carolina',
-    'email'     => 'ana@email.com',
+    'name'      => 'Anna',
+    'email'     => 'anna@example.com',
     'age'       => 28,
     'isAdmin'   => true,
 ];
 
-echo $user['name'];   // Ana Carolina
-echo $user['email'];  // ana@email.com
+echo $user['name'];   // Anna
+echo $user['email'];  // anna@example.com
 ```
 
 ### Arrays multidimensionais
+
+Nada de especial — é só array dentro de array:
 
 ```php
 <?php
@@ -768,17 +851,14 @@ $products = [
     [
         'name'  => 'Notebook',
         'price' => 3500.00,
-        'tags'  => ['eletrônicos', 'informática'],
+        'tags'  => ['electronics', 'computing'],
     ],
     [
         'name'  => 'Mouse',
         'price' => 89.90,
-        'tags'  => ['periféricos'],
+        'tags'  => ['peripherals'],
     ],
 ];
-
-echo $products[0]['name'];         // Notebook
-echo $products[1]['tags'][0];      // periféricos
 ```
 
 Veremos arrays em profundidade em um módulo dedicado mais adiante.
@@ -790,6 +870,10 @@ Veremos arrays em profundidade em um módulo dedicado mais adiante.
 Enums permitem definir um conjunto fixo de valores possíveis.
 
 ### Enum puro (Pure Enum)
+
+Diferente de C ou Java, os cases **não têm valor numérico implícito**. Se você
+não declarar `: int` ou `: string`, cada case é só um objeto singleton com a
+propriedade `->name`. Nada de `0, 1, 2, 3` automático.
 
 ```php
 <?php
@@ -803,13 +887,14 @@ enum OrderStatus
     case Cancelled;
 }
 
-function updateStatus(OrderStatus $status): void
-{
-    echo "Status alterado para: " . $status->name . "\n";
-}
+$status = OrderStatus::Paid;
 
-updateStatus(OrderStatus::Paid);      // Status alterado para: Pago
-updateStatus(OrderStatus::Delivered);  // Status alterado para: Entregue
+echo $status->name;          // "Paid" (string)
+var_dump($status);           // enum(OrderStatus::Paid)
+var_dump(OrderStatus::cases()); // array com os 5 objetos
+
+// $status->value  NÃO EXISTE — é pure enum, não tem backing value
+// (int) $status   NÃO FUNCIONA — não dá pra converter pra int
 ```
 
 ### Backed Enum (com valor)
@@ -829,21 +914,21 @@ enum ShirtSize: string
 
 function selectSize(ShirtSize $size): void
 {
-    echo "Tamanho: " . $size->value . "\n";
+    echo "Size: " . $size->value . "\n";
 }
 
-selectSize(ShirtSize::M); // Tamanho: m
+selectSize(ShirtSize::M);
 
 // A partir de um valor:
 $size = ShirtSize::from('g');
-echo $size->name;  // G
+echo $size->name;
 
-// from() lança ValueError se o valor não existir:
+// from() throws ValueError if value doesn't exist:
 // ShirtSize::from('xxl'); // ValueError
 
-// tryFrom() retorna null se não existir:
+// tryFrom() returns null if not found:
 $attempt = ShirtSize::tryFrom('xxl');
-var_dump($attempt); // NULL
+var_dump($attempt);
 ```
 
 ### Enums com inteiros
@@ -870,42 +955,47 @@ echo ErrorCode::NotFound->value; // 404
 enum PaymentMethod: string
 {
     case CreditCard  = 'credit_card';
-    case BankSlip    = 'boleto';
+    case BankSlip    = 'bank_slip';
     case Pix         = 'pix';
     case Debit       = 'debit_card';
 
     public function label(): string
     {
         return match ($this) {
-            self::CreditCard  => 'Cartão de Crédito',
-            self::BankSlip    => 'Boleto Bancário',
+            self::CreditCard  => 'Credit Card',
+            self::BankSlip    => 'Bank Slip',
             self::Pix         => 'PIX',
-            self::Debit       => 'Cartão de Débito',
+            self::Debit       => 'Debit Card',
         };
     }
 
     public function processingDeadline(): string
     {
         return match ($this) {
-            self::Pix         => 'Instantâneo',
-            self::CreditCard  => 'Até 24h',
-            self::Debit       => 'Até 24h',
-            self::BankSlip    => 'Até 3 dias úteis',
+            self::Pix         => 'Instant',
+            self::CreditCard  => 'Up to 24h',
+            self::Debit       => 'Up to 24h',
+            self::BankSlip    => 'Up to 3 business days',
         };
     }
 }
 
 $method = PaymentMethod::Pix;
-echo $method->label();              // PIX
-echo $method->processingDeadline();  // Instantâneo
+echo $method->label();
+echo $method->processingDeadline();
 
-// Iterar sobre todos os cases:
+// Iterate over all cases:
 foreach (PaymentMethod::cases() as $case) {
     echo "{$case->label()} → {$case->value}\n";
 }
 ```
 
 ### Enum com interface e trait
+
+> 💡 **Trait** é um mixin — código reutilizável injetado com `use`. Não é
+> herança (`instanceof` não funciona), não gera relação de tipo. PHP não
+> tem herança múltipla de classes, então traits são o escape pra
+> compartilhar comportamento horizontalmente.
 
 ```php
 <?php
@@ -920,7 +1010,7 @@ trait DefaultDescription
     public function describe(): string
     {
         return match (true) {
-            $this instanceof OrderStatus => "Pedido {$this->name}",
+            $this instanceof OrderStatus => "Order {$this->name}",
             default => $this->name,
         };
     }
@@ -937,7 +1027,7 @@ enum OrderStatusWithDescription: string implements Describable
 }
 
 $status = OrderStatusWithDescription::Pending;
-echo $status->describe();  // Pedido Pendente
+echo $status->describe();
 ```
 
 ---
@@ -949,42 +1039,38 @@ O PHP converte tipos conforme o contexto:
 ```php
 <?php
 
-// String para int em contexto aritmético
 $result = "10" + 5;
-echo $result;          // 15
-var_dump($result);     // int(15)
+echo $result;
+var_dump($result);
 
-// Int para string em concatenação
 $text = "Total: " . 100;
-echo $text;              // Total: 100
-var_dump($text);         // string(10) "Total: 100"
+echo $text;
+var_dump($text);
 
-// String para float
 $sum = "1.5" + "2.5";
-var_dump($sum);          // float(4)
+var_dump($sum);
 
-// Casts explícitos
-$inteiro   = (int) "42";       // 42
-$float     = (float) "3.14";   // 3.14
-$string    = (string) 100;     // "100"
-$boolean   = (bool) 1;         // true
-$array     = (array) "teste";  // ["teste"]
-$object    = (object) ['a' => 1];
+$integerValue   = (int) "42";
+$floatValue     = (float) "3.14";
+$stringValue    = (string) 100;
+$booleanValue   = (bool) 1;
+$arrayValue     = (array) "test";
+$objectValue    = (object) ['a' => 1];
 ```
 
 ```php
 <?php
-// Tabela de coerção para bool
-var_dump((bool) "");         // false
-var_dump((bool) "0");        // false
-var_dump((bool) "00");       // true (string "00" != "0")
-var_dump((bool) "false");    // true (string não vazia)
-var_dump((bool) []);         // false
-var_dump((bool) [0]);        // true (array não está vazio)
-var_dump((bool) 0);          // false
-var_dump((bool) 0.0);        // false
-var_dump((bool) -1);         // true
-var_dump((bool) null);       // false
+
+var_dump((bool) "");
+var_dump((bool) "0");
+var_dump((bool) "00");
+var_dump((bool) "false");
+var_dump((bool) []);
+var_dump((bool) [0]);
+var_dump((bool) 0);
+var_dump((bool) 0.0);
+var_dump((bool) -1);
+var_dump((bool) null);
 ```
 
 ---
