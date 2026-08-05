@@ -223,32 +223,111 @@ extension=fileinfo
 
 ---
 
-## Estrutura de um projeto PHP simples
+## Estrutura de um projeto PHP
+
+### Antes: o que são PSRs?
+
+O [PHP-FIG](https://www.php-fig.org/) (PHP Framework Interop Group) é um grupo que define **PSRs** (PHP Standards Recommendations): padrões que a comunidade PHP adota para interoperabilidade entre bibliotecas e frameworks. Funciona como as PEPs do Python ou as especificações do ECMAScript.
+
+Os PSRs que importam no dia a dia:
+
+| PSR | Assunto | Resumo |
+|---|---|---|
+| **PSR-1** | Basic Coding Standard | PascalCase em classes, camelCase em métodos, UPPER_SNAKE em constantes |
+| **PSR-4** | Autoloading | Mapeia namespace → diretório. `App\Models\User` ⇢ `src/Models/User.php` |
+| **PSR-12** | Extended Coding Style | 4 espaços, chaves na mesma linha, visibilidade explícita, 120 colunas |
+
+Sem PSR-4 você precisaria de `require` manual pra cada classe. Com ele, o Composer faz o autoload via `vendor/autoload.php`.
+
+### Convenções de nomenclatura no ecossistema PHP
+
+| O que | Padrão | Exemplo | Por quê |
+|---|---|---|---|
+| Classes, interfaces, traits | **PascalCase** | `UserController`, `ProductService`, `OrderRepository` | PSR-1 exige. Mapeia 1:1 com o nome do arquivo via PSR-4 |
+| Métodos e propriedades | **camelCase** | `findById()`, `$this->createdAt`, `$totalPrice` | PSR-1/PHP-FIG. Consistente com Java, C#, JS |
+| Funções PHP built-in | **snake_case** | `file_get_contents()`, `array_key_exists()` | Legado pré-PSR. Não mude — é a cara do PHP |
+| Constantes | **UPPER_SNAKE_CASE** | `MAX_UPLOAD_SIZE`, `DEFAULT_LIMIT` | PSR-1 |
+| Arquivos de classe | **PascalCase.php** | `UserController.php`, `Order.php` | PSR-4: `App\Models\Order` → `src/Models/Order.php` |
+| Arquivos de config/template | **snake_case.php** | `database.php`, `error_handler.php` | Não são classes, então PascalCase não faz sentido |
+| Pastas de namespace (src/) | **PascalCase** | `src/Models/`, `src/Controllers/`, `src/Services/` | PSR-4: cada pasta = um segmento do namespace |
+| Pastas gerais | **lowercase** | `public/`, `config/`, `templates/`, `var/`, `vendor/` | Não mapeiam para namespaces de classe |
+| Raiz do projeto | **kebab-case** | `my-ecommerce-api/`, `blog-engine/` | Segue convenção de pacotes Composer (`vendor/package-name`) |
+| Tabelas SQL | **snake_case** (plural) | `users`, `order_items`, `password_resets` | Convenção SQL. Plural porque uma tabela contém múltiplos registros |
+| Colunas SQL | **snake_case** | `created_at`, `updated_at`, `user_id`, `full_name` | Chave estrangeira: `{tabela}_id` |
+
+### Por que src/Models/ começa com maiúscula e config/ não?
+
+O PSR-4 resolve `App\Models\User` para `src/Models/User.php`. Cada segmento do namespace é uma pasta, e nomes de classe são PascalCase por definição. A estrutura de diretórios **espelha** o namespace:
+
+```php
+// composer.json define:
+// "App\\" => "src/"
+
+// Então:
+use App\Models\User;        // → src/Models/User.php
+use App\Controllers\Auth\LoginController;  // → src/Controllers/Auth/LoginController.php
+use App\Services\Payment\StripeGateway;    // → src/Services/Payment/StripeGateway.php
+```
+
+Pastas como `config/`, `public/`, `templates/` não fazem parte do autoload — elas guardam arquivos de infraestrutura, não classes. Por isso usam lowercase.
+
+### Estrutura típica com nomes compostos
 
 ```
-meu-projeto/
-├── public/            # Ponto de entrada público (document root)
-│   └── index.php      # Front controller
-├── src/               # Código fonte da aplicação
+my-ecommerce/
+├── public/                    # Document root do servidor web
+│   ├── index.php              # Front controller — toda requisição entra aqui
+│   └── assets/                # CSS, JS, imagens (servidos diretamente)
+│       ├── main.css
+│       └── app.js
+├── src/                       # Namespace App\
 │   ├── Models/
+│   │   ├── User.php           # App\Models\User
+│   │   ├── Product.php        # App\Models\Product
+│   │   └── Order.php          # App\Models\Order
 │   ├── Controllers/
-│   └── Services/
-├── config/            # Arquivos de configuração
+│   │   ├── HomeController.php
+│   │   ├── Auth/
+│   │   │   ├── LoginController.php
+│   │   │   └── RegisterController.php
+│   │   └── Admin/
+│   │       └── DashboardController.php
+│   ├── Services/
+│   │   ├── PaymentGateway.php
+│   │   └── EmailSender.php
+│   ├── Repositories/
+│   │   ├── UserRepository.php
+│   │   └── ProductRepository.php
+│   └── Middleware/
+│       ├── AuthMiddleware.php
+│       └── CsrfMiddleware.php
+├── config/
 │   ├── app.php
-│   └── database.php
-├── templates/         # Templates/views (HTML)
+│   ├── database.php
+│   └── mail.php
+├── templates/                 # Views (HTML + PHP)
 │   ├── layout.php
-│   └── home.php
-├── var/               # Arquivos temporários (cache, logs)
+│   ├── home.php
+│   └── admin/
+│       ├── dashboard.php
+│       └── login.php
+├── var/                       # Arquivos gerados (cache, logs, uploads temporários)
 │   ├── cache/
 │   └── log/
-├── vendor/            # Dependências (gerado pelo Composer)
-├── tests/             # Testes automatizados
-├── composer.json      # Configuração do Composer
+├── vendor/                    # Composer — nunca edite manualmente
+├── tests/
+│   ├── Unit/
+│   │   └── Models/
+│   │       └── UserTest.php
+│   └── Feature/
+│       └── Controllers/
+│           └── HomeControllerTest.php
+├── composer.json
+├── composer.lock
 └── .gitignore
 ```
 
-`.gitignore` recomendado:
+`.gitignore` mínimo:
 
 ```
 /vendor/
@@ -257,63 +336,34 @@ meu-projeto/
 .phpunit.result.cache
 ```
 
----
+## Ferramentas de qualidade de código
 
-## Composer — Gerenciador de dependências
+PHP tem seu próprio ecossistema de linting e formatação. Os equivalentes PHP ao que você conhece de outras linguagens:
 
-O [Composer](https://getcomposer.org/) é o gerenciador de pacotes padrão do PHP. Ele resolve e instala dependências, faz autoload de classes e gerencia versões.
+| Ferramenta | Tipo | Equivalente JS | O que faz |
+|---|---|---|---|
+| **[PHP CS Fixer](https://cs.symfony.com/)** | Formatter | Prettier | Corrige código pra PSR-12 (espaços, chaves, imports). Roda `php-cs-fixer fix` e o arquivo fica no padrão |
+| **[PHP_CodeSniffer](https://github.com/squizlabs/PHP_CodeSniffer)** | Linter | ESLint | Detecta violações de PSR-12 sem corrigir. `phpcs --standard=PSR12 src/` |
+| **[PHPStan](https://phpstan.org/)** | Static analysis | TypeScript | Análise de tipos sem rodar o código. Encontra bugs como chamar método inexistente, tipo errado, null pointer |
+| **[Pint](https://laravel.com/docs/pint)** | Formatter | Prettier (wrapper) | Wrapper do PHP CS Fixer com defaults Laravel. Zero config |
 
-### Instalação (Linux/macOS)
-
-```bash
-# Baixa e instala
-php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
-php composer-setup.php
-php -r "unlink('composer-setup.php');"
-sudo mv composer.phar /usr/local/bin/composer
-
-# Verifica
-composer --version
-```
-
-### Uso básico
+Na prática, a combinação comum é:
 
 ```bash
-# Inicia um novo projeto
-composer init
+# Instala global (ou como dev dependency no composer.json)
+composer global require friendsofphp/php-cs-fixer
 
-# Instala uma dependência
-composer require monolog/monolog
+# Formata um diretório inteiro no padrão PSR-12
+php-cs-fixer fix src/ --rules=@PSR12
 
-# Instala dependências de um projeto existente
-composer install
-
-# Atualiza dependências
-composer update
-
-# Autoload
-composer dump-autoload
+# Análise estática (nível progressivo, começa no 1)
+composer require --dev phpstan/phpstan
+vendor/bin/phpstan analyse src/ --level=5
 ```
 
-O arquivo `composer.json` define as dependências do projeto. O `composer.lock` fixa as versões exatas instaladas (deve ser commitado no Git).
+### Integração com PhpStorm
 
-Exemplo mínimo de `composer.json`:
-
-```json
-{
-    "name": "meu-app/php",
-    "description": "Meu projeto PHP",
-    "type": "project",
-    "require": {
-        "php": ">=8.4"
-    },
-    "autoload": {
-        "psr-4": {
-            "App\\": "src/"
-        }
-    }
-}
-```
+PhpStorm tem PHP CS Fixer e PHPStan built-in como inspections. Vai em **Settings → PHP → Quality Tools** e aponta pros binários. O PhpStorm formata em PSR-12 no `Ctrl+Alt+L`.
 
 ---
 
@@ -348,55 +398,7 @@ php -c /caminho/php.ini script.php
 php --help
 ```
 
----
-
-## Convenções importantes (PSR-1 e PSR-12)
-
-O PHP-FIG (PHP Framework Interop Group) define **PSRs** (PHP Standards Recommendations), que são padrões que a comunidade adota.
-
-### PSR-1: Basic Coding Standard
-
-- Arquivos **DEVEM** usar tags `<?php` (a tag curta `<?` não é recomendada)
-- Arquivos só com PHP **NÃO DEVEM** ter a tag de fechamento `?>`
-- Nomes de classes em **PascalCase**: `MinhaClasse`, `BancoDeDados`
-- Constantes de classe em **UPPER_SNAKE_CASE**: `TAXA_JUROS`
-- Nomes de métodos em **camelCase**: `calcularTotal()`
-
-### PSR-12: Extended Coding Style
-
-- Indentação com **4 espaços** (não tabs)
-- Linhas com no máximo **120 caracteres** (de preferência 80)
-- Chave de abertura `{` na **mesma linha** da declaração
-- Uma linha em branco entre métodos
-- `declare(strict_types=1);` seguido de linha em branco
-- Visibilidade (`public`, `protected`, `private`) **sempre explícita**
-
-Exemplo:
-
-```php
-<?php
-
-declare(strict_types=1);
-
-namespace App\Services;
-
-class Calculator
-{
-    private float $rate;
-
-    public function __construct(float $rate)
-    {
-        $this->rate = $rate;
-    }
-
-    public function applyRate(float $value): float
-    {
-        return $value * (1 + $this->rate);
-    }
-}
-```
-
-Para formatar código no padrão PSR-12, use o [PHP CS Fixer](https://cs.symfony.com/) ou o [PHP_CodeSniffer](https://github.com/squizlabs/PHP_CodeSniffer).
+- Para formatar código no padrão PSR-12: [PHP CS Fixer](https://cs.symfony.com/) ou [PHP_CodeSniffer](https://github.com/squizlabs/PHP_CodeSniffer).
 
 ---
 
