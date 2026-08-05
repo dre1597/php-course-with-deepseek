@@ -2,51 +2,47 @@
 
 ## Operadores Aritméticos
 
-Os operadores aritméticos realizam operações matemáticas básicas:
-
 ```php
 <?php
 
 $a = 10;
 $b = 3;
 
-echo $a + $b;   // 13  — Adição
-echo $a - $b;   // 7   — Subtração
-echo $a * $b;   // 30  — Multiplicação
-echo $a / $b;   // 3.3333333333333 — Divisão (sempre retorna float, exceto divisão exata por inteiros)
-echo $a % $b;   // 1   — Módulo (resto da divisão)
-echo $a ** $b;  // 1000 — Exponenciação (PHP 5.6+): 10³
+echo $a + $b;   // 13
+echo $a - $b;   // 7
+echo $a * $b;   // 30
+echo $a / $b;   // 3.3333333333333
+echo $a % $b;   // 1
+echo $a ** $b;  // 1000  (10³, PHP 5.6+)
 ```
 
-### Divisão e módulo em detalhes
+### Divisão e módulo
 
 ```php
 <?php
 
-// Divisão sempre retorna float (exceto se a divisão for inteira exata dentro do range)
-var_dump(10 / 2);   // int(5) — divisão exata
+var_dump(10 / 2);   // int(5) — exact division within int range
 var_dump(10 / 3);   // float(3.3333333333333)
 
-// Módulo com floats (PHP 8.0+ aceita)
-var_dump(10.5 % 2.8);   // 2.1 → 10.5 - (3 * 2.8) = 10.5 - 8.4 = 2.1
-var_dump(fmod(10.5, 2.8)); // 2.1 — função fmod() para compatibilidade
+// float modulo (PHP 8.0+)
+var_dump(10.5 % 2.8);     // 2.1 → 10.5 - (3 * 2.8) = 10.5 - 8.4 = 2.1
+var_dump(fmod(10.5, 2.8)); // 2.1 — fmod() for compatibility
 
-// Exponenciação: $a ** $b (PHP 5.6+)
 echo 2 ** 8;    // 256
 echo 2 ** 0;    // 1
-echo 2 ** -1;   // 0.5 (equivalente a 1/2)
+echo 2 ** -1;   // 0.5 (1/2)
 ```
 
-### Operador de negação e identidade
+### Negação e identidade
 
 ```php
 <?php
 
 $a = 10;
 
-echo -$a;   // -10  — Negação
-echo +$a;   // 10   — Identidade (não altera)
-echo - -$a; // 10   — Dupla negação = valor original
+echo -$a;   // -10  — negation
+echo +$a;   // 10   — identity (no-op)
+echo - -$a; // 10   — double negation = original value
 ```
 
 ---
@@ -56,7 +52,7 @@ echo - -$a; // 10   — Dupla negação = valor original
 ```php
 <?php
 
-$a = 10;     // Atribuição simples
+$a = 10;
 
 $a += 5;     // $a = $a + 5    → 15
 $a -= 3;     // $a = $a - 3    → 12
@@ -64,23 +60,22 @@ $a *= 2;     // $a = $a * 2    → 24
 $a /= 4;     // $a = $a / 4    → 6
 $a %= 4;     // $a = $a % 4    → 2
 $a **= 3;    // $a = $a ** 3   → 8
-$a .= "abc"; // $a = $a . "abc" → "8abc" (concatenação)
+$a .= "abc"; // $a = $a . "abc" → "8abc" (string concatenation)
 ```
 
-### Encadeamento de atribuições
+### Atribuição em cadeia
 
 ```php
 <?php
 
-// Atribuição em cadeia
 $a = $b = $c = 42;
 echo $a; // 42
 echo $b; // 42
 echo $c; // 42
 
-// Cuidado: ordem de avaliação é da direita para a esquerda
+// Right-to-left evaluation
 $i = 1;
-$j = ($i += 5) * 2;  // $i vira 6, $j = 6 * 2 = 12
+$j = ($i += 5) * 2;  // $i becomes 6, $j = 6 * 2 = 12
 echo "i={$i}, j={$j}"; // i=6, j=12
 ```
 
@@ -95,89 +90,80 @@ $a = 5;
 $b = "5";
 $c = 10;
 
-// Igualdade (com coerção de tipo)
-var_dump($a == $b);  // bool(true) — valores iguais após coerção
+var_dump($a == $b);  // bool(true) — loose equality (type coercion)
 var_dump($a == $c);  // bool(false)
 
-// Idêntico (mesmo valor E mesmo tipo)
-var_dump($a === $b); // bool(false) — int(5) !== string("5")
+var_dump($a === $b); // bool(false) — strict equality (same value AND type)
 var_dump($a === 5);  // bool(true)
 
-// Diferente (com coerção)
 var_dump($a != $b);  // bool(false)
-var_dump($a <> $b);  // bool(false) — mesmo que !=, menos comum
+var_dump($a <> $b);  // bool(false) — same as !=, less common
 
-// Não idêntico
-var_dump($a !== $b); // bool(true) — tipos diferentes
+var_dump($a !== $b); // bool(true) — types differ
 var_dump($a !== 5);  // bool(false)
 
-// Menor, maior, menor-ou-igual, maior-ou-igual
 var_dump($a < $c);   // bool(true)
 var_dump($a > $c);   // bool(false)
 var_dump($a <= 5);   // bool(true)
 var_dump($a >= 6);   // bool(false)
 ```
 
-### Tabela de comparação com coerção (`==`)
+### Tabela de coerção do `==`
 
 ```php
 <?php
 
-// Alguns resultados surpreendentes do == (comparação frouxa):
-
 var_dump(0 == "0");          // true
-var_dump(0 == "");           // true  ← cuidado!
-var_dump(0 == "zero");       // false (PHP 8.0+: string não-numérica não é 0)
-var_dump(0 == null);         // true  ← cuidado!
+var_dump(0 == "");           // true
+var_dump(0 == "zero");       // false (PHP 8.0+: non-numeric string ≠ 0)
+var_dump(0 == null);         // true
 var_dump(0 == false);        // true
 var_dump(0 == []);           // false (PHP 8.0+)
 var_dump("0" == false);      // true
 var_dump("0" == null);       // false
-var_dump(null == false);     // true  ← cuidado!
+var_dump(null == false);     // true
 var_dump("" == false);       // true
 var_dump("" == null);        // true
 var_dump([] == false);       // false (PHP 8.0+)
-var_dump([] == null);        // true  ← cuidado!
+var_dump([] == null);        // true
 var_dump([] == 0);           // false (PHP 8.0+)
 var_dump(42 == true);        // true
 var_dump(0 == false);        // true
 var_dump(-1 == true);        // true
 ```
 
-> ⚠️ **Cuidado**: Sempre prefira `===` (comparação estrita) sobre `==`.
-> `==` pode produzir resultados inesperados devido à coerção automática de tipos.
-> A regra prática: use `===` e `!==` como padrão.
+Use `===` and `!==` by default. `==` produces surprising results because of
+PHP's type juggling. The handful of cases where `==` is what you want (comparing
+user input against both `"0"` and `0`, for instance) don't justify making it
+the habit.
 
 ### Operador Spaceship (`<=>`) — PHP 7.0+
 
-Retorna `-1`, `0` ou `1` quando o operando da esquerda é menor, igual ou maior que o da direita:
+Retorna `-1`, `0` ou `1` quando o operando da esquerda é menor, igual ou maior que o da direita.
 
 ```php
 <?php
 
-echo 1 <=> 1;   // 0  — iguais
-echo 1 <=> 2;   // -1 — esquerda menor
-echo 2 <=> 1;   // 1  — esquerda maior
+echo 1 <=> 1;   // 0
+echo 1 <=> 2;   // -1
+echo 2 <=> 1;   // 1
 
-echo "a" <=> "b"; // -1 — comparação de strings (ordem alfabética)
+echo "a" <=> "b"; // -1 (string comparison, alphabetical order)
 echo "b" <=> "a"; // 1
 echo "a" <=> "a"; // 0
 
-// Muito útil em funções de ordenação
 $numbers = [3, 1, 4, 1, 5, 9, 2, 6];
 usort($numbers, fn($a, $b) => $a <=> $b);
 print_r($numbers); // [1, 1, 2, 3, 4, 5, 6, 9]
 
-// Ordenação por múltiplos critérios
 $people = [
-    ['name' => 'Ana',   'age' => 30],
-    ['name' => 'Bob',   'age' => 25],
-    ['name' => 'Carlos','age' => 30],
-    ['name' => 'Diana', 'age' => 25],
+    ['name' => 'Alice',   'age' => 30],
+    ['name' => 'Bob',     'age' => 25],
+    ['name' => 'Charlie', 'age' => 30],
+    ['name' => 'Diana',   'age' => 25],
 ];
 
 usort($people, function(array $a, array $b): int {
-    // Ordena por idade, e dentro da mesma idade por nome
     return $a['age'] <=> $b['age']
         ?: $a['name'] <=> $b['name'];
 });
@@ -185,10 +171,10 @@ usort($people, function(array $a, array $b): int {
 print_r($people);
 /*
 [
-    ['name' => 'Bob',    'age' => 25],
-    ['name' => 'Diana',  'age' => 25],
-    ['name' => 'Ana',    'age' => 30],
-    ['name' => 'Carlos', 'age' => 30],
+    ['name' => 'Bob',     'age' => 25],
+    ['name' => 'Diana',   'age' => 25],
+    ['name' => 'Alice',   'age' => 30],
+    ['name' => 'Charlie', 'age' => 30],
 ]
 */
 ```
@@ -200,90 +186,78 @@ print_r($people);
 ```php
 <?php
 
-$a = true;
-$b = false;
+$active  = true;
+$blocked = false;
 
-// E lógico
-var_dump($a && $b);  // false
-var_dump($a and $b); // false (precedência MAIS BAIXA que &&)
+var_dump($active && $blocked);  // false
+var_dump($active and $blocked); // false (lower precedence than &&)
 
-// OU lógico
-var_dump($a || $b);  // true
-var_dump($a or $b);  // true (precedência MAIS BAIXA que ||)
+var_dump($active || $blocked);  // true
+var_dump($active or $blocked);  // true (lower precedence than ||)
 
-// NÃO lógico
-var_dump(!$a);       // false
-var_dump(!$b);       // true
+var_dump(!$active);             // false
+var_dump(!$blocked);            // true
 
-// XOR (OU exclusivo lógico)
-var_dump($a xor $b); // true  — um true, outro false
-var_dump($a xor true); // false — ambos true
-var_dump(false xor false); // false — ambos false
+var_dump($active xor $blocked);  // true  — one true, one false
+var_dump($active xor true);     // false — both true
+var_dump(false xor false);      // false — both false
 ```
 
-### Diferença de precedência: `&&` vs `and`, `||` vs `or`
+### Precedência: `&&` vs `and`, `||` vs `or`
+
+O "bug" clássico do PHP. `&&` e `||` têm precedência **maior** que `=`.  
+`and` e `or` têm precedência **menor** que `=`. Isso muda tudo:
 
 ```php
 <?php
 
-// && tem precedência MAIOR que = 
+// && binds before =
 $result = true && false;
-var_dump($result); // bool(false) — interpretado como: $result = (true && false)
+var_dump($result); // bool(false) — parsed as $result = (true && false)
 
-// and tem precedência MENOR que =
+// and binds AFTER =
 $result = true and false;
-var_dump($result); // bool(true)! — interpretado como: ($result = true) and false
+var_dump($result); // bool(true)! — parsed as ($result = true) and false
 
-// || vs or — mesmo comportamento de precedência
-$a = false || true;
-var_dump($a); // bool(true) — ($a = (false || true))
+$result = false || true;
+var_dump($result); // bool(true) — $result = (false || true)
 
-$b = false or true;
-var_dump($b); // bool(false) — (($b = false) or true)
+$result = false or true;
+var_dump($result); // bool(false) — ($result = false) or true
 ```
 
-> ⚠️ **Cuidado**: Evite `and` e `or` em expressões. Use sempre `&&` e `||`.
-> A diferença de precedência é uma das maiores fontes de bugs em PHP.
+Prefira sempre `&&` e `||`. `and` e `or` são rasteira certa.
 
-### Curto-circuito (short-circuit evaluation)
+### Curto-circuito
 
 ```php
 <?php
 
-// Com &&: se o primeiro operando é false, o segundo NÃO é avaliado
-function a(): bool { echo "A "; return false; }
-function b(): bool { echo "B "; return true; }
+function checkA(): bool { echo "A "; return false; }
+function checkB(): bool { echo "B "; return true; }
 
-$result = a() && b(); // Exibe apenas "A " — b() nunca é chamada
+$result = checkA() && checkB(); // prints "A " — checkB() never runs
 echo $result ? 'true' : 'false'; // false
 
 echo "\n";
 
-// Com ||: se o primeiro operando é true, o segundo NÃO é avaliado
-$result = b() || a(); // Exibe apenas "B " — a() nunca é chamada
+$result = checkB() || checkA(); // prints "B " — checkA() never runs
 echo $result ? 'true' : 'false'; // true
 ```
-
-### Aproveitando curto-circuito
 
 ```php
 <?php
 
-// Padrão comum: só executa se a variável estiver definida
+// Safe access via short-circuit
 $config = null;
 $dbHost = $config && $config['db'] && $config['db']['host'];
-// Nunca dá erro de array access em null, porque para no primeiro false
+// Never throws, stops at the first false
 
-// Checagem de arquivo antes de incluir
 $file = 'config.php';
 $loaded = file_exists($file) && require $file;
 
-// Usar valor padrão
-$name = $_GET['name'] ?? 'Visitante'; // Null coalescing (melhor)
-// Antigo:
-$name = isset($_GET['name']) ? $_GET['name'] : 'Visitante';
-// Ou com ||
-$name = $_GET['name'] or $name = 'Visitante'; // Funciona pelo curto-circuito, mas não claro
+// For defaults, prefer ?? over short-circuit
+$name = $_GET['name'] ?? 'Guest';
 ```
 
 ---
@@ -293,66 +267,55 @@ $name = $_GET['name'] or $name = 'Visitante'; // Funciona pelo curto-circuito, m
 ```php
 <?php
 
-$a = 5;
+$count = 5;
 
-// Pré-incremento: incrementa ANTES de retornar
-echo ++$a;   // 6 — $a é incrementado, depois retornado
-echo $a;     // 6
+echo ++$count;   // 6 — pre-increment
+echo $count;     // 6
 
-// Pós-incremento: retorna ANTES de incrementar
-echo $a++;   // 6 — retorna o valor atual, depois incrementa
-echo $a;     // 7
+echo $count++;   // 6 — post-increment
+echo $count;     // 7
 
-// Pré-decremento
-echo --$a;   // 6
-
-// Pós-decremento
-echo $a--;   // 6
-echo $a;     // 5
+echo --$count;   // 6
+echo $count--;   // 6
+echo $count;     // 5
 ```
 
 ```php
 <?php
 
-// Exemplo prático com loops
 $i = 0;
 while ($i++ < 5) {
-    echo "Loop pós-incremento: {$i}\n";
+    echo "post-increment: {$i}\n";
 }
-// Loop pós-incremento: 1
-// Loop pós-incremento: 2
-// ...até 5
+// 1, 2, 3, 4, 5
 
 $i = 0;
 while (++$i < 5) {
-    echo "Loop pré-incremento: {$i}\n";
+    echo "pre-increment: {$i}\n";
 }
-// Loop pré-incremento: 1
-// ...até 4 (porque ++$i vira 5, e 5 < 5 é false)
+// 1, 2, 3, 4 (++$i becomes 5, 5 < 5 is false)
 ```
 
-### Incremento com caracteres
+### Incremento de strings
 
 ```php
 <?php
 
-$letra = 'A';
-echo ++$letra; // B
-echo ++$letra; // C
-echo ++$letra; // D
+$char = 'A';
+echo ++$char; // B
+echo ++$char; // C
+echo ++$char; // D
 
-// Vai até Z e continua
-$letra = 'Z';
-echo ++$letra; // AA
-echo ++$letra; // AB
+$char = 'Z';
+echo ++$char; // AA
+echo ++$char; // AB
 
-// Funciona com múltiplos caracteres
-$letra = 'A99';
-echo ++$letra; // B00
+$char = 'A99';
+echo ++$char; // B00
 ```
 
-> ⚠️ **Cuidado**: Decremento com caracteres (`$letra--`) **não funciona**.
-> Só o incremento funciona com strings.
+Decremento em string (`$char--`) **não funciona** no PHP — só incremento.
+Comparável ao `++` do Perl, mas sem `--`.
 
 ---
 
@@ -363,16 +326,15 @@ echo ++$letra; // B00
 ```php
 <?php
 
-$firstName  = "Maria";
-$lastName   = "Silva";
+$firstName = "Maria";
+$lastName  = "Silva";
 
 $fullName = $firstName . " " . $lastName;
 echo $fullName; // Maria Silva
 
-// Concatenação com outros tipos
-echo "Idade: " . 30;              // Idade: 30
-echo "Preço: R$ " . 19.99;        // Preço: R$ 19.99
-echo "Ativo: " . var_export(true); // Ativo: true
+echo "Age: " . 30;                // Age: 30
+echo "Price: $ " . 19.99;         // Price: $ 19.99
+echo "Active: " . var_export(true); // Active: true
 ```
 
 ### Concatenação com atribuição (`.=`)
@@ -399,19 +361,19 @@ echo $html;
 ```php
 <?php
 
-// Construindo SQL de forma dinâmica (com cuidado!)
-$table  = "usuarios";
-$columns = ['nome', 'email', 'idade'];
+$table   = "users";
+$columns = ['name', 'email', 'age'];
 $sql = "SELECT " . implode(', ', $columns) . " FROM {$table}";
-$sql .= " WHERE ativo = 1";
-$sql .= " ORDER BY nome ASC";
+$sql .= " WHERE active = 1";
+$sql .= " ORDER BY name ASC";
 $sql .= " LIMIT 10";
 
 echo $sql;
-// SELECT nome, email, idade FROM usuarios WHERE ativo = 1 ORDER BY nome ASC LIMIT 10
-
-// ⚠️ Para queries reais, use prepared statements com PDO, NUNCA concatene input do usuário!
+// SELECT name, email, age FROM users WHERE active = 1 ORDER BY name ASC LIMIT 10
 ```
+
+O exemplo acima é só concatenação. Para queries reais: prepared statements, sempre.
+Nunca concatene input de usuário direto no SQL.
 
 ---
 
@@ -420,23 +382,22 @@ echo $sql;
 ```php
 <?php
 
-// Sintaxe: condição ? valor_se_verdadeiro : valor_se_falso
 $age = 20;
-$status = $age >= 18 ? "Maior de idade" : "Menor de idade";
-echo $status; // Maior de idade
+$status = $age >= 18 ? "Adult" : "Minor";
+echo $status; // Adult
 ```
 
-### Ternário aninhado (evite)
+### Ternário aninhado — evite
 
 ```php
 <?php
 
 $grade = 7.5;
 
-// Funciona, mas é ilegível — EVITE!
+// Works, but unreadable
 $concept = $grade >= 9 ? 'A' : ($grade >= 7 ? 'B' : ($grade >= 5 ? 'C' : 'D'));
 
-// Melhor: use match (PHP 8.0+)
+// Better: use match (PHP 8.0+)
 $concept = match (true) {
     $grade >= 9 => 'A',
     $grade >= 7 => 'B',
@@ -447,24 +408,22 @@ $concept = match (true) {
 echo $concept; // B
 ```
 
-### Ternário curto (Elvis operator — PHP 5.3+)
+### Elvis operator (`?:`) — PHP 5.3+
 
 ```php
 <?php
 
-// Se o primeiro operando for truthy, usa ele; senão, usa o segundo
-$name = $_GET['name'] ?: 'Visitante';
+// If the first operand is truthy, use it; otherwise, use the second
+$name = $_GET['name'] ?: 'Guest';
+// Roughly equivalent to:
+$name = $_GET['name'] ? $_GET['name'] : 'Guest';
 
-// Equivalente a (mas não exatamente igual):
-$name = $_GET['name'] ? $_GET['name'] : 'Visitante';
-
-// Exemplo com valores falsy
 $counter = 0;
 $result = $counter ?: 10;
-echo $result; // 10 — porque 0 é falsy
-
-// Cuidado: se 0 for um valor válido, use null coalescing em vez disso
+echo $result; // 10 — 0 is falsy
 ```
+
+Se `0` for um valor válido na sua lógica, use `??` em vez de `?:`.
 
 ---
 
@@ -473,82 +432,69 @@ echo $result; // 10 — porque 0 é falsy
 ```php
 <?php
 
-// Retorna o primeiro operando definido e não-null
-$name = $_GET['name'] ?? 'Visitante';
-// Se $_GET['name'] existe e não é null, usa ele; senão, 'Visitante'
+$name = $_GET['name'] ?? 'Guest';
+// Uses $_GET['name'] if set and not null; otherwise 'Guest'
 
-// Útil com arrays, objetos e valores que podem ser null
 $config = ['db_host' => 'localhost', 'db_port' => null];
 
 $host = $config['db_host'] ?? '127.0.0.1';
-echo $host; // localhost — existe e não é null
+echo $host; // localhost — exists and not null
 
 $port = $config['db_port'] ?? 3306;
-echo $port; // 3306 — existe mas é null, então usa o default
+echo $port; // 3306 — exists but is null, uses default
 
 $user = $config['db_user'] ?? 'root';
-echo $user; // root — não existe, então usa o default
+echo $user; // root — key doesn't exist, uses default
 ```
 
-### Encadeamento de `??`
+### Encadeamento
 
 ```php
 <?php
 
-// PHP 7.4+: encadeia múltiplos ?? para testar várias fontes
-$name = $_GET['name'] ?? $_POST['name'] ?? $_COOKIE['name'] ?? 'Anônimo';
-
-// Testa $_GET['name'], depois $_POST['name'], depois $_COOKIE['name'],
-// e finalmente usa 'Anônimo'
+// PHP 7.4+: chain multiple ?? to try multiple sources
+$name = $_GET['name'] ?? $_POST['name'] ?? $_COOKIE['name'] ?? 'Anonymous';
 ```
 
-### `??=` (Null coalescing assignment) — PHP 7.4+
+### `??=` (null coalescing assignment) — PHP 7.4+
 
 ```php
 <?php
 
-// Atribui apenas se a variável for null ou não estiver definida
-$name = 'João';
-$name ??= 'Visitante';
-echo $name; // João — já tinha valor, não altera
+$name = 'John';
+$name ??= 'Guest';
+echo $name; // John — already has a value
 
 unset($name);
-$name ??= 'Visitante';
-echo $name; // Visitante — não estava definida
+$name ??= 'Guest';
+echo $name; // Guest — was undefined
 
 $config = [];
 $config['host'] ??= 'localhost';
 echo $config['host']; // localhost
 ```
 
-### Diferença entre `??` e `?:` e ternário
+### `??` vs `?:` vs ternário
 
 ```php
 <?php
 
 $value = 0;
 
-// Elvis (?:) — verifica truthiness: 0 é falsy, então usa 'padrão'
-echo $value ?: 'padrão'; // padrão
-
-// Null coalescing (??) — verifica apenas isset + não-null: 0 está definido e não é null
-echo $value ?? 'padrão'; // 0
-
-// Ternário tradicional
-echo $value ? $value : 'padrão'; // padrão — mesmo comportamento do elvis
+echo $value ?: 'default';   // default  (?: checks truthiness: 0 is falsy)
+echo $value ?? 'default';   // 0        (?? checks isset + not-null only)
+echo $value ? $value : 'default'; // default
 ```
 
-| Operador      | PHP   | Verifica               | Exemplo `$x = 0`     | Exemplo `$x = null`  |
-|---------------|-------|------------------------|----------------------|----------------------|
-| `?:` (Elvis)  | 5.3+  | Truthy/falsy           | `'padrão'`           | `'padrão'`           |
-| `??`          | 7.0+  | isset + não-null       | `0`                  | `'padrão'`           |
-| `??=`         | 7.4+  | isset + não-null       | Não altera           | Atribui              |
+| Operator      | PHP   | Checks                | `$x = 0`   | `$x = null` |
+|---------------|-------|------------------------|-----------|-------------|
+| `?:` (Elvis)  | 5.3+  | truthy/falsy           | `'default'` | `'default'`  |
+| `??`          | 7.0+  | isset + not-null       | `0`       | `'default'`  |
+| `??=`         | 7.4+  | isset + not-null       | no-op     | assigns     |
 
 ---
 
 ## Nullsafe Operator (`?->`) — PHP 8.0+
-
-Permite acessar propriedades e métodos de objetos que podem ser `null` sem verificação manual:
 
 ```php
 <?php
@@ -572,40 +518,38 @@ class City
 class State
 {
     public function __construct(
-        public string $stateCode,
+        public string $code,
     ) {}
 }
 
 $address = new Address(
-    'Rua das Flores',
+    'Flower Street',
     new City('São Paulo', new State('SP'))
 );
 
-// Sem nullsafe (verificação manual):
+// Manual null check
 $code = null;
 if ($address->city !== null && $address->city->state !== null) {
-    $code = $address->city->state->stateCode;
+    $code = $address->city->state->code;
 }
 
-// Com nullsafe:
-$code = $address->city?->state?->stateCode;
+// Nullsafe
+$code = $address->city?->state?->code;
 echo $code; // SP
 
-// Se qualquer parte da cadeia for null, o resultado é null
-$addressWithoutCity = new Address('Av. Central', null);
-$code = $addressWithoutCity->city?->state?->stateCode;
-var_dump($code); // NULL — não lança erro!
+$addressWithoutCity = new Address('Central Ave', null);
+$code = $addressWithoutCity->city?->state?->code;
+var_dump($code); // NULL — no error thrown
 ```
 
 ```php
 <?php
 
-// Nullsafe com métodos
 class User
 {
     public function getProfile(): ?Profile
     {
-        return null; // Simulando: usuário sem perfil
+        return null;
     }
 }
 
@@ -619,12 +563,12 @@ class Profile
 
 $user = new User();
 
-// Sem nullsafe
+// Without nullsafe
 $avatar = $user->getProfile() !== null
     ? $user->getProfile()->getAvatar()
     : '/images/default.jpg';
 
-// Com nullsafe + null coalescing
+// With nullsafe + ??
 $avatar = $user->getProfile()?->getAvatar() ?? '/images/default.jpg';
 echo $avatar; // /images/default.jpg
 ```
@@ -633,53 +577,54 @@ echo $avatar; // /images/default.jpg
 
 ## Operador Pipe (`|>`) — PHP 8.5+
 
-> 🆕 **PHP 8.5+**: O operador pipe (`|>`) permite encadear chamadas de função
-> passando o resultado da expressão anterior como argumento.
+O pipe passa o valor da esquerda como argumento pra um **callable** na direita.
+Dois formatos de callable no lado direito:
+
+- **Função de 1 parâmetro**: use `nomeFuncao(...)` (first-class callable).
+- **Função com múltiplos parâmetros**: envolva numa closure.
+
+Arrow functions **precisam** de parênteses quando usadas com `|>`, ou dá erro
+de sintaxe.
 
 ```php
 <?php
 // PHP 8.5+
 
-// Sem pipe: código aninhado de difícil leitura
+// Without pipe: nested, hard to follow
 $result = array_reverse(array_unique(array_map('strtoupper', $words)));
 
-// Com pipe: fluxo linear e legível
+// With pipe: closures for multi-arg functions
 $result = $words
-    |> array_map('strtoupper', $$)
-    |> array_unique($$)
-    |> array_reverse($$);
-
-// $$ é a "placeholder variable" que recebe o valor do pipe anterior
+    |> (fn($arr) => array_map(strtoupper(...), $arr))
+    |> (fn($arr) => array_unique($arr))
+    |> (fn($arr) => array_reverse($arr));
 ```
-
-### Exemplos detalhados com pipe
 
 ```php
 <?php
 // PHP 8.5+
 
-// Processamento de dados com pipe
-$data = "  Maria Silva,28,São Paulo\n João Santos,35,Rio de Janeiro\n  Ana Costa,22,Belo Horizonte  ";
+$data = "  Alice,28,New York\n Bob,35,Chicago\n  Charlie,22,Boston  ";
 
 $users = $data
-    |> trim($$)                          // Remove espaços das bordas
-    |> explode("\n", $$)                 // Divide em linhas
-    |> array_map('trim', $$)             // Limpa cada linha
-    |> array_filter($$, 'strlen')        // Remove linhas vazias
-    |> array_map(                        // Transforma cada linha em array associativo
+    |> trim(...)                                          // 1-arg → first-class callable
+    |> (fn($str) => explode("\n", $str))                  // 2-arg → closure
+    |> (fn($lines) => array_map(trim(...), $lines))
+    |> (fn($lines) => array_filter($lines, strlen(...)))
+    |> (fn($lines) => array_map(
         fn(string $line): array => (
             sscanf($line, '%[^,],%d,%s')
-            |> ['name' => $$[0], 'age' => $$[1], 'city' => $$[2]]
+            |> (fn($parts) => ['name' => $parts[0], 'age' => $parts[1], 'city' => $parts[2]])
         ),
-        $$,
-    );
+        $lines,
+    ));
 
 print_r($users);
 /*
 [
-    ['name' => 'Maria Silva', 'age' => 28, 'city' => 'São Paulo'],
-    ['name' => 'João Santos', 'age' => 35, 'city' => 'Rio de Janeiro'],
-    ['name' => 'Ana Costa', 'age' => 22, 'city' => 'Belo Horizonte'],
+    ['name' => 'Alice',   'age' => 28, 'city' => 'New York'],
+    ['name' => 'Bob',     'age' => 35, 'city' => 'Chicago'],
+    ['name' => 'Charlie', 'age' => 22, 'city' => 'Boston'],
 ]
 */
 ```
@@ -688,7 +633,6 @@ print_r($users);
 <?php
 // PHP 8.5+
 
-// Pipe com operações matemáticas
 function addTax(float $value, float $rate = 0.1): float
 {
     return $value * (1 + $rate);
@@ -701,30 +645,29 @@ function applyDiscount(float $value, float $discount): float
 
 function formatCurrency(float $value): string
 {
-    return 'R$ ' . number_format($value, 2, ',', '.');
+    return '$' . number_format($value, 2);
 }
 
 $basePrice = 100.00;
 
 $finalPrice = $basePrice
-    |> addTax($$, 0.15)          // R$ 115.00
-    |> addTax($$, 0.05)          // R$ 120.75 (imposto adicional)
-    |> applyDiscount($$, 0.10)   // R$ 108.675
-    |> round($$, 2)              // R$ 108.68
-    |> formatCurrency($$);       // "R$ 108,68"
+    |> (fn($v) => addTax($v, 0.15))
+    |> (fn($v) => addTax($v, 0.05))
+    |> (fn($v) => applyDiscount($v, 0.10))
+    |> round(...)
+    |> formatCurrency(...);
 
-echo $finalPrice; // R$ 108,68
+echo $finalPrice; // $108.68
 ```
 
 ```php
 <?php
 // PHP 8.5+
 
-// Pipe em pipelines de validação/transformação
 function validateEmail(string $email): string
 {
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        throw new \InvalidArgumentException("Email inválido: {$email}");
+        throw new \InvalidArgumentException("Invalid email: {$email}");
     }
     return $email;
 }
@@ -739,25 +682,19 @@ function sanitize(string $value): string
     return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
 }
 
-// Pipeline de processamento de input do usuário
-$input = ' Joao@Exemplo.COM ';
+$input = ' John@Example.COM ';
 
 try {
     $cleanEmail = $input
-        |> sanitize($$)
-        |> normalizeEmail($$)
-        |> validateEmail($$);
+        |> sanitize(...)
+        |> normalizeEmail(...)
+        |> validateEmail(...);
 
-    echo "Email processado: {$cleanEmail}"; // Email processado: joao@exemplo.com
+    echo "Processed email: {$cleanEmail}"; // Processed email: john@example.com
 } catch (\InvalidArgumentException $e) {
-    echo "Erro: " . $e->getMessage();
+    echo "Error: " . $e->getMessage();
 }
 ```
-
-> 💡 **Dica**: O operador pipe é uma das maiores novidades do PHP 8.5.
-> Ele elimina callbacks muito aninhados e torna pipelines de
-> processamento de dados muito mais legíveis, similar ao operador `|>`
-> do Elixir, F#, ou à proposta TC39 do JavaScript.
 
 ---
 
@@ -775,30 +712,27 @@ $defaults = [
 ];
 
 $userConfig = [
-    'host'     => 'db.producao.com',
+    'host'     => 'db.production.com',
     'username' => 'admin',
 ];
 
-// União: mantém os valores do array da ESQUERDA quando há chaves duplicadas
+// Union: left-side keys take priority for duplicates
 $config = $userConfig + $defaults;
 
 print_r($config);
 /*
 [
-    'host'     => 'db.producao.com',  // do $userConfig (esquerda tem prioridade)
-    'username' => 'admin',             // do $userConfig
-    'port'     => 3306,                // do $defaults (não existia no $userConfig)
-    'charset'  => 'utf8mb4',           // do $padrao
+    'host'     => 'db.production.com',  // from $userConfig (left side wins)
+    'username' => 'admin',              // from $userConfig
+    'port'     => 3306,                 // from $defaults (not in $userConfig)
+    'charset'  => 'utf8mb4',            // from $defaults
 ]
 */
 ```
 
-> ⚠️ **Cuidado**: Não confunda `+` com `array_merge()`:
-> - `$a + $b`: chaves de `$a` têm prioridade
-> - `array_merge($a, $b)`: chaves de `$b` sobrescrevem `$a` (para chaves string)
->
-> Para arrays indexados, `array_merge()` reindexa e concatena; `+` ignora
-> índices já existentes na esquerda.
+Não confunda `+` com `array_merge()`:
+- `$a + $b`: chaves de `$a` têm prioridade
+- `array_merge($a, $b)`: chaves string de `$b` sobrescrevem `$a`
 
 ```php
 <?php
@@ -806,8 +740,8 @@ print_r($config);
 $a = [1, 2, 3];
 $b = [4, 5, 6, 7];
 
-print_r($a + $b);        // [1, 2, 3, 7] — índices 0,1,2 já existem em $a
-print_r(array_merge($a, $b)); // [1, 2, 3, 4, 5, 6, 7] — concatena tudo
+print_r($a + $b);            // [1, 2, 3, 7] — indices 0,1,2 already in $a
+print_r(array_merge($a, $b)); // [1, 2, 3, 4, 5, 6, 7] — concatenates everything
 ```
 
 ### Comparação de arrays
@@ -815,13 +749,13 @@ print_r(array_merge($a, $b)); // [1, 2, 3, 4, 5, 6, 7] — concatena tudo
 ```php
 <?php
 
-$a = ['maçã', 'banana'];
-$b = [0 => 'maçã', 1 => 'banana'];
-$c = ['banana', 'maçã'];
+$a = ['apple', 'banana'];
+$b = [0 => 'apple', 1 => 'banana'];
+$c = ['banana', 'apple'];
 
-var_dump($a == $b);   // true — mesmos pares chave/valor
-var_dump($a === $b);  // true — mesma ordem e mesmo tipo
-var_dump($a == $c);   // false — valores diferentes nas posições
+var_dump($a == $b);   // true — same key/value pairs
+var_dump($a === $b);  // true — same order and types
+var_dump($a == $c);   // false — different values at positions
 var_dump($a != $c);   // true
 ```
 
@@ -835,66 +769,45 @@ var_dump($a != $c);   // true
 $a = 0b1100;  // 12
 $b = 0b1010;  // 10
 
-// E bit a bit: ambos os bits precisam ser 1
 printf("%b\n", $a & $b);   // 1000 → 8
-
-// OU bit a bit: pelo menos um bit precisa ser 1
 printf("%b\n", $a | $b);   // 1110 → 14
-
-// XOR bit a bit: bits diferentes = 1
 printf("%b\n", $a ^ $b);   // 0110 → 6
-
-// NÃO bit a bit: inverte todos os bits (cuidado com o sinal)
-printf("%b\n", ~$a);       // ...11110011 → -13
-
-// Deslocamento à esquerda
-printf("%b\n", $a << 1);   // 11000 → 24 (multiplica por 2)
-printf("%b\n", $a << 2);   // 110000 → 48 (multiplica por 4)
-
-// Deslocamento à direita
-printf("%b\n", $a >> 1);   // 110 → 6 (divide por 2)
-printf("%b\n", $a >> 2);   // 11 → 3 (divide por 4)
+printf("%b\n", ~$a);       // ...11110011 → -13 (watch sign)
+printf("%b\n", $a << 1);   // 11000 → 24 (multiply by 2)
+printf("%b\n", $a << 2);   // 110000 → 48 (multiply by 4)
+printf("%b\n", $a >> 1);   // 110 → 6 (divide by 2)
+printf("%b\n", $a >> 2);   // 11 → 3 (divide by 4)
 ```
 
-### Aplicações práticas de bitwise
+### Permission flags (padrão comum)
 
 ```php
 <?php
 
-// Flags de permissão como bits (padrão comum)
 const CAN_READ    = 1;    // 0b0001
 const CAN_WRITE   = 2;    // 0b0010
 const CAN_DELETE  = 4;    // 0b0100
 const CAN_ADMIN   = 8;    // 0b1000
 
-// Combinando permissões
-$userPermissions = CAN_READ | CAN_WRITE; // 3 (0b0011)
-$adminPermissions = CAN_READ | CAN_WRITE | CAN_DELETE | CAN_ADMIN; // 15 (0b1111)
+$userPermissions  = CAN_READ | CAN_WRITE;                             // 3 (0b0011)
+$adminPermissions = CAN_READ | CAN_WRITE | CAN_DELETE | CAN_ADMIN;    // 15 (0b1111)
 
-// Verificando permissões
 if ($userPermissions & CAN_WRITE) {
-    echo "Usuário pode escrever\n";
+    echo "User can write\n";
 }
 
 if (!($userPermissions & CAN_DELETE)) {
-    echo "Usuário NÃO pode deletar\n";
+    echo "User cannot delete\n";
 }
 
-// Adicionando permissão
-$userPermissions |= CAN_DELETE; // Agora tem permissão de deletar
-
-// Removendo permissão
-$userPermissions &= ~CAN_DELETE; // Remove permissão de deletar
-
-// Toggle (liga/desliga)
-$userPermissions ^= CAN_WRITE; // Se tinha, remove; se não tinha, adiciona
+$userPermissions |= CAN_DELETE;   // add
+$userPermissions &= ~CAN_DELETE;  // remove
+$userPermissions ^= CAN_WRITE;    // toggle (flip on/off)
 ```
 
 ---
 
 ## Operador `instanceof`
-
-Verifica se uma variável é instância de uma classe, subclasse ou implementa uma interface:
 
 ```php
 <?php
@@ -906,35 +819,33 @@ interface CanFly {}
 $dog = new Dog();
 
 var_dump($dog instanceof Dog);     // true
-var_dump($dog instanceof Animal);  // true — é subclasse
-var_dump($dog instanceof CanFly);  // false — não implementa a interface
+var_dump($dog instanceof Animal);  // true — subclass
+var_dump($dog instanceof CanFly);  // false — doesn't implement it
 
-// Com strings (PHP 8.0+ permite instanceof com string):
+// PHP 8.0+ accepts class name as string
 $class = 'Dog';
 var_dump($dog instanceof $class); // true
 
-// Com variáveis soltas
 $value = 42;
 var_dump($value instanceof \DateTime); // false
-
-// Com null (sempre retorna false)
 $null = null;
-var_dump($null instanceof \DateTime); // false
+var_dump($null instanceof \DateTime);  // false
 ```
 
 ---
 
-## 📚 Precedência de operadores (tabela resumida)
+## Tabela de precedência
 
-Da mais alta para a mais baixa precedência:
+Da maior para a menor precedência. Na dúvida, **use parênteses** — explícito
+é melhor que memorizado.
 
 | Precedência | Operadores                                           |
 |-------------|------------------------------------------------------|
 | 1           | `clone`, `new`                                       |
-| 2           | `**` (exponenciação)                                 |
+| 2           | `**`                                                 |
 | 3           | `++`, `--`, `~`, `(int)`, `(float)`, `(string)`, etc |
 | 4           | `instanceof`                                         |
-| 5           | `!` (negação lógica)                                 |
+| 5           | `!`                                                  |
 | 6           | `*`, `/`, `%`                                        |
 | 7           | `+`, `-`, `.`                                        |
 | 8           | `<<`, `>>`                                           |
@@ -943,46 +854,42 @@ Da mais alta para a mais baixa precedência:
 | 11          | `&` (bitwise AND)                                    |
 | 12          | `^` (bitwise XOR)                                    |
 | 13          | `\|` (bitwise OR)                                    |
-| 14          | `&&` (AND lógico)                                    |
-| 15          | `\|\|` (OR lógico)                                   |
-| 16          | `??` (null coalescing)                               |
-| 17          | `?:` (ternário)                                      |
+| 14          | `&&`                                                 |
+| 15          | `\|\|`                                               |
+| 16          | `??`                                                 |
+| 17          | `?:`                                                 |
 | 18          | `=`, `+=`, `-=`, `.=`, `??=`, etc                    |
 | 19          | `and`                                                |
 | 20          | `xor`                                                |
 | 21          | `or`                                                 |
 | 22          | `\|>` (pipe, PHP 8.5+)                               |
 
-> 💡 **Dica**: Na dúvida sobre precedência, **use parênteses**. Código explícito
-> é melhor que código que depende de memorização da tabela de precedência.
-
 ```php
 <?php
 
-// Exemplo onde parênteses salvam
-$result = true ? 'sim' : 'não' . ' obrigado';
-echo $result; // "sim" — o ternário tem precedência menor que concatenação?
+// Sem parênteses: surpresa garantida
+$result = true ? 'yes' : 'no' . ' thanks';
+echo $result; // "yes" — ternary has lower precedence than concatenation
 
-// Com parênteses fica claro
-$result = (true ? 'sim' : 'não') . ' obrigado';
-echo $result; // "sim obrigado"
+// Com parênteses
+$result = (true ? 'yes' : 'no') . ' thanks';
+echo $result; // "yes thanks"
 ```
 
 ---
 
 ## 📚 Referências
 
-- **Operadores aritméticos**: [php.net/manual/pt_BR/language.operators.arithmetic.php](https://www.php.net/manual/pt_BR/language.operators.arithmetic.php)
-- **Operadores de comparação**: [php.net/manual/pt_BR/language.operators.comparison.php](https://www.php.net/manual/pt_BR/language.operators.comparison.php)
-- **Operadores lógicos**: [php.net/manual/pt_BR/language.operators.logical.php](https://www.php.net/manual/pt_BR/language.operators.logical.php)
-- **Operadores de string**: [php.net/manual/pt_BR/language.operators.string.php](https://www.php.net/manual/pt_BR/language.operators.string.php)
-- **Operadores de array**: [php.net/manual/pt_BR/language.operators.array.php](https://www.php.net/manual/pt_BR/language.operators.array.php)
-- **Operadores bitwise**: [php.net/manual/pt_BR/language.operators.bitwise.php](https://www.php.net/manual/pt_BR/language.operators.bitwise.php)
-- **Precedência de operadores**: [php.net/manual/pt_BR/language.operators.precedence.php](https://www.php.net/manual/pt_BR/language.operators.precedence.php)
-- **Null coalescing**: [php.net/manual/pt_BR/migration70.new-features.php](https://www.php.net/manual/pt_BR/migration70.new-features.php#migration70.new-features.null-coalesce-op)
-- **Nullsafe operator**: [php.net/manual/pt_BR/migration80.new-features.php](https://www.php.net/manual/pt_BR/migration80.new-features.php#migration80.new-features.nullsafe-operator)
-- **PHP 8.5 Changelog**: [php.net/ChangeLog-8.php#PHP_8_5](https://www.php.net/ChangeLog-8.php#PHP_8_5)
-- **RFC Pipe Operator**: [wiki.php.net/rfc/pipe-operator-v2](https://wiki.php.net/rfc/pipe-operator-v2)
+- [Operadores aritméticos](https://www.php.net/manual/en/language.operators.arithmetic.php)
+- [Operadores de comparação](https://www.php.net/manual/en/language.operators.comparison.php)
+- [Operadores lógicos](https://www.php.net/manual/en/language.operators.logical.php)
+- [Operadores de string](https://www.php.net/manual/en/language.operators.string.php)
+- [Operadores de array](https://www.php.net/manual/en/language.operators.array.php)
+- [Operadores bitwise](https://www.php.net/manual/en/language.operators.bitwise.php)
+- [Precedência de operadores](https://www.php.net/manual/en/language.operators.precedence.php)
+- [Null coalescing (PHP 7.0)](https://www.php.net/manual/en/migration70.new-features.php#migration70.new-features.null-coalesce-op)
+- [Nullsafe operator (PHP 8.0)](https://www.php.net/manual/en/migration80.new-features.php#migration80.new-features.nullsafe-operator)
+- [Pipe Operator](https://www.php.net/manual/en/language.operators.functional.php)
 
 ---
 
