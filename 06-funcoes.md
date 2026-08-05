@@ -22,20 +22,20 @@
 
 ## Declaração de Funções
 
-Em PHP, funções são declaradas com a palavra-chave `function`, seguida do nome da função, parênteses e corpo entre chaves. O nome da função deve começar com uma letra ou underscore, e não pode conter espaços.
+Funções são declaradas com `function`. O nome deve começar com letra ou underscore, sem espaços.
 
 ```php
 <?php
 
 function greet(): void
 {
-    echo "Olá, mundo!";
+    echo "Hello, world!";
 }
 
-greet(); // Olá, mundo!
+greet(); // Hello, world!
 ```
 
-A partir do PHP 8.0, funções podem ser declaradas em qualquer ordem — o PHP resolve o símbolo antes da execução. No entanto, funções condicionais (declaradas dentro de `if`) só ficam disponíveis após a condição ser avaliada como verdadeira.
+PHP 8.0+ resolve símbolos de função antes da execução. Funções condicionais (dentro de `if`) só existem após a condição ser true.
 
 ### Nomes de Função
 
@@ -46,13 +46,13 @@ Nomes de função são case-insensitive:
 
 function myFunction(): void
 {
-    echo "executada";
+    echo "executed";
 }
 
-MYFUNCTION(); // funciona, embora não seja recomendado
+MYFUNCTION(); // works, but not recommended
 ```
 
-💡 **Dica:** Mantenha consistência no casing. O padrão PSR-12 recomenda `camelCase` para nomes de função.
+**Dica:** Mantenha o mesmo casing. O padrão PSR-12 usa `camelCase` para funções.
 
 ---
 
@@ -72,18 +72,18 @@ function createUser(string $name, int $age = 18, bool $active = true): array
     ];
 }
 
-// Chamadas válidas
-$user1 = createUser('João');                  // idade=18, ativo=true
-$user2 = createUser('Maria', 25);              // idade=25, ativo=true
-$user3 = createUser('Pedro', 30, false);       // idade=30, ativo=false
+// Named arguments usage
+$user1 = createUser('John');                  // age=18, active=true
+$user2 = createUser('Mary', 25);               // age=25, active=true
+$user3 = createUser('Peter', 30, false);       // age=30, active=false
 ```
 
-⚠️ **Cuidado:** Não é possível declarar um parâmetro obrigatório após um opcional. O PHP emitirá um erro fatal:
+**Cuidado:** Não é possível declarar um parâmetro obrigatório após um opcional. O PHP emitirá um erro fatal:
 
 ```php
 <?php
 
-// ERRO: parâmetro obrigatório $second vem depois do opcional $first
+// ERROR: required parameter $second comes after optional $first
 function wrong(int $first = 1, int $second): void {}
 ```
 
@@ -99,7 +99,7 @@ function getData(DateTimeInterface $date = new DateTimeImmutable('now')): string
     return $date->format('Y-m-d');
 }
 
-echo getData(); // 2026-08-04 (data atual)
+echo getData(); // 2026-08-04 (today)
 ```
 
 ---
@@ -115,16 +115,16 @@ function createOrder(
     string $product,
     int $quantity = 1,
     float $price = 0.0,
-    string $client = 'Anônimo',
+    string $client = 'Anonymous',
 ): array {
     return compact('product', 'quantity', 'price', 'client');
 }
 
 // Chamadas com named arguments
 $order1 = createOrder(
-    product: 'Notebook',
+    product: 'Laptop',
     price: 3500.00,
-    client: 'Ana',
+    client: 'Anna',
     quantity: 2,
 );
 
@@ -134,10 +134,10 @@ print_r($order1);
 /*
 Array
 (
-    [product] => Notebook
+    [product] => Laptop
     [quantity] => 2
     [price] => 3500
-    [client] => Ana
+    [client] => Anna
 )
 */
 ```
@@ -148,7 +148,7 @@ Array
 - **Pular parâmetros opcionais** — você só passa o que precisa.
 - **Independência de ordem** — menos risco de erro ao trocar posições de parâmetros do mesmo tipo.
 
-⚠️ **Cuidado:** Named arguments expõem os nomes dos parâmetros como parte da API pública. Renomear um parâmetro quebra retrocompatibilidade se o código consumidor usar named arguments.
+**Cuidado:** Named arguments tornam os nomes de parâmetro parte da API pública. Renomeá-los quebra retrocompatibilidade.
 
 ---
 
@@ -189,7 +189,7 @@ function multiply(int $first, int $second): int
 }
 
 echo multiply(3, 4);    // 12
-// multiply(3.5, 4);    // TypeError — float não é aceito como int
+// multiply(3.5, 4);    // TypeError — float not accepted as int
 ```
 
 ### Nullable Types
@@ -201,7 +201,7 @@ Prefixar com `?` permite que o parâmetro ou retorno seja do tipo especificado o
 
 function findById(int $id): ?array
 {
-    $data = [1 => ['name' => 'João'], 2 => ['name' => 'Maria']];
+    $data = [1 => ['name' => 'John'], 2 => ['name' => 'Mary']];
     return $data[$id] ?? null;
 }
 
@@ -223,13 +223,13 @@ Permitem que um parâmetro ou retorno aceite mais de um tipo:
 function formatValue(int|float|string $value): string
 {
     if (is_numeric($value)) {
-        return number_format((float) $value, 2, ',', '.');
+        return number_format((float) $value, 2, '.', ',');
     }
     return strtoupper((string) $value);
 }
 
-echo formatValue(1500);      // 1.500,00
-echo formatValue(99.9);      // 99,90
+echo formatValue(1500);      // 1,500.00
+echo formatValue(99.9);      // 99.90
 echo formatValue('abc');     // ABC
 ```
 
@@ -237,22 +237,22 @@ Union types não podem incluir `void`, `never`, `mixed`, `null` standalone, `tru
 
 ### Intersection Types (PHP 8.1+)
 
-Usados apenas para **parâmetros** de funções/métodos, exigem que o valor satisfaça **todas** as interfaces ou classes especificadas:
+Para tipagem de parâmetros de funções/métodos. Exige que o valor atenda **todas** as interfaces ou classes:
 
 ```php
 <?php
 
-interface Logavel
+interface Loggable
 {
     public function getLogMessage(): string;
 }
 
-interface Serializavel
+interface Serializable
 {
     public function toArray(): array;
 }
 
-class Order implements Logavel, Serializavel
+class Order implements Loggable, Serializable
 {
     public function getLogMessage(): string
     {
@@ -265,7 +265,7 @@ class Order implements Logavel, Serializavel
     }
 }
 
-function registerAndSerialize(Logavel&Serializavel $entity): array
+function registerAndSerialize(Loggable&Serializable $entity): array
 {
     echo $entity->getLogMessage() . PHP_EOL;
     return $entity->toArray();
@@ -277,7 +277,7 @@ print_r(registerAndSerialize($order));
 
 ### `mixed`
 
-O tipo `mixed` indica que o valor pode ser de **qualquer tipo** — `null`, `bool`, `int`, `float`, `string`, `array` ou `object`. Introduzido no PHP 8.0 como tipo nativo:
+`mixed` aceita qualquer tipo. Introduzido no PHP 8.0:
 
 ```php
 <?php
@@ -308,10 +308,10 @@ Indica que a função **não retorna valor**. Qualquer tentativa de usar o retor
 function logMessage(string $msg): void
 {
     error_log($msg);
-    // return $msg;  // Erro: função void não pode retornar valor
+    // return $msg;  // Error: void function cannot return a value
 }
 
-$result = logMessage('teste');
+$result = logMessage('test');
 var_dump($result); // NULL
 ```
 
@@ -335,10 +335,10 @@ function redirect(string $url): never
     exit;
 }
 
-// abort(404, 'Página não encontrada');
+// abort(404, 'Page not found');
 ```
 
-⚠️ **Cuidado:** Se uma função declarada como `never` conseguir alcançar o fim do corpo sem lançar exceção ou interromper a execução, o PHP lançará um `TypeError`.
+**Cuidado:** Se uma função declarada como `never` conseguir alcançar o fim do corpo sem lançar exceção ou interromper a execução, o PHP lançará um `TypeError`.
 
 ---
 
@@ -498,10 +498,10 @@ São funções sem nome, atribuíveis a variáveis, passáveis como argumento e 
 <?php
 
 $greeting = function (string $name): string {
-    return "Olá, {$name}!";
+    return "Hello, {$name}!";
 };
 
-echo $greeting('Ana'); // Olá, Ana!
+echo $greeting('Anna'); // Hello, Anna!
 ```
 
 ### Closures como Callbacks
@@ -509,13 +509,13 @@ echo $greeting('Ana'); // Olá, Ana!
 ```php
 <?php
 
-$names = ['João', 'Maria', 'Pedro'];
+$names = ['John', 'Mary', 'Peter'];
 
 $mapped = array_map(function (string $name): string {
     return strtoupper($name);
 }, $names);
 
-print_r($mapped); // ['JOÃO', 'MARIA', 'PEDRO']
+print_r($mapped); // ['JOHN', 'MARY', 'PETER']
 ```
 
 ### Arrow Functions `fn =>` (PHP 7.4+)
@@ -538,12 +538,12 @@ Arrow functions também suportam type hints:
 ```php
 <?php
 
-$format = fn(int|float $value): string => number_format($value, 2, ',', '.');
+$format = fn(int|float $value): string => number_format($value, 2, '.', ',');
 
-echo $format(1234.5); // 1.234,50
+echo $format(1234.5); // 1,234.50
 ```
 
-💡 **Dica:** Use arrow functions para callbacks simples. Para lógica que requer múltiplas linhas ou statements (`if`, `foreach`), use closures tradicionais.
+**Dica:** Use arrow functions para callbacks simples. Para lógica que requer múltiplas linhas ou statements (`if`, `foreach`), use closures tradicionais.
 
 ---
 
@@ -556,7 +556,7 @@ A sintaxe `funcao(...)` cria uma referência **first-class callable** — um `Cl
 
 $upper = strtoupper(...);
 
-echo $upper('php é incrível'); // PHP É INCRÍVEL
+echo $upper('php is awesome'); // PHP IS AWESOME
 
 // Com array_map — antes (PHP < 8.1) vs depois
 $names = ['ana', 'carlos', 'bia'];
@@ -616,14 +616,14 @@ $logger = new Logger();
 $logFn = Closure::fromCallable([$logger, 'info']);
 // equivalente a: $logFn = $logger->info(...);
 
-$logFn('Sistema iniciado'); // [INFO] Sistema iniciado
+$logFn('System started'); // [INFO] System started
 ```
 
 `Closure::fromCallable()` é útil quando você precisa garantir um `Closure`, não importa a forma do callable (string, array, invocável).
 
 ### `Closure::getCurrent()` — PHP 8.5 NOVIDADE!
 
-**PHP 8.5+** — O método estático `Closure::getCurrent()` retorna o objeto `Closure` em execução. Isso é útil para **metaprogramação**, **depuração** e **reflection em tempo de execução**:
+**PHP 8.5+** — `Closure::getCurrent()` retorna o objeto `Closure` em execução. Útil para debugging, metaprogramação e reflection:
 
 ```php
 <?php
@@ -635,8 +635,8 @@ $task = function (string $name): void {
     echo "Executando a closure '{$ref->getName()}' com parâmetro: {$name}" . PHP_EOL;
 };
 
-$task('importar_dados');
-// Executando a closure '{closure}' com parâmetro: importar_dados
+$task('import_data');
+// Executing closure '{closure}' with parameter: import_data
 ```
 
 Outro caso de uso — criar callbacks que se auto-referenciam:
@@ -647,7 +647,7 @@ Outro caso de uso — criar callbacks que se auto-referenciam:
 $counter = function (int $step = 1) use (&$counter): void {
     static $value = 0;
     $value += $step;
-    echo "Contador: {$value}" . PHP_EOL;
+    echo "Counter: {$value}" . PHP_EOL;
 
     if ($value < 10) {
         $current = Closure::getCurrent();
@@ -656,14 +656,14 @@ $counter = function (int $step = 1) use (&$counter): void {
 };
 
 $counter(2);
-// Contador: 2
-// Contador: 4
-// Contador: 6
-// Contador: 8
-// Contador: 10
+// Counter: 2
+// Counter: 4
+// Counter: 6
+// Counter: 8
+// Counter: 10
 ```
 
-💡 **Dica:** `Closure::getCurrent()` também pode ser usado para acessar o `$this` da closure atual em cenários avançados de binding.
+**Dica:** `Closure::getCurrent()` também pode ser usado para acessar o `$this` da closure atual em cenários avançados de binding.
 
 ---
 
@@ -695,13 +695,13 @@ function logWithContext(string $level, string $message, mixed ...$context): void
     echo "[{$timestamp}] [{$level}] {$message}" . PHP_EOL;
 
     if (!empty($context)) {
-        echo "Contexto: " . json_encode($context, JSON_UNESCAPED_UNICODE) . PHP_EOL;
+        echo "Context: " . json_encode($context, JSON_UNESCAPED_UNICODE) . PHP_EOL;
     }
 }
 
-logWithContext('ERROR', 'Falha na conexão', 'host' => 'db.local', 'porta' => 5432);
-// [2026-08-04 10:30:00] [ERROR] Falha na conexão
-// Contexto: {"host":"db.local","porta":5432}
+logWithContext('ERROR', 'Connection failure', host: 'db.local', port: 5432);
+// [2026-08-04 10:30:00] [ERROR] Connection failure
+// Context: {"host":"db.local","port":5432}
 ```
 
 ### Desempacotamento de Argumentos
@@ -758,7 +758,7 @@ $debug = true;
 var_dump($config['debug']); // bool(true)
 ```
 
-⚠️ **Cuidado:** Use referências com moderação. Elas reduzem a legibilidade e podem causar efeitos colaterais inesperados. Prefira retornar novos valores em vez de modificar os originais.
+**Cuidado:** Use referências com moderação. Elas reduzem a legibilidade e podem causar efeitos colaterais inesperados. Prefira retornar novos valores em vez de modificar os originais.
 
 ---
 
@@ -797,35 +797,35 @@ function listCategories(array $categories, int $level = 0): void
 
 $tree = [
     [
-        'name'   => 'Eletrônicos',
+        'name'   => 'Electronics',
         'children' => [
-            ['name' => 'Celulares', 'children' => []],
-            ['name' => 'Notebooks', 'children' => []],
+            ['name' => 'Smartphones', 'children' => []],
+            ['name' => 'Laptops', 'children' => []],
         ],
     ],
     [
-        'name'   => 'Livros',
+        'name'   => 'Books',
         'children' => [
-            ['name' => 'Ficção',    'children' => []],
-            ['name' => 'Técnicos',  'children' => []],
-            ['name' => 'Biografias', 'children' => []],
+            ['name' => 'Fiction',    'children' => []],
+            ['name' => 'Technical',  'children' => []],
+            ['name' => 'Biography', 'children' => []],
         ],
     ],
 ];
 
 listCategories($tree);
 /*
-- Eletrônicos
-  - Celulares
-  - Notebooks
-- Livros
-  - Ficção
-  - Técnicos
-  - Biografias
+- Electronics
+  - Smartphones
+  - Laptops
+- Books
+  - Fiction
+  - Technical
+  - Biography
 */
 ```
 
-⚠️ **Cuidado:** Recursões muito profundas podem estourar o limite de memória ou o limite de recursão do PHP. O PHP tem um limite de recursão configurado via `xdebug.max_nesting_level` ou pelo próprio interpretador (~100000 níveis em PHP 8.x típico).
+**Cuidado:** Recursões muito profundas podem estourar o limite de memória ou o limite de recursão do PHP. O PHP tem um limite de recursão configurado via `xdebug.max_nesting_level` ou pelo próprio interpretador (~100000 níveis em PHP 8.x típico).
 
 ---
 
@@ -842,7 +842,7 @@ class Animal
 {
     public function makeSound(): string
     {
-        return 'som genérico';
+        return 'generic sound';
     }
 }
 
@@ -851,20 +851,20 @@ class Dog extends Animal
     #[\Override]
     public function makeSound(): string
     {
-        return 'au au';
+        return 'woof';
     }
 }
 
-// Se a classe pai não tiver o método, #[\Override] causa erro fatal:
+// If the parent class doesn't have the method, #[\Override] causes a fatal error:
 class Cat extends Animal
 {
     // #[\Override]
-    // public function meow(): string { return 'miau'; }
-    // Erro: Cat::meow() não sobrescreve nenhum método
+    // public function meow(): string { return 'meow'; }
+    // Error: Cat::meow() does not override any method
 }
 ```
 
-💡 **Dica:** Use `#[\Override]` sempre que sobrescrever métodos. Isso protege contra renomeações acidentais na classe pai e documenta a intenção.
+**Dica:** Use `#[\Override]` sempre que sobrescrever métodos. Isso protege contra renomeações acidentais na classe pai e documenta a intenção.
 
 ### `#[\NoDiscard]` — PHP 8.5 NOVIDADE!
 
@@ -882,9 +882,9 @@ function generateToken(): string
 // Chamada correta:
 $token = generateToken();
 
-// Chamada incorreta — o retorno é descartado, dispara notice:
+// Incorrect usage — return value is discarded, triggers a notice:
 // generateToken();
-// Notice: The return value of function generateToken() should not be discarded
+// Notice: the return value of function generateToken() should not be discarded
 
 // Também funciona em métodos:
 class Database
@@ -892,19 +892,19 @@ class Database
     #[\NoDiscard]
     public function connect(): self
     {
-        // lógica de conexão
+        // connection logic
         return $this;
     }
 }
 
 $db = new Database();
-$db->connect(); // Notice: retorno descartado
+$db->connect(); // Notice: return value discarded
 
 // Correto:
 $db = (new Database())->connect();
 ```
 
-💡 **Dica:** `#[\NoDiscard]` é excelente para funções puras cujo retorno é o único propósito da chamada (ex: `array_map`, `strtoupper`), ou para métodos que retornam nova instância (fluent interfaces, imutáveis).
+**Dica:** `#[\NoDiscard]` é excelente para funções puras cujo retorno é o único propósito da chamada (ex: `array_map`, `strtoupper`), ou para métodos que retornam nova instância (fluent interfaces, imutáveis).
 
 ---
 
@@ -966,7 +966,7 @@ O PHP possui milhares de funções nativas. Aqui estão algumas das mais frequen
 
 ---
 
-## 📚 Referências
+## Referências
 
 - [Documentação oficial: Funções definidas pelo usuário](https://www.php.net/manual/pt_BR/functions.user-defined.php)
 - [Argumentos de funções](https://www.php.net/manual/pt_BR/functions.arguments.php)
@@ -988,4 +988,4 @@ O PHP possui milhares de funções nativas. Aqui estão algumas das mais frequen
 
 ---
 
-> **Próximo capítulo:** [07 — Arrays](07-arrays.md)
+> **Próximo capítulo:** [07 — Arrays](./07-arrays.md)
