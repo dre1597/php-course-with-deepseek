@@ -23,17 +23,17 @@
 
 ### Aspas Simples
 
-Conteúdo **não é interpretado**. Apenas duas sequências de escape são reconhecidas: `\\` (barra invertida) e `\'` (aspas simples escapada):
+Conteúdo **não é interpretado**. Só `\\` e `\'` são reconhecidos como escape:
 
 ```php
 <?php
 
 $name = 'PHP';
 
-echo 'Olá, $name!';           // Olá, $name! (NÃO interpola)
-echo 'Custo: R$ 99,90';       // Custo: R$ 99,90
-echo 'Aspas \'simples\'';     // Aspas 'simples'
-echo 'Barra \\ invertida';    // Barra \ invertida
+echo 'Hello, $name!';           // Hello, $name! (does NOT interpolate)
+echo 'Cost: $ 99.90';           // Cost: $ 99.90
+echo 'Escaped \'quote\'';       // Escaped 'quote'
+echo 'Backslash \\ character';  // Backslash \ character
 ```
 
 ### Aspas Duplas
@@ -46,7 +46,7 @@ Realizam **interpolação de variáveis** e reconhecem sequências de escape com
 $language = 'PHP';
 $version = 8.5;
 
-echo "Estudando $language $version";    // Estudando PHP 8.5
+echo "Learning $language $version";    // Learning PHP 8.5
 
 // Sequências de escape
 echo "Linha 1\nLinha 2\nLinha 3";
@@ -62,29 +62,29 @@ Para expressões mais complexas dentro de strings com aspas duplas, use `{}`:
 ```php
 <?php
 
-$fruits = ['maçã', 'banana', 'laranja'];
-echo "Primeira fruta: {$fruits[0]}";          // Primeira fruta: maçã
+$fruits = ['apple', 'banana', 'orange'];
+echo "First fruit: {$fruits[0]}";          // First fruit: apple
 
 class User {
     public function getName(): string {
-        return 'Maria';
+        return 'Mary';
     }
 }
 $user = new User();
-echo "Nome: {$user->getName()}";                 // Nome: Maria
+echo "Name: {$user->getName()}";                 // Name: Mary
 
-// Acessar propriedades de array associativo
+// Access associative array properties
 $config = ['host' => 'localhost', 'port' => 3306];
-echo "Conectando em {$config['host']}:{$config['port']}";
-// Conectando em localhost:3306
+echo "Connecting to {$config['host']}:{$config['port']}";
+// Connecting to localhost:3306
 
 $value = 42;
-echo "O dobro de {$value} é " . ($value * 2); // O dobro de 42 é 84
+echo "Double of {$value} is " . ($value * 2); // Double of 42 is 84
 ```
 
 ### Performance
 
-Aspas simples são mais rápidas que aspas duplas, já que o PHP não precisa escanear por variáveis. Essa diferença é irrelevante na maioria dos casos — escolha baseado na necessidade de interpolação.
+Aspas simples são mais rápidas — o PHP não escaneia por variáveis. A diferença é irrelevante na prática. Escolha pela necessidade de interpolação.
 
 ---
 
@@ -97,13 +97,13 @@ Equivalente a aspas duplas (interpola variáveis), mas permite múltiplas linhas
 ```php
 <?php
 
-$name = 'Carlos';
+$name = 'Charles';
 $age = 28;
 
 $html = <<<HTML
-<div class="usuario">
-    <h2>Nome: {$name}</h2>
-    <p>Idade: {$age} anos</p>
+<div class="user">
+    <h2>Name: {$name}</h2>
+    <p>Age: {$age} years</p>
 </div>
 HTML;
 
@@ -122,20 +122,20 @@ A partir do PHP 7.3, o identificador de fechamento **pode** ser indentado. A ind
 ```php
 <?php
 
-function gerarTemplate(): string
+function generateTemplate(): string
 {
-    $title = 'Bem-vindo';
+    $title = 'Welcome';
 
     return <<<HTML
         <section>
             <h1>{$title}</h1>
-            <p>PHP 8.5 é incrível.</p>
+            <p>PHP 8.5 is awesome.</p>
         </section>
-        HTML; // indentação do fechador: 8 espaços
+        HTML; // closing indent: 8 spaces
 }
-// Todas as linhas terão 8 espaços removidos da esquerda
+// All lines will have 8 spaces stripped from the left
 
-echo gerarTemplate();
+echo generateTemplate();
 ```
 
 ### Nowdoc
@@ -148,15 +148,15 @@ Equivalente a aspas simples — **não interpola** variáveis. O identificador d
 $framework = 'Laravel';
 
 $text = <<<'TXT'
-Neste bloco, $framework não será interpolado.
-Todas as sequências como \n e \t são tratadas literalmente.
-Aqui vai uma barra: \\ e um cifrão: \$var
+In this block, $framework will not be interpolated.
+All sequences like \n and \t are treated literally.
+Here's a backslash: \\ and a dollar sign: \$var
 TXT;
 
 echo $text;
-// Neste bloco, $framework não será interpolado.
-// Todas as sequências como \n e \t são tratadas literalmente.
-// Aqui vai uma barra: \\ e um cifrão: \$var
+// In this block, $framework will not be interpolated.
+// All sequences like \n and \t are treated literally.
+// Here's a backslash: \\ and a dollar sign: \$var
 ```
 
 Nowdoc com indentação funciona da mesma forma (PHP 7.3+):
@@ -184,7 +184,7 @@ echo $config;
 <?php
 
 echo strlen('PHP 8.5');   // 7
-echo strlen('café');      // 5  — CUIDADO: conta bytes, não caracteres!
+echo strlen('café');      // 5  — WARNING: counts bytes, not characters!
 ```
 
 ### `strpos()` — Posição da Primeira Ocorrência
@@ -192,28 +192,28 @@ echo strlen('café');      // 5  — CUIDADO: conta bytes, não caracteres!
 ```php
 <?php
 
-$phrase = 'O rato roeu a roupa do rei de Roma';
+$phrase = 'The quick brown fox jumps over the lazy dog';
 
-$pos = strpos($phrase, 'rato');
-echo $pos; // 2 (posição baseada em zero)
+$pos = strpos($phrase, 'fox');
+echo $pos; // 16 (zero-based position)
 
-$pos2 = strpos($phrase, 'Roma');
-echo $pos2; // 30
+$pos2 = strpos($phrase, 'dog');
+echo $pos2; // 40
 
-// Não encontrado retorna false
+// Not found returns false
 $notFound = strpos($phrase, 'Python');
 var_dump($notFound); // bool(false)
 ```
 
-⚠️ **Cuidado:** `strpos()` pode retornar índice `0`, que é falsy. Sempre compare com `=== false`:
+**Cuidado:** `strpos()` pode retornar índice `0`, que é falsy. Sempre compare com `=== false`:
 
 ```php
 <?php
 
-$str = 'PHP é incrível';
+$str = 'PHP is cool';
 
 if (strpos($str, 'PHP') !== false) {
-    echo 'Encontrado!';
+    echo 'Found!';
 }
 ```
 
@@ -222,7 +222,7 @@ if (strpos($str, 'PHP') !== false) {
 ```php
 <?php
 
-echo stripos('Olá MUNDO', 'mundo'); // 4
+echo stripos('Hello WORLD', 'world'); // 6
 ```
 
 ### `str_replace()` — Substituir Todas as Ocorrências
@@ -230,15 +230,15 @@ echo stripos('Olá MUNDO', 'mundo'); // 4
 ```php
 <?php
 
-$text = 'O gato preto pulou sobre o gato branco';
-$new = str_replace('gato', 'cachorro', $text);
-echo $new; // O cachorro preto pulou sobre o cachorro branco
+$text = 'The black cat jumped over the white cat';
+$new = str_replace('cat', 'dog', $text);
+echo $new; // The black dog jumped over the white dog
 
-// Substituições múltiplas com arrays:
-$searches = ['gato', 'preto', 'branco'];
-$replacements = ['pássaro', 'azul', 'amarelo'];
+// Multiple replacements with arrays:
+$searches = ['cat', 'black', 'white'];
+$replacements = ['bird', 'blue', 'yellow'];
 echo str_replace($searches, $replacements, $text);
-// O pássaro azul pulou sobre o pássaro amarelo
+// The blue bird jumped over the yellow bird
 ```
 
 ### `str_ireplace()` — Substituição Case-Insensitive
@@ -246,8 +246,8 @@ echo str_replace($searches, $replacements, $text);
 ```php
 <?php
 
-echo str_ireplace('PHP', 'JavaScript', 'php é legal e PHP também');
-// JavaScript é legal e JavaScript também
+echo str_ireplace('PHP', 'JavaScript', 'php is cool and PHP too');
+// JavaScript is cool and JavaScript too
 ```
 
 ### `substr()` — Extrair Substring
@@ -255,12 +255,12 @@ echo str_ireplace('PHP', 'JavaScript', 'php é legal e PHP também');
 ```php
 <?php
 
-$text = 'PHP 8.5 - Novidades';
+$text = 'PHP 8.5 - New Features';
 
-echo substr($text, 0, 3);   // PHP (a partir do 0, 3 caracteres)
+echo substr($text, 0, 3);   // PHP (from 0, 3 characters)
 echo substr($text, 4, 3);   // 8.5
-echo substr($text, -9);     // Novidades (últimos 9 caracteres)
-echo substr($text, 4, -3);  // 8.5 - Novid (remove 3 do final)
+echo substr($text, -12);     // New Features (last 12 characters)
+echo substr($text, 4, -5);  // 8.5 - New Fea (remove 5 from end)
 ```
 
 ### `trim()`, `ltrim()`, `rtrim()` — Remover Espaços
@@ -285,24 +285,24 @@ echo trim($value, '.R$ ');         // "99,90"
 ```php
 <?php
 
-$name = 'joão silva';
+$name = 'john smith';
 
-echo strtoupper($name);    // JOÃO SILVA
-echo strtolower($name);    // joão silva
-echo ucfirst($name);       // João silva
-echo ucwords($name);       // João Silva
+echo strtoupper($name);    // JOHN SMITH
+echo strtolower($name);    // john smith
+echo ucfirst($name);       // John smith
+echo ucwords($name);       // John Smith
 echo lcfirst('PHP');       // pHP
 
-// IMPORTANTE: estas funções NÃO lidam com UTF-8 corretamente.
-// Para caracteres acentuados, use mb_* equivalentes (veja abaixo).
-echo ucfirst('árvore');    // árvore (não converte 'á' para 'Á')
+// IMPORTANT: these functions do NOT handle UTF-8 correctly.
+// For accented characters, use mb_* equivalents (see below).
+echo ucfirst('árvore');    // árvore (does not convert 'á' to 'Á')
 ```
 
 ---
 
 ## Funções Multibyte (mb_*)
 
-As funções `mb_*` manipulam strings **multibyte** como UTF-8. Para uso com português, **sempre** prefira as versões `mb_*`:
+Funções `mb_*` manipulam strings **multibyte** (UTF-8). Para português, **sempre** prefira as versões `mb_*`:
 
 ### `mb_strlen()`
 
@@ -320,11 +320,11 @@ echo mb_strlen('日本語');     // 3
 ```php
 <?php
 
-$text = 'Programação em PHP';
+$text = 'Programming in PHP';
 
-echo mb_substr($text, 0, 11);   // Programação
+echo mb_substr($text, 0, 11);   // Programming
 echo mb_substr($text, -3);       // PHP
-echo mb_substr($text, 12);       // em PHP
+echo mb_substr($text, 15);       // in PHP
 ```
 
 ### `mb_strpos()`
@@ -332,10 +332,10 @@ echo mb_substr($text, 12);       // em PHP
 ```php
 <?php
 
-$phrase = 'A explicação é simples';
+$phrase = 'The explanation is simple';
 
-echo mb_strpos($phrase, 'ção');     // 9 (posição correta em caracteres)
-echo mb_strpos($phrase, 'é');       // 14
+echo mb_strpos($phrase, 'tion');     // 9 (correct position in characters)
+echo mb_strpos($phrase, 'is');       // 14
 ```
 
 ### Outras Funções `mb_*` Importantes
@@ -353,11 +353,11 @@ echo mb_strpos($phrase, 'é');       // 14
 ```php
 <?php
 
-// Converter case corretamente com UTF-8
+// Convert case correctly with UTF-8
 echo mb_strtoupper('café');              // CAFÉ
 echo mb_strtolower('AÇÃO');              // ação
 
-// mb_convert_case com modos:
+// mb_convert_case with modes:
 // MB_CASE_UPPER, MB_CASE_LOWER, MB_CASE_TITLE, MB_CASE_FOLD
 echo mb_convert_case('joão da silva', MB_CASE_TITLE, 'UTF-8');
 // João Da Silva
@@ -396,13 +396,13 @@ echo trim($text);              // "　こんにちは　" (não alterado)
 // mb_trim() remove corretamente
 echo mb_trim($text);           // "こんにちは"
 
-// Com caracteres específicos:
-$value = '...R$ 99,90...';
-echo mb_trim($value, '.');      // "R$ 99,90"
+// With specific characters:
+$value = '...$ 99.90...';
+echo mb_trim($value, '.');      // "$ 99.90"
 
-// ltrim e rtrim
-echo mb_ltrim('   espaços à esquerda', ' ');    // "espaços à esquerda"
-echo mb_rtrim('espaços à direita   ', ' ');    // "espaços à direita"
+// ltrim and rtrim
+echo mb_ltrim('   left spaces', ' ');    // "left spaces"
+echo mb_rtrim('right spaces   ', ' ');    // "right spaces"
 ```
 
 ### `mb_ucfirst()` e `mb_lcfirst()` — PHP 8.4+
@@ -415,21 +415,21 @@ echo mb_rtrim('espaços à direita   ', ' ');    // "espaços à direita"
 // PHP < 8.4: ucfirst não lidava com acentos
 echo ucfirst('árvore');              // árvore (nenhuma mudança!)
 
-// PHP 8.4+: mb_ucfirst converte corretamente
+// PHP 8.4+: mb_ucfirst converts correctly
 echo mb_ucfirst('árvore');           // Árvore
 echo mb_ucfirst('último dia');       // Último dia
 
 // mb_lcfirst
-echo mb_lcfirst('OLA');              // oLA
+echo mb_lcfirst('HELLO');            // hELLO
 echo mb_lcfirst('ÁRVORE');           // áRVORE
 
-// Aplicação: capitalizar nome de cidade
+// Application: capitalize city name
 $city = 'são paulo';
 echo mb_ucfirst($city);            // São paulo
 echo mb_convert_case($city, MB_CASE_TITLE, 'UTF-8'); // São Paulo
 ```
 
-💡 **Dica:** Use `mb_ucfirst` para capitalizar a primeira letra de nomes próprios, títulos e início de frases em português, que com frequência começam com acentos.
+**Dica:** `mb_ucfirst` resolve capitalização de palavras com acento, comum em português ('árvore' → 'Árvore').
 
 ---
 
@@ -440,18 +440,18 @@ echo mb_convert_case($city, MB_CASE_TITLE, 'UTF-8'); // São Paulo
 ```php
 <?php
 
-$csv = 'João,Maria,Pedro,Ana,Bia';
+$csv = 'John,Mary,Peter,Anna,Bea';
 $names = explode(',', $csv);
-print_r($names); // ['João', 'Maria', 'Pedro', 'Ana', 'Bia']
+print_r($names); // ['John', 'Mary', 'Peter', 'Anna', 'Bea']
 
-// Com limite (terceiro parâmetro):
-$phrase = 'um dois três quatro cinco';
+// With limit (third parameter):
+$phrase = 'one two three four five';
 print_r(explode(' ', $phrase, 3));
-// ['um', 'dois', 'três quatro cinco']
+// ['one', 'two', 'three four five']
 
-// Limite negativo — remove os últimos N elementos:
+// Negative limit — removes the last N elements:
 print_r(explode(' ', $phrase, -2));
-// ['um', 'dois', 'três']
+// ['one', 'two', 'three']
 ```
 
 ### `implode()` / `join()` — Juntar Array em String
@@ -474,14 +474,14 @@ echo implode($parts);      // 20260804
 ```php
 <?php
 
-$names = 'ana, carlos, BIA, PEDRO, joão';
+$names = 'anna, charles, BEA, PETER, john';
 
-// Normalizar: trim e capitalizar cada nome
+// Normalize: trim and capitalize each name
 $parts = explode(',', $names);
 $parts = array_map(fn(string $name): string => mb_ucfirst(mb_strtolower(trim($name))), $parts);
-$normalizado = implode(', ', $parts);
+$normalized = implode(', ', $parts);
 
-echo $normalizado; // Ana, Carlos, Bia, Pedro, João
+echo $normalized; // Anna, Charles, Bea, Peter, John
 ```
 
 ---
@@ -497,8 +497,8 @@ $product = 'Notebook';
 $price   = 3500.00;
 $qty     = 2;
 
-echo sprintf('Product: %s — Preço unitário: R$ %.2f — Quantidade: %d', $product, $price, $qty);
-// Product: Notebook — Preço unitário: R$ 3500.00 — Quantidade: 2
+echo sprintf('Product: %s — Unit price: $ %.2f — Quantity: %d', $product, $price, $qty);
+// Product: Notebook — Unit price: $ 3500.00 — Quantity: 2
 ```
 
 ### Principais Placeholders
@@ -520,8 +520,8 @@ echo sprintf('Product: %s — Preço unitário: R$ %.2f — Quantidade: %d', $pr
 
 $value = 1234.5678;
 
-echo sprintf('R$ %.2f', $value);        // R$ 1234.57
-echo sprintf('%\'.2f', $value);          // 1234.57 (aspas simples é o padding char)
+echo sprintf('$ %.2f', $value);        // $ 1234.57
+echo sprintf('%\'.2f', $value);          // 1234.57 (single quote is the padding char)
 
 // Preenchimento com zeros à esquerda:
 echo sprintf('%08d', 42);                // 00000042
@@ -537,8 +537,8 @@ echo sprintf("[%'.-10s]", 'PHP');        // [PHP.......]
 ```php
 <?php
 
-printf('Data: %s, Hora: %s', date('d/m/Y'), date('H:i'));
-// Data: 04/08/2026, Hora: 10:30
+printf('Date: %s, Time: %s', date('Y-m-d'), date('H:i'));
+// Date: 2026-08-04, Time: 10:30
 ```
 
 ### `vsprintf()` — Formatar com Array de Argumentos
@@ -546,15 +546,15 @@ printf('Data: %s, Hora: %s', date('d/m/Y'), date('H:i'));
 ```php
 <?php
 
-function logFormatado(string $template, mixed ...$args): string
+function formatLog(string $template, mixed ...$args): string
 {
     $timestamp = date('Y-m-d H:i:s');
     $message = vsprintf($template, $args);
     return "[{$timestamp}] {$message}";
 }
 
-echo logFormatado('Usuário %s fez login de %s', 'admin', '192.168.1.1');
-// [2026-08-04 10:30:00] Usuário admin fez login de 192.168.1.1
+echo formatLog('User %s logged in from %s', 'admin', '192.168.1.1');
+// [2026-08-04 10:30:00] User admin logged in from 192.168.1.1
 ```
 
 ---
@@ -568,14 +568,14 @@ Verifica se uma string **contém** outra:
 ```php
 <?php
 
-$url = 'https://api.exemplo.com/v1/usuarios';
+$url = 'https://api.example.com/v1/users';
 
 var_dump(str_contains($url, 'https'));         // bool(true)
 var_dump(str_contains($url, 'ftp'));           // bool(false)
 
-// Muito mais legível que strpos:
-// Antes:  strpos($url, 'https') !== false
-// Agora:  str_contains($url, 'https')
+// Much more readable than strpos:
+// Before:  strpos($url, 'https') !== false
+// Now:  str_contains($url, 'https')
 ```
 
 ### `str_starts_with()` — PHP 8.0+
@@ -585,15 +585,15 @@ Verifica se uma string **começa com** outra:
 ```php
 <?php
 
-$email = 'usuario@dominio.com';
+$email = 'user@domain.com';
 
 var_dump(str_starts_with($email, 'admin'));    // bool(false)
-var_dump(str_starts_with($email, 'usuario'));   // bool(true)
+var_dump(str_starts_with($email, 'user'));   // bool(true)
 
-// Validação simples de URL:
-$url = 'https://exemplo.com';
+// Simple URL validation:
+$url = 'https://example.com';
 if (str_starts_with($url, 'https://')) {
-    echo 'Conexão segura';
+    echo 'Secure connection';
 }
 ```
 
@@ -604,14 +604,14 @@ Verifica se uma string **termina com** outra:
 ```php
 <?php
 
-$file = 'relatorio_financeiro.pdf';
+$file = 'financial_report.pdf';
 
 var_dump(str_ends_with($file, '.pdf'));     // bool(true)
 var_dump(str_ends_with($file, '.docx'));    // bool(false)
 
-// Filtrar extensões permitidas:
+// Filter allowed extensions:
 $allowed = ['.jpg', '.png', '.gif', '.webp'];
-$upload = 'foto_perfil.png';
+$upload = 'profile_photo.png';
 
 $valid = array_any($allowed, fn(string $ext): bool => str_ends_with($upload, $ext));
 var_dump($valid); // bool(true)
@@ -630,8 +630,8 @@ function validateEmail(string $email): bool
         && str_contains($email, '.');
 }
 
-var_dump(validateEmail('user@dominio.com'));  // bool(true)
-var_dump(validateEmail('@dominio.com'));      // bool(false)
+var_dump(validateEmail('user@domain.com'));  // bool(true)
+var_dump(validateEmail('@domain.com'));      // bool(false)
 var_dump(validateEmail('user@'));             // bool(false)
 ```
 
@@ -648,13 +648,13 @@ Converte caracteres especiais HTML em entidades, prevenindo **XSS**:
 
 $input = '<script>alert("XSS")</script>';
 
-// Sem escape (PERIGOSO!):
+// Without escape (DANGEROUS!):
 echo $input;
-// <script>alert("XSS")</script> — seria executado no navegador
+// <script>alert("XSS")</script> — would execute in the browser
 
-// Com escape (SEGURO):
+// With escape (SAFE):
 echo htmlspecialchars($input, ENT_QUOTES, 'UTF-8');
-// &lt;script&gt;alert(&quot;XSS&quot;)&lt;/script&gt; — exibido como texto
+// &lt;script&gt;alert(&quot;XSS&quot;)&lt;/script&gt; — displayed as text
 ```
 
 ### Flags Importantes
@@ -669,15 +669,15 @@ echo htmlspecialchars($input, ENT_QUOTES, 'UTF-8');
 ```php
 <?php
 
-$date = "O'Brian disse: \"Olá\"";
+$data = "O'Brian said: \"Hello\"";
 
-echo htmlspecialchars($date, ENT_COMPAT, 'UTF-8');
-// O'Brian disse: &quot;Olá&quot;
+echo htmlspecialchars($data, ENT_COMPAT, 'UTF-8');
+// O'Brian said: &quot;Hello&quot;
 
-echo htmlspecialchars($date, ENT_QUOTES, 'UTF-8');
-// O&#039;Brian disse: &quot;Olá&quot;
+echo htmlspecialchars($data, ENT_QUOTES, 'UTF-8');
+// O&#039;Brian said: &quot;Hello&quot;
 
-// Sempre use ENT_QUOTES para máxima segurança
+// Always use ENT_QUOTES for maximum security
 ```
 
 ### `htmlspecialchars()` vs `htmlentities()`
@@ -688,34 +688,34 @@ echo htmlspecialchars($date, ENT_QUOTES, 'UTF-8');
 ```php
 <?php
 
-$text = 'Ação e Coração';
+$text = 'Action & Heart';
 
 echo htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
-// Ação e Coração (caracteres acentuados preservados)
+// Action & Heart (accented characters preserved)
 
 echo htmlentities($text, ENT_QUOTES, 'UTF-8');
-// A&ccedil;&atilde;o e Cora&ccedil;&atilde;o (entidades HTML)
+// Action &amp; Heart (no entities — these are ASCII-safe chars)
 ```
 
-💡 **Dica:** Para segurança contra XSS em saída HTML, `htmlspecialchars()` é suficiente e mais previsível que `htmlentities()`. Reserve `htmlentities()` para casos onde você precisa garantir ASCII puro (ex: emails antigos).
+**Dica:** Para XSS em saída HTML, `htmlspecialchars()` é suficiente e mais previsível. Reserve `htmlentities()` para ASCII puro (emails antigos).
 
 ### `strip_tags()` — Remover Tags HTML
 
 ```php
 <?php
 
-$html = '<p>Este é um <strong>texto</strong> com <a href="#">link</a>.</p>';
+$html = '<p>This is a <strong>text</strong> with a <a href="#">link</a>.</p>';
 
-// Remove todas as tags
+// Remove all tags
 echo strip_tags($html);
-// Este é um texto com link.
+// This is a text with a link.
 
-// Permite tags específicas
+// Allow specific tags
 echo strip_tags($html, '<strong><em>');
-// Este é um <strong>texto</strong> com link.
+// This is a <strong>text</strong> with a link.
 ```
 
-⚠️ **Cuidado:** `strip_tags()` **não** substitui `htmlspecialchars()`. Ele remove tags mas não escapa conteúdo. Para contexto HTML, sempre use `htmlspecialchars()`.
+**Cuidado:** `strip_tags()` não substitui `htmlspecialchars()` — remove tags mas não escapa. Para contexto HTML, sempre escape.
 
 ### Função Auxiliar para Templates
 
@@ -723,20 +723,20 @@ echo strip_tags($html, '<strong><em>');
 <?php
 
 /**
- * Escapa valor para saída segura em HTML.
- * Se o valor for null, retorna string vazia.
+ * Escapes a value for safe HTML output.
+ * If the value is null, returns an empty string.
  */
 function e(mixed $value): string
 {
     return htmlspecialchars((string) ($value ?? ''), ENT_QUOTES, 'UTF-8');
 }
 
-// Em templates:
-$user = ['name' => '<b>João</b>', 'bio' => 'Dev & "hacker" ético'];
+// In templates:
+$user = ['name' => '<b>John</b>', 'bio' => 'Dev & "ethical" hacker'];
 echo '<h1>' . e($user['name']) . '</h1>';
 echo '<p>' . e($user['bio']) . '</p>';
-// <h1>&lt;b&gt;João&lt;/b&gt;</h1>
-// <p>Dev &amp; &quot;hacker&quot; ético</p>
+// <h1>&lt;b&gt;John&lt;/b&gt;</h1>
+// <p>Dev &amp; &quot;ethical&quot; hacker</p>
 ```
 
 ---
@@ -748,7 +748,7 @@ echo '<p>' . e($user['bio']) . '</p>';
 ```php
 <?php
 
-$comment = "Primeira linha.\nSegunda linha.\nTerceira linha.";
+$comment = "First line.\nSecond line.\nThird line.";
 
 echo nl2br($comment);
 // Primeira linha.<br />
@@ -769,7 +769,7 @@ echo nl2br($comment, false); // <br> em vez de <br />
 ```php
 <?php
 
-$text = 'O rápido cachorro marrom pula sobre o gato preguiçoso.';
+$text = 'The quick brown fox jumps over the lazy dog.';
 
 echo wordwrap($text, 20, "<br />\n");
 /*
@@ -779,7 +779,7 @@ gato preguiçoso.
 */
 
 // Com corte forçado (quarto parâmetro true):
-echo wordwrap('URLMuitooooooooooooooooLonga', 15, "<br />\n", true);
+echo wordwrap('AVeryyyyyyyyyyyyyyLongURL', 15, "<br />\n", true);
 // URLMuitoooooooo
 // ooooooooLonga
 ```
@@ -788,22 +788,22 @@ echo wordwrap('URLMuitooooooooooooooooLonga', 15, "<br />\n", true);
 
 ## Expressões Regulares Básicas
 
-Expressões regulares (regex) são padrões de busca em strings. Em PHP, as funções PCRE (`preg_*`) são o padrão moderno.
+Regex são padrões de busca. Em PHP moderno, use as funções PCRE (`preg_*`).
 
 ### `preg_match()` — Buscar Padrão
 
 ```php
 <?php
 
-$email = 'usuario@dominio.com.br';
+$email = 'user@domain.com.br';
 
-// Verificar formato de email (simplificado)
+// Check email format (simplified)
 $pattern = '/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/';
 
 if (preg_match($pattern, $email)) {
-    echo 'Email válido';
+    echo 'Valid email';
 } else {
-    echo 'Email inválido';
+    echo 'Invalid email';
 }
 ```
 
@@ -812,21 +812,21 @@ if (preg_match($pattern, $email)) {
 ```php
 <?php
 
-$date = 'Data: 2026-08-04';
+$date = 'Date: 2026-08-04';
 
-if (preg_match('/Data: (\d{4})-(\d{2})-(\d{2})/', $date, $matches)) {
+if (preg_match('/Date: (\d{4})-(\d{2})-(\d{2})/', $date, $matches)) {
     print_r($matches);
     /*
     Array
     (
-        [0] => Data: 2026-08-04
-        [1] => 2026  // ano
-        [2] => 08    // mês
-        [3] => 04    // dia
+        [0] => Date: 2026-08-04
+        [1] => 2026  // year
+        [2] => 08    // month
+        [3] => 04    // day
     )
     */
-    echo "Ano: {$matches[1]}, Mês: {$matches[2]}, Dia: {$matches[3]}";
-    // Ano: 2026, Mês: 08, Dia: 04
+    echo "Year: {$matches[1]}, Month: {$matches[2]}, Day: {$matches[3]}";
+    // Year: 2026, Month: 08, Day: 04
 }
 ```
 
@@ -835,7 +835,7 @@ if (preg_match('/Data: (\d{4})-(\d{2})-(\d{2})/', $date, $matches)) {
 ```php
 <?php
 
-$html = '<a href="/home">Home</a> <a href="/about">Sobre</a> <a href="/contact">Contato</a>';
+$html = '<a href="/home">Home</a> <a href="/about">About</a> <a href="/contact">Contact</a>';
 
 preg_match_all('/href="([^"]+)"/', $html, $matches);
 print_r($matches[1]); // ['/home', '/about', '/contact']
@@ -846,20 +846,20 @@ print_r($matches[1]); // ['/home', '/about', '/contact']
 ```php
 <?php
 
-// Remover tudo que não é dígito (ex: format telefone)
-$phone = '(11) 98765-4321';
+// Remove everything that is not a digit (e.g., format phone)
+$phone = '(555) 98765-4321';
 $onlyNumbers = preg_replace('/\D/', '', $phone);
-echo $onlyNumbers; // 11987654321
+echo $onlyNumbers; // 555987654321
 
-// Mascarar parte de um email
-$email = 'usuario.secreto@provedor.com.br';
+// Mask part of an email
+$email = 'secret.user@provider.com.br';
 $masked = preg_replace('/(.{3}).*(@.*)/', '$1***$2', $email);
-echo $masked; // usu***@provedor.com.br
+echo $masked; // sec***@provider.com.br
 
-// Substituir múltiplos espaços por um único
-$text = 'PHP     é         incrível';
+// Replace multiple spaces with a single one
+$text = 'PHP     is         awesome';
 $clean = preg_replace('/\s+/', ' ', $text);
-echo $clean; // PHP é incrível
+echo $clean; // PHP is awesome
 ```
 
 ### `preg_split()` — Dividir com Regex
@@ -867,9 +867,9 @@ echo $clean; // PHP é incrível
 ```php
 <?php
 
-$csv = 'João, Maria; Pedro| Ana, Bia';
+$csv = 'John, Mary; Peter| Anna, Bea';
 $names = preg_split('/[,;|]\s*/', $csv);
-print_r($names); // ['João', 'Maria', 'Pedro', 'Ana', 'Bia']
+print_r($names); // ['John', 'Mary', 'Peter', 'Anna', 'Bea']
 ```
 
 ### Delimitadores e Modificadores Comuns
@@ -908,7 +908,7 @@ print_r(str_split($hex, 2)); // ['FF', '00', 'AA']
 print_r(str_split('PHP')); // ['P', 'H', 'P']
 ```
 
-⚠️ **Cuidado:** `str_split()` trabalha com **bytes**, não com caracteres. Para UTF-8, use `mb_str_split()`.
+**Cuidado:** `str_split()` trabalha com **bytes**, não com caracteres. Para UTF-8, use `mb_str_split()`.
 
 ### `grapheme_str_split()` — PHP 8.4+
 
@@ -917,25 +917,25 @@ print_r(str_split('PHP')); // ['P', 'H', 'P']
 ```php
 <?php
 
-// str_split falha com caracteres multibyte:
+// str_split fails with multibyte characters:
 $str_split_result = str_split('café');
-print_r($str_split_result); // ['c', 'a', 'f', '�', '�'] — corrompido!
+print_r($str_split_result); // ['c', 'a', 'f', '�', '�'] — corrupted!
 
-// mb_str_split funciona para multibyte básico:
+// mb_str_split works for basic multibyte:
 print_r(mb_str_split('café')); // ['c', 'a', 'f', 'é'] — OK
 
-// grapheme_str_split lida com tudo, incluindo emojis compostos:
-$flag = '🇧🇷';  // bandeira do Brasil (2 code points combinados)
-echo grapheme_strlen($flag) . PHP_EOL;   // 1 (um grapheme cluster)
+// grapheme_str_split handles everything, including compound emojis:
+$flag = '🇧🇷';  // Brazilian flag (2 code points combined)
+echo grapheme_strlen($flag) . PHP_EOL;   // 1 (one grapheme cluster)
 print_r(grapheme_str_split($flag));      // ['🇧🇷']
 
-// Família com emoji:
-$family = '👨‍👩‍👧';  // família (4 emojis combinados com ZWJ)
+// Family emoji:
+$family = '👨‍👩‍👧';  // family (4 emojis combined with ZWJ)
 echo grapheme_strlen($family) . PHP_EOL;    // 1
 print_r(grapheme_str_split($family));       // ['👨‍👩‍👧']
 ```
 
-💡 **Dica:** Use `grapheme_str_split()` sempre que manipular strings com emojis, caracteres combinados ou texto internacional. É a função mais segura para divisão caractere-a-caractere.
+**Dica:** `grapheme_str_split()` é a função mais segura para dividir strings com emojis ou caracteres combinados.
 
 ---
 
@@ -952,20 +952,20 @@ print_r(grapheme_str_split($family));       // ['👨‍👩‍👧']
 var_dump('123' == 123);    // bool(true)  — coerção: string '123' vira int 123
 var_dump('123' === 123);   // bool(false) — tipos diferentes
 
-var_dump(0 == '');         // bool(true)  — CUIDADO! '' é convertido para 0
+var_dump(0 == '');         // bool(true)  — WARNING! '' is converted to 0
 var_dump(0 === '');        // bool(false)
-var_dump(0 == 'zero');     // bool(true)  — 'zero' não é numérico, vira 0
+var_dump(0 == 'zero');     // bool(true)  — 'zero' is non-numeric, becomes 0
 var_dump(0 === 'zero');    // bool(false)
 ```
 
-⚠️ **Cuidado:** Sempre use `===` para comparar com `false`, `0`, `''` ou `null`, pois `==` pode dar resultados inesperados.
+**Cuidado:** Compare com `===` ao checar `false`, `0`, `''` ou `null` — `==` dá resultados inesperados.
 
 ### `strcmp()` — Comparação Binária
 
 ```php
 <?php
 
-var_dump(strcmp('abc', 'abc'));  // int(0)  — iguais
+var_dump(strcmp('abc', 'abc'));  // int(0)  — equal
 var_dump(strcmp('abc', 'abd'));  // int(-1) — 'abc' < 'abd'
 var_dump(strcmp('abd', 'abc'));  // int(1)  — 'abd' > 'abc'
 
@@ -978,7 +978,7 @@ var_dump(strcmp('ABC', 'abc'));  // int(-1)
 ```php
 <?php
 
-var_dump(strcasecmp('ABC', 'abc')); // int(0) — iguais, ignorando case
+var_dump(strcasecmp('ABC', 'abc')); // int(0) — equal, ignoring case
 ```
 
 ### `strnatcmp()` — Comparação com Ordem Natural
@@ -996,24 +996,24 @@ print_r($files); // ['img1.jpg', 'img2.jpg', 'img10.jpg', 'img20.jpg']
 
 ---
 
-## 📚 Referências
+## Referências
 
-- [Documentação oficial: Strings](https://www.php.net/manual/pt_BR/language.types.string.php)
-- [Funções de String](https://www.php.net/manual/pt_BR/ref.strings.php)
-- [Heredoc / Nowdoc](https://www.php.net/manual/pt_BR/language.types.string.php#language.types.string.syntax.heredoc)
-- [str_contains() — PHP 8.0](https://www.php.net/manual/pt_BR/function.str-contains.php)
-- [str_starts_with() — PHP 8.0](https://www.php.net/manual/pt_BR/function.str-starts-with.php)
-- [str_ends_with() — PHP 8.0](https://www.php.net/manual/pt_BR/function.str-ends-with.php)
-- [htmlspecialchars()](https://www.php.net/manual/pt_BR/function.htmlspecialchars.php)
-- [Funções Multibyte (mbstring)](https://www.php.net/manual/pt_BR/book.mbstring.php)
-- [mb_trim() — PHP 8.4](https://www.php.net/manual/pt_BR/function.mb-trim.php)
-- [mb_ucfirst() — PHP 8.4](https://www.php.net/manual/pt_BR/function.mb-ucfirst.php)
-- [grapheme_str_split() — PHP 8.4](https://www.php.net/manual/pt_BR/function.grapheme-str-split.php)
-- [Expressões Regulares PCRE](https://www.php.net/manual/pt_BR/book.pcre.php)
-- [sprintf()](https://www.php.net/manual/pt_BR/function.sprintf.php)
+- [Documentação oficial: Strings](https://www.php.net/manual/en/language.types.string.php)
+- [Funções de String](https://www.php.net/manual/en/ref.strings.php)
+- [Heredoc / Nowdoc](https://www.php.net/manual/en/language.types.string.php#language.types.string.syntax.heredoc)
+- [str_contains() — PHP 8.0](https://www.php.net/manual/en/function.str-contains.php)
+- [str_starts_with() — PHP 8.0](https://www.php.net/manual/en/function.str-starts-with.php)
+- [str_ends_with() — PHP 8.0](https://www.php.net/manual/en/function.str-ends-with.php)
+- [htmlspecialchars()](https://www.php.net/manual/en/function.htmlspecialchars.php)
+- [Funções Multibyte (mbstring)](https://www.php.net/manual/en/book.mbstring.php)
+- [mb_trim() — PHP 8.4](https://www.php.net/manual/en/function.mb-trim.php)
+- [mb_ucfirst() — PHP 8.4](https://www.php.net/manual/en/function.mb-ucfirst.php)
+- [grapheme_str_split() — PHP 8.4](https://www.php.net/manual/en/function.grapheme-str-split.php)
+- [Expressões Regulares PCRE](https://www.php.net/manual/en/book.pcre.php)
+- [sprintf()](https://www.php.net/manual/en/function.sprintf.php)
 - [OWASP XSS Prevention Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html)
 
 ---
 
-> **Capítulo anterior:** [07 — Arrays](07-arrays.md)
-> **Próximo capítulo:** [09 — Programação Orientada a Objetos (Parte 1)](09-oop.md)
+> **Capítulo anterior:** [07 — Arrays](./07-arrays.md)
+> **Próximo capítulo:** [09 — Programação Orientada a Objetos (Parte 1)](./09-oop.md)
