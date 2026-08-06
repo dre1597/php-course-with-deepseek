@@ -7,11 +7,11 @@ Este arquivo contém exercícios práticos que cobrem os 15 módulos do curso. C
 ## Módulo 1–5: Fundamentos (Sintaxe, Variáveis, Estruturas, Funções, Arrays)
 
 ### Exercício 1.1 — Calculadora de IMC (Fácil)
-Crie um script que receba `$peso` (kg) e `$altura` (m), calcule o IMC (`peso / altura²`) e exiba a classificação:
-- Abaixo do peso: < 18.5
-- Peso normal: 18.5 — 24.9
-- Sobrepeso: 25 — 29.9
-- Obesidade: >= 30
+Crie um script que receba `$weight` (kg) e `$height` (m), calcule o IMC (`$weight / $height²`) e exiba a classificação:
+- Underweight: < 18.5
+- Normal weight: 18.5 — 24.9
+- Overweight: 25 — 29.9
+- Obesity: >= 30
 
 **Requisitos:** Use `if/elseif/else`. Arredonde o IMC com 1 casa decimal.
 
@@ -38,12 +38,13 @@ Dado um array associativo multidmensional de vendas, calcule e exiba:
 - Ticket médio geral
 
 ```php
-$vendas = [
-    ['seller' => 'João',  'month' => 'Janeiro',  'amount' => 1500.00],
-    ['seller' => 'Maria', 'month' => 'Janeiro',  'amount' => 2300.50],
-    ['seller' => 'João',  'month' => 'Fevereiro','amount' => 1800.00],
-    ['seller' => 'Pedro', 'month' => 'Janeiro',  'amount' => 1200.75],
-    ['seller' => 'Maria', 'month' => 'Fevereiro','amount' => 3100.00
+$sales = [
+    ['seller' => 'John',  'month' => 'January',    'amount' => 1500.00],
+    ['seller' => 'Mary',  'month' => 'January',    'amount' => 2300.50],
+    ['seller' => 'John',  'month' => 'February',   'amount' => 1800.00],
+    ['seller' => 'Peter', 'month' => 'January',    'amount' => 1200.75],
+    ['seller' => 'Mary',  'month' => 'February',   'amount' => 3100.00],
+];
 ```
 
 ---
@@ -64,8 +65,8 @@ Crie uma função que receba um texto e retorne um array com todos os endereços
 Crie uma função que receba uma string com placeholders `{{variavel}}` e um array associativo, e substitua os placeholders pelos valores correspondentes. Use regex.
 
 ```php
-$template = 'Olá {{name}}, seu pedido #{{pedido}} está {{status}}.';
-echo render($template, ['name' => 'João', 'pedido' => 1234, 'status' => 'entregu
+$template = 'Hello {{name}}, your order #{{order}} is {{status}}.';
+echo render($template, ['name' => 'John', 'order' => 1234, 'status' => 'delivered']);
 ```
 
 ### Exercício 2.4 — Formatador de Telefone (Fácil)
@@ -80,15 +81,15 @@ Se o número for inválido, lance uma exceção.
 ## Módulo 8–10: OOP, Tratamento de Erros e Namespaces
 
 ### Exercício 3.1 — Classe Conta Bancária (Fácil)
-Crie a classe `ContaBancaria` com propriedades privadas: `$titular`, `$saldo`, `$numero`. Métodos: `depositar($value)`, `sacar($value)`, `getSaldo()`. Validações: não pode sacar mais que o saldo, não pode depositar/sacar valores negativos.
+Crie a classe `BankAccount` com propriedades privadas: `$owner`, `$balance`, `$number`. Métodos: `deposit($value)`, `withdraw($value)`, `getBalance()`. Validações: não pode sacar mais que o saldo, não pode depositar/sacar valores negativos.
 
 ### Exercício 3.2 — Sistema Simples de Eventos (Médio)
 Crie uma classe `EventDispatcher` que permita registrar listeners para eventos e dispará-los. Use closure/callable.
 
 ```php
 $dispatcher = new EventDispatcher();
-$dispatcher->on('user.created', function ($user) { echo "Usuário {$user} criado."; });
-$dispatcher->dispatch('user.created', 'Jo
+$dispatcher->on('user.created', function ($user) { echo "User {$user} created."; });
+$dispatcher->dispatch('user.created', 'John');
 ```
 
 ### Exercício 3.3 — Exceções Personalizadas (Médio)
@@ -102,10 +103,10 @@ Implemente um sistema de autoload compatível com PSR-4 na mão. Defina namespac
 ## Módulo 11: Manipulação de Arquivos
 
 ### Exercício 4.1 — Contador de Visitas com Arquivo (Fácil)
-Crie um contador de visitas que persista em um arquivo `contador.txt`. Cada visita incrementa o valor. Use `file_get_contents` e `file_put_contents` com `LOCK_EX`.
+Crie um contador de visitas que persista em um arquivo `counter.txt`. Cada visita incrementa o valor. Use `file_get_contents` e `file_put_contents` com `LOCK_EX`.
 
 ### Exercício 4.2 — Processador de CSV (Médio)
-Crie um script que leia um arquivo `dados.csv`, filtre linhas por uma condição (ex: idade > 25) e gere um novo CSV `filtrado.csv` com o resultado. Use `fgetcsv` e `fputcsv`.
+Crie um script que leia um arquivo `data.csv`, filtre linhas por uma condição (ex: idade > 25) e gere um novo CSV `filtered.csv` com o resultado. Use `fgetcsv` e `fputcsv`.
 
 ### Exercício 4.3 — Mini Upload Center (Médio)
 Crie um formulário para upload de até 3 arquivos simultâneos. Valide: tipo (apenas imagens), tamanho (máx 2 MB cada). Gere nomes únicos com `uniqid`. Guarde metadados em um arquivo JSON.
@@ -130,7 +131,7 @@ Crie uma classe `FormValidator` que aceite regras encadeáveis:
 $validator = new FormValidator($_POST);
 $validator->required('name')->minLength('name', 3)
           ->required('email')->email('email')
-          ->required('password')->minLength('password'
+          ->required('password')->minLength('password', 8);
 ```
 
 ### Exercício 5.3 — Formulário Multi-etapas (Médio)
@@ -147,7 +148,7 @@ Crie um endpoint que receba JSON via POST (`php://input`), valide os dados, insi
 ## Módulo 13: Sessões e Cookies
 
 ### Exercício 6.1 — Preferência de Tema (Fácil)
-Crie uma página que leia um cookie `tema` e aplique classes CSS diferentes (claro/escuro). Um formulário permite alternar entre os temas. O cookie deve durar 30 dias.
+Crie uma página que leia um cookie `theme` e aplique classes CSS diferentes (claro/escuro). Um formulário permite alternar entre os temas. O cookie deve durar 30 dias.
 
 ### Exercício 6.2 — Carrinho de Compras com Sessão (Médio)
 Expanda o exemplo do módulo 13 adicionando:
@@ -170,7 +171,7 @@ Use cookies e arquivos para persistência. Retorne `429 Too Many Requests` quand
 ## Módulo 14: Banco de Dados com PDO
 
 ### Exercício 7.1 — CRUD de Products com SQLite (Fácil)
-Crie uma tabela `produtos` (id, nome, preco, estoque, criado_em) e implemente todas as operações CRUD usando PDO + SQLite. Crie um script de teste que insira 3 produtos, liste todos, atualize um e deletar outro.
+Crie uma tabela `products` (id, name, price, stock, created_at) e implemente todas as operações CRUD usando PDO + SQLite. Crie um script de teste que insira 3 products, liste todos, atualize um e delete outro.
 
 ### Exercício 7.2 — Sistema de Busca com Filtros (Médio)
 Crie um formulário de busca de produtos com filtros:
@@ -181,7 +182,7 @@ Crie um formulário de busca de produtos com filtros:
 Construa a query dinamicamente, mas SEMPRE com prepared statements.
 
 ### Exercício 7.3 — Migração de Schema Automatizada (Médio)
-Crie um sistema simples de migrations: uma tabela `migrations` armazena quais scripts já foram executados. Scripts na pasta `migrations/` são executados em ordem (001_create_tabela_x.sql, 002_adicionar_coluna_y.sql, etc.).
+Crie um sistema simples de migrations: uma tabela `migrations` armazena quais scripts já foram executados. Scripts na pasta `migrations/` são executados em ordem (001_create_table_x.sql, 002_add_column_y.sql, etc.).
 
 ### Exercício 7.4 — Repositório Genérico com Query Builder (Difícil)
 Crie uma classe `QueryBuilder` fluente que permita construir queries SQL de forma segura:
@@ -190,11 +191,11 @@ Crie uma classe `QueryBuilder` fluente que permita construir queries SQL de form
 $qb = new QueryBuilder($pdo);
 $users = $qb->select(['id', 'name', 'email'])
                ->from('users')
-               ->where('ativo', '=', 1)
-               ->where('name', 'LIKE', '%João%')
+               ->where('active', '=', 1)
+               ->where('name', 'LIKE', '%John%')
                ->orderBy('name', 'ASC')
                ->limit(10)
-               ->g
+               ->get();
 ```
 
 **Requisitos:** Todas as cláusulas `where` devem usar prepared statements. Métodos encadeáveis: `select()`, `from()`, `where()`, `whereIn()`, `orderBy()`, `limit()`, `offset()`, `get()`, `first()`, `count()`, `insert()`, `update()`, `delete()`.
@@ -237,7 +238,7 @@ Crie um micro blog que use apenas arquivos (sem banco de dados):
 
 - `posts/` contém um arquivo `.json` por post
 - O nome do arquivo é o slug do título
-- Cada arquivo contém: `{"titulo":"...", "conteudo":"...", "data":"...", "autor":"..."}`
+- Cada arquivo contém: `{"title":"...", "content":"...", "date":"...", "author":"..."}`
 - Página inicial lista todos os posts (lê com `glob` + `file_get_contents`)
 - Formulário cria novos posts (gera arquivo JSON com `file_put_contents` + `LOCK_EX`)
 
@@ -246,19 +247,19 @@ Crie uma API RESTful completa para o To-Do List do Projeto 2, usando JSON para c
 
 | Método | Endpoint | Ação |
 |--------|----------|------|
-| GET | `/api/tarefas` | Listar todas |
-| GET | `/api/tarefas/{id}` | Obter uma |
-| POST | `/api/tarefas` | Criar |
-| PUT | `/api/tarefas/{id}` | Atualizar |
-| DELETE | `/api/tarefas/{id}` | Remover |
-| PATCH | `/api/tarefas/{id}/toggle` | Alternar concluída |
+| GET | `/api/tasks` | List all |
+| GET | `/api/tasks/{id}` | Get one |
+| POST | `/api/tasks` | Create |
+| PUT | `/api/tasks/{id}` | Update |
+| DELETE | `/api/tasks/{id}` | Delete |
+| PATCH | `/api/tasks/{id}/toggle` | Toggle complete |
 
 **Requisitos:** SQLite + PDO, autenticação via token no header `Authorization: Bearer <token>`, rate limiting, cache de headers `ETag`.
 
 ### Exercício 9.3 — Sistema de Comentários com Moderação (Difícil)
 Adicione ao Blog do Projeto 4 um sistema de comentários:
 
-- Cada post tem comentários (tabela `comentarios`)
+- Cada post tem comentários (tabela `comments`)
 - Visitantes podem comentar (nome + texto)
 - Admin pode aprovar/rejeitar comentários
 - Anti-spam: limite de 3 comentários por IP a cada 10 minutos
@@ -273,10 +274,11 @@ Adicione ao Blog do Projeto 4 um sistema de comentários:
 ```php
 $imc = round($weight / ($height ** 2), 1);
 $classification = match (true) {
-    $imc < 18.5  => 'Abaixo do peso',
-    $imc < 25    => 'Peso normal',
-    $imc < 30    => 'Sobrepeso',
-    default      => 'Obesidade
+    $imc < 18.5  => 'Underweight',
+    $imc < 25    => 'Normal weight',
+    $imc < 30    => 'Overweight',
+    default      => 'Obesity',
+};
 ```
 
 ### Exercício 1.3 (CPF)
@@ -291,7 +293,8 @@ function slug(string $text): string {
     $text = iconv('UTF-8', 'ASCII//TRANSLIT', $text);
     $text = preg_replace('/[^a-zA-Z0-9\s-]/', '', $text);
     $text = preg_replace('/[\s]+/', '-', trim($text));
-    return strtolower($tex
+    return strtolower($text);
+}
 ```
 
 ### Exercício 2.2 (Emails)
@@ -302,14 +305,14 @@ Dica: Lance `InvalidArgumentException` para valores negativos e `RuntimeExceptio
 
 ### Exercício 4.1 (Contador)
 ```php
-$counter = (int) file_get_contents('contador.txt');
+$counter = (int) file_get_contents('counter.txt');
 $counter++;
-file_put_contents('contador.txt', $counter, LOCK_EX);
-echo "Visitas: {$count
+file_put_contents('counter.txt', $counter, LOCK_EX);
+echo "Visits: {$counter}";
 ```
 
 ### Exercício 4.3 (Upload Center)
-Dica: Use `$_FILES['arquivos']` com `name="arquivos[]" multiple`. Itere com `for ($i = 0; $i < count($_FILES['arquivos']['name']); $i++)`.
+Dica: Use `$_FILES['files']` com `name="files[]" multiple`. Itere com `for ($i = 0; $i < count($_FILES['files']['name']); $i++)`.
 
 ### Exercício 5.4 (API REST)
 ```php
@@ -318,13 +321,13 @@ $json = file_get_contents('php://input');
 $data = json_decode($json, true);
 if (json_last_error() !== JSON_ERROR_NONE) {
     http_response_code(400);
-    echo json_encode(['error' => 'JSON inválido']);
-    ex
+    echo json_encode(['error' => 'Invalid JSON']);
+    exit;
 ```
 
 ### Exercício 6.1 (Tema)
 ```php
-setcookie('theme', $_POST['theme'], time() + 86400 * 30, '/', '', false, fa
+setcookie('theme', $_POST['theme'], time() + 86400 * 30, '/', '', false, false);
 ```
 
 ### Exercício 6.4 (Rate Limiter)
@@ -333,7 +336,7 @@ Dica: Armazene um array `['attempts' => [], 'blocked_until' => null]` em arquivo
 ### Exercício 7.1 (CRUD Products)
 ```php
 $pdo = new PDO('sqlite:products.sqlite');
-$pdo->exec("CREATE TABLE IF NOT EXISTS products (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, price REAL, stock INTEGER, created_at TEXT DEFAULT (datetime('now')
+$pdo->exec("CREATE TABLE IF NOT EXISTS products (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, price REAL, stock INTEGER, created_at TEXT DEFAULT (datetime('now')))");
 ```
 
 ### Exercício 7.2 (Busca com Filtros)
@@ -343,7 +346,7 @@ Dica: Construa o WHERE incrementalmente com array de condições e array de par�
 $conditions = [];
 $params = [];
 if (!empty($name)) { $conditions[] = 'name LIKE :name'; $params[':name'] = "%{$name}%"; }
-$sql = 'SELECT * FROM products' . ($conditions ? ' WHERE ' . implode(' AND ', $conditions) :
+$sql = 'SELECT * FROM products' . ($conditions ? ' WHERE ' . implode(' AND ', $conditions) : '');
 ```
 
 ### Exercício 7.4 (QueryBuilder)
@@ -357,7 +360,8 @@ function safe(mixed $amount, string $context = 'html'): string {
         'js'   => json_encode($amount, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT),
         'url'  => urlencode((string) $amount),
         default => htmlspecialchars((string) $amount, ENT_QUOTES, 'UTF-8'),
-   
+    };
+}
 ```
 
 ### Exercício 8.4 (Remember Me)
@@ -370,7 +374,7 @@ Dica: `glob('posts/*.json')` para listar, `file_get_contents` para ler, `file_pu
 Dica: Use `parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH)` e `explode('/', trim($path, '/'))` para extrair parâmetros da URL. Token: compare `hash_equals($tokenBanco, $_SERVER['HTTP_AUTHORIZATION'])` após remover "Bearer ".
 
 ### Exercício 9.3 (Comentários)
-Dica: Estrutura da tabela: `id, post_id, nome, texto, aprovado, ip, criado_em`. Rate limit por IP similar ao Exercício 6.4. Admin acessa `/admin/comentarios` com lista de pendentes e botões aprovar/rejeitar.
+Dica: Estrutura da tabela: `id, post_id, name, text, approved, ip, created_at`. Rate limit por IP similar ao Exercício 6.4. Admin acessa `/admin/comments` com lista de pendentes e botões aprovar/rejeitar.
 
 ---
 
