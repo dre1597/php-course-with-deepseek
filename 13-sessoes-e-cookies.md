@@ -1,71 +1,71 @@
-# Módulo 13: Sessões e Cookies
+# Module 13: Sessions and Cookies
 
-## Visão Geral
+## Overview
 
-HTTP é um protocolo **stateless** (sem estado). Cada requisição é independente. Sessões e cookies permitem que o servidor reconheça usuários entre requisições. Sessões armazenam dados no servidor; cookies armazenam dados no navegador do cliente.
+HTTP is a **stateless** protocol. Each request is independent. Sessions and cookies allow the server to recognize users across requests. Sessions store data on the server; cookies store data in the client's browser.
 
 ---
 
-## 1. Sessões: `session_start()`
+## 1. Sessions: `session_start()`
 
-`session_start()` deve ser chamada **antes de qualquer output** HTML, echo, print ou mesmo espaços em branco fora de `<?php ?>`.
+`session_start()` must be called **before any HTML output**, echo, print, or even whitespace outside of `<?php ?>`.
 
 ```php
 <?php
-// SEMPRE no topo do arquivo, antes de qualquer HTML
+// ALWAYS at the top of the file, before any HTML
 session_start();
 
-// Agora $_SESSION está disponível
+// Now $_SESSION is available
 $_SESSION['user_id'] = 42;
-$_SESSION['name'] = 'João Silva';
+$_SESSION['name'] = 'John Doe';
 $_SESSION['logged_in_at'] = time();
 
-echo "Sessão iniciada para {$_SESSION['name'
+echo "Session started for {$_SESSION['name']}<br>\n";
 ```
 
-> ⚠️ **Cuidado:** Se houver qualquer output antes de `session_start()`, o PHP emitirá: `Warning: session_start(): Cannot start session when headers already sent`.
+> **Warning:** If there is any output before `session_start()`, PHP will emit: `Warning: session_start(): Cannot start session when headers already sent`.
 
 ---
 
-## 2. `$_SESSION`: Guardar e Recuperar Dados
+## 2. `$_SESSION`: Storing and Retrieving Data
 
 ```php
 <?php
 session_start();
 
-// Guardando dados
-$_SESSION['usuario'] = [
+// Storing data
+$_SESSION['user'] = [
     'id'    => 1,
-    'name'  => 'João',
-    'email' => 'joao@email.com',
+    'name'  => 'John',
+    'email' => 'john@email.com',
     'role'  => 'admin',
 ];
 
-// Guardar preferências
+// Store preferences
 $_SESSION['theme'] = 'dark';
 $_SESSION['cart'] = [
     ['product_id' => 10, 'quantity' => 2],
     ['product_id' => 15, 'quantity' => 1],
 ];
 
-// Recuperando dados
+// Retrieving data
 if (isset($_SESSION['user'])) {
     $user = $_SESSION['user'];
-    echo "Bem-vindo, {$user['name']}!<br>\n";
-    echo "Função: {$user['role']}<br>\n";
+    echo "Welcome, {$user['name']}!<br>\n";
+    echo "Role: {$user['role']}<br>\n";
 }
 
-// Operações com session
+// Session operations
 $totalItems = count($_SESSION['cart']);
 
-// Remover um item específico
+// Remove a specific item
 unset($_SESSION['cart'][0]);
 
-// Adicionar ao carrinho
-$_SESSION['cart'][] = ['product_id' => 20, 'quantity'
+// Add to cart
+$_SESSION['cart'][] = ['product_id' => 20, 'quantity' => 3];
 ```
 
-### Verificar se sessão está ativa
+### Check if session is active
 
 ```php
 <?php
@@ -73,34 +73,35 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Ou
+// Or
 if (session_status() === PHP_SESSION_ACTIVE) {
-    echo "Sessão ativa<br
+    echo "Session active<br>\n";
+}
 ```
 
 ---
 
-## 3. `session_unset()` e `session_destroy()`
+## 3. `session_unset()` and `session_destroy()`
 
 ```php
 <?php
 session_start();
 
-// session_unset() — limpa todas as variáveis da sessão
-// mas mantém a sessão ativa
+// session_unset() — clears all session variables
+// but keeps the session active
 session_unset();
-echo "Variáveis limpas. A sessão continua ativa.<br>\n";
+echo "Variables cleared. Session remains active.<br>\n";
 
-// session_destroy() — destrói a sessão do servidor
-// O cookie de sessão ainda existe no navegador!
-$_SESSION = []; // limpa o array
+// session_destroy() — destroys the session on the server
+// The session cookie still exists in the browser!
+$_SESSION = []; // clear the array
 
 if (ini_get('session.use_cookies')) {
     $params = session_get_cookie_params();
     setcookie(
         session_name(),
         '',
-        time() - 42000, // expira no passado
+        time() - 42000, // expires in the past
         $params['path'],
         $params['domain'],
         $params['secure'],
@@ -109,20 +110,20 @@ if (ini_get('session.use_cookies')) {
 }
 
 session_destroy();
-echo "Sessão destruída.<
+echo "Session destroyed.<br>\n";
 ```
 
-### Logout completo (receita)
+### Complete logout (recipe)
 
 ```php
 <?php
 // logout.php
 session_start();
 
-// 1. Limpa os dados da sessão
+// 1. Clear session data
 $_SESSION = [];
 
-// 2. Remove o cookie de sessão
+// 2. Remove the session cookie
 if (ini_get('session.use_cookies')) {
     $params = session_get_cookie_params();
     setcookie(
@@ -136,141 +137,143 @@ if (ini_get('session.use_cookies')) {
     );
 }
 
-// 3. Destrói a sessão no servidor
+// 3. Destroy the session on the server
 session_destroy();
 
-// 4. Redireciona para a página de login
-header('Location: /login.php')
+// 4. Redirect to login page
+header('Location: /login.php');
+exit;
 ```
 
 ---
 
 ## 4. `session_regenerate_id()`
 
-Regenere o ID da sessão após o login para prevenir **session fixation**.
+Regenerate the session ID after login to prevent **session fixation**.
 
 ```php
 <?php
 session_start();
 
-// Após login bem-sucedido
+// After successful login
 $_SESSION['user_id'] = $user['id'];
 
-// Regenera o ID — importante para segurança!
-// true: remove o arquivo de sessão antigo
+// Regenerate the ID — important for security!
+// true: removes the old session file
 session_regenerate_id(true);
 
-echo "Login realizado. ID da sessão foi regenerado.<
+echo "Login successful. Session ID regenerated.<br>\n";
 ```
 
-> 💡 **Dica:** Sempre chame `session_regenerate_id(true)` após login, logout e mudanças de permissão do usuário.
+> **Tip:** Always call `session_regenerate_id(true)` after login, logout, and user permission changes.
 
 ---
 
-## 5. Configuração de Sessão
+## 5. Session Configuration
 
 ```php
 <?php
-// Configurar antes de session_start()
+// Configure before session_start()
 
-// Tempo de vida da sessão no servidor (em segundos)
-// 3600 = 1 hora, 86400 = 24 horas
-ini_set('session.gc_maxlifetime', 86400); // 24 horas
+// Session lifetime on the server (in seconds)
+// 3600 = 1 hour, 86400 = 24 hours
+ini_set('session.gc_maxlifetime', 86400); // 24 hours
 
-// Cookies de sessão
-ini_set('session.cookie_lifetime', 0);      // 0 = até fechar navegador
-ini_set('session.cookie_path', '/');         // disponível em todo site
-ini_set('session.cookie_domain', '');        // domínio atual
-ini_set('session.cookie_secure', '1');       // apenas HTTPS
-ini_set('session.cookie_httponly', '1');     // inacessível via JavaScript
-ini_set('session.cookie_samesite', 'Lax');   // proteção CSRF
+// Session cookies
+ini_set('session.cookie_lifetime', 0);      // 0 = until browser closes
+ini_set('session.cookie_path', '/');         // available site-wide
+ini_set('session.cookie_domain', '');        // current domain
+ini_set('session.cookie_secure', '1');       // HTTPS only
+ini_set('session.cookie_httponly', '1');     // inaccessible via JavaScript
+ini_set('session.cookie_samesite', 'Lax');   // CSRF protection
 
-// Nome do cookie de sessão (mudar do padrão PHPSESSID)
-session_name('MEUAPP_SESSID');
+// Session cookie name (change from default PHPSESSID)
+session_name('MYAPP_SESSID');
 
-// Diretório onde os arquivos de sessão são salvos
-// session.save_path — não pode ser alterado via ini_set em produção
-// Configurar no php.ini
+// Directory where session files are saved
+// session.save_path — cannot be changed via ini_set in production
+// Configure in php.ini
 
-// Probabilidade de coleta de lixo (garbage collection)
+// Garbage collection probability
 ini_set('session.gc_probability', 1);
-ini_set('session.gc_divisor', 100); // 1% de chance a cada requisição
+ini_set('session.gc_divisor', 100); // 1% chance per request
 
-session_s
+session_start();
 ```
 
-### Configuração via `session_set_cookie_params()`
+### Configuration via `session_set_cookie_params()`
 
 ```php
 <?php
-// Alternativa mais limpa que ini_set
+// Cleaner alternative to ini_set
 session_set_cookie_params([
     'lifetime' => 86400,
     'path'     => '/',
-    'domain'   => 'meusite.com.br',
+    'domain'   => 'mysite.com',
     'secure'   => true,
     'httponly' => true,
     'samesite' => 'Strict',
 ]);
 
-session_s
+session_start();
 ```
 
-### Configuração típica no `php.ini`
+### Typical configuration in `php.ini`
 
 ```ini
 session.save_handler = files
 session.save_path = "/tmp"
-session.gc_maxlifetime = 1440          ; 24 minutos (padrão)
-session.cookie_lifetime = 0            ; expira ao fechar navegador
-session.cookie_httponly = On           ; não acessível via JS
-session.cookie_secure = On             ; apenas HTTPS
+session.gc_maxlifetime = 1440          ; 24 minutes (default)
+session.cookie_lifetime = 0            ; expires when browser closes
+session.cookie_httponly = On           ; inaccessible via JS
+session.cookie_secure = On             ; HTTPS only
 session.cookie_samesite = "Lax"        ; CSRF
-session.use_strict_mode = On           ; rejeita IDs não inicializados
-session.use_only_cookies = On          ; não permite ID na URL
+session.use_strict_mode = On           ; rejects uninitialized IDs
+session.use_only_cookies = On          ; disallows ID in URL
 ```
 
 ---
 
 ## 6. Cookies: `setcookie()`
 
-Cookies armazenam dados no navegador do cliente. São enviados em toda requisição HTTP subsequente ao mesmo domínio.
+Cookies store data in the client's browser. They are sent with every subsequent HTTP request to the same domain.
 
 ```php
 <?php
-// setcookie(name, valor, expira, path, domain, secure, httponly, samesite)
+// setcookie(name, value, expires, path, domain, secure, httponly, samesite)
 
-// Cookie simples
+// Simple cookie
 setcookie('theme', 'dark');
 
-// Cookie com tempo de expiração
-// time() + segundos
-setcookie('remember_login', 'sim', time() + (86400 * 30)); // 30 dias
-setcookie('locale', 'pt-BR', time() + (86400 * 365)); // 1 ano
+// Cookie with expiration time
+// time() + seconds
+setcookie('remember_login', 'yes', time() + (86400 * 30)); // 30 days
+setcookie('locale', 'en-US', time() + (86400 * 365)); // 1 year
 
-// Cookie com caminho específico (só disponível em /admin)
+// Cookie with specific path (only available in /admin)
 setcookie('admin_token', 'abc123', time() + 3600, '/admin');
 
-// Cookie com todas as opções de segurança
+// Cookie with all security options
 setcookie(
     'token',
-    'valor-codificado',
+    'encoded-value',
     [
         'expires'  => time() + 86400,
         'path'     => '/',
-        'domain'   => '',               // domínio atual
-        'secure'   => true,             // apenas HTTPS
-        'httponly' => true,             // não acessível via JavaScript
-        'samesite' => 'Strict',          // Lax, Strict ou None
- 
+        'domain'   => '',               // current domain
+        'secure'   => true,             // HTTPS only
+        'httponly' => true,             // inaccessible via JavaScript
+        'samesite' => 'Strict',         // Lax, Strict or None
+    ]
+);
 ```
 
-> **PHP 8.5+** — Nova flag `partitioned`
+> **PHP 8.5+** — New `partitioned` flag
 
 ```php
 <?php
-// PHP 8.5+: Cookies Particionados (CHIPS — Cookies Having Independent Partitioned State)
-// Útil para cookies em iframes de terceiros
+// PHP 8.5+: Partitioned Cookies (CHIPS — Cookies Having Independent Partitioned State)
+// Useful for cookies in third-party iframes
 // https://developer.chrome.com/docs/privacy-sandbox/chips/
 setcookie(
     'widget_pref',
@@ -280,112 +283,114 @@ setcookie(
         'path'         => '/',
         'secure'       => true,
         'httponly'     => true,
-        'samesite'     => 'None',       // Requer None para cross-site
-        'partitioned'  => true,          // PHP 8.5+ NOVIDADE!
- 
+        'samesite'     => 'None',       // Requires None for cross-site
+        'partitioned'  => true,         // PHP 8.5+ NEW!
+    ]
+);
 ```
 
-### `setrawcookie()` — Cookie sem URL-encode
+### `setrawcookie()` — Cookie without URL-encoding
 
 ```php
 <?php
-// setcookie aplica urlencode
-setcookie('name', 'João Silva'); // cookie armazenado como: Jo%C3%A3o+Silva
+// setcookie applies urlencode
+setcookie('name', 'John Doe'); // cookie stored as: John+Doe
 
-// setrawcookie NÃO aplica urlencode (você é responsável)
-setrawcookie('token', rawurlencode('abcd/x
+// setrawcookie does NOT apply urlencode (you are responsible)
+setrawcookie('token', rawurlencode('abcd/xyz'));
 ```
 
 ---
 
-## 7. `$_COOKIE` — Lendo Cookies
+## 7. `$_COOKIE` — Reading Cookies
 
 ```php
 <?php
-// Cookies definidos com setcookie só estarão disponíveis
-// em $_COOKIE na PRÓXIMA requisição
+// Cookies set with setcookie will only be available
+// in $_COOKIE on the NEXT request
 
-// Leitura segura com operador null coalescing
+// Safe read with null coalescing operator
 $theme = $_COOKIE['theme'] ?? 'light';
-$locale = $_COOKIE['locale'] ?? 'pt-BR';
+$locale = $_COOKIE['locale'] ?? 'en-US';
 
-// Verificar existência
+// Check existence
 if (isset($_COOKIE['remember_login'])) {
-    echo "Usuário escolheu 'lembrar login'.<br>\n";
+    echo "User chose 'remember login'.<br>\n";
 }
 
-// Listar todos os cookies recebidos
-echo "<h3>Cookies recebidos:</h3>\n";
+// List all received cookies
+echo "<h3>Received cookies:</h3>\n";
 echo "<ul>\n";
 foreach ($_COOKIE as $name => $value) {
     echo "<li>" . htmlspecialchars($name) . " = " . htmlspecialchars($value) . "</li>\n";
 }
-echo "</
+echo "</ul>\n";
 ```
 
-### Remover um Cookie
+### Removing a Cookie
 
 ```php
 <?php
-// Para remover, defina com tempo de expiração no passado
+// To remove, set expiration time in the past
 setcookie('theme', '', time() - 3600);
 setcookie('locale', '', time() - 3600, '/');
 
-// Com opções de array
+// With array options
 setcookie('remember_login', '', [
     'expires' => time() - 3600,
     'path'    => '/',
     'secure'  => true,
     'httponly' => true,
-    'samesite' => 'Stric
+    'samesite' => 'Strict',
+]);
 ```
 
 ---
 
-## 8. Cookie de Sessão vs Cookie Persistente
+## 8. Session Cookie vs Persistent Cookie
 
 ```php
 <?php
-// Cookie de sessão: definido SEM expires ou com lifetime 0
-// Desaparece quando o navegador fecha
+// Session cookie: set WITHOUT expires or with lifetime 0
+// Disappears when browser closes
 setcookie('visited_page', '1', 0);
 setcookie('visited_page', '1', ['expires' => 0]);
 
-// Cookie persistente: tem tempo de expiração definido
-// Sobrevive ao fechamento do navegador
-setcookie('remember_user', 'joao', time() + (86400 * 30)); // 
+// Persistent cookie: has a defined expiration time
+// Survives browser close
+setcookie('remember_user', 'john', time() + (86400 * 30)); // 30 days
 ```
 
 ---
 
-## 9. Flash Messages com Sessão
+## 9. Flash Messages with Sessions
 
-Mensagens "flash" são exibidas apenas uma vez e depois removidas. Ideais para feedback pós-redirecionamento.
+Flash messages are displayed only once and then removed. Ideal for post-redirect feedback.
 
 ```php
 <?php
 session_start();
 
-// flash.php — Funções para flash messages
+// flash.php — Flash message functions
 
 function flash(string $key, string $message = null): ?string {
     if ($message !== null) {
-        // SET: guarda a mensagem
+        // SET: stores the message
         $_SESSION['flash'][$key] = $message;
         return null;
     }
 
-    // GET: recupera e remove
+    // GET: retrieves and removes
     $msg = $_SESSION['flash'][$key] ?? null;
     unset($_SESSION['flash'][$key]);
     return $msg;
 }
 
-function flashSucesso(string $message): void {
+function flashSuccess(string $message): void {
     flash('success', $message);
 }
 
-function flashErro(string $message): void {
+function flashError(string $message): void {
     flash('error', $message);
 }
 
@@ -393,14 +398,14 @@ function flashInfo(string $message): void {
     flash('info', $message);
 }
 
-// Uso:
+// Usage:
 
-// Em salvar.php (após process formulário)
-flashSucesso('Registro salvo com sucesso!');
+// In save.php (after processing the form)
+flashSuccess('Record saved successfully!');
 header('Location: /list.php');
 exit;
 
-// Em list.php (na view)
+// In list.php (in the view)
 $success = flash('success');
 if ($success): ?>
     <div class="alert alert-success"><?= htmlspecialchars($success) ?></div>
@@ -410,10 +415,10 @@ if ($success): ?>
 $error = flash('error');
 if ($error): ?>
     <div class="alert alert-danger"><?= htmlspecialchars($error) ?></div>
-<?php en
+<?php endif;
 ```
 
-### Classe Flash Messages completa
+### Complete Flash Messages class
 
 ```php
 <?php
@@ -466,15 +471,15 @@ class FlashMessages {
     }
 }
 
-// Uso
-FlashMessages::success('Arquivo enviado!');
-FlashMessages::error('Falha na conexão.');
-echo FlashMessages::re
+// Usage
+FlashMessages::success('File uploaded!');
+FlashMessages::error('Connection failed.');
+echo FlashMessages::render();
 ```
 
 ---
 
-## 10. Login Básico com Sessão
+## 10. Basic Login with Session
 
 ```php
 <?php
@@ -484,10 +489,10 @@ session_start();
 $error = '';
 $email = '';
 
-// Usuários hardcoded para demonstração
+// Hardcoded users for demo
 $users = [
     'admin@email.com' => [
-        'name'  => 'Administrador',
+        'name'  => 'Administrator',
         'password' => password_hash('admin123', PASSWORD_DEFAULT),
         'id'    => 1,
     ],
@@ -498,37 +503,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $_POST['password'] ?? '';
 
     if ($email === '' || $password === '') {
-        $error = 'Preencha todos os campos.';
+        $error = 'Fill in all fields.';
     } elseif (isset($users[$email])) {
         $user = $users[$email];
 
         if (password_verify($password, $user['password'])) {
-            // Login bem-sucedido!
-$_SESSION['user'] = [
+            // Login successful!
+            $_SESSION['user'] = [
                 'id'    => $user['id'],
                 'name'  => $user['name'],
                 'email' => $email,
             ];
 
-            session_regenerate_id(true); // previne session fixation
+            session_regenerate_id(true); // prevents session fixation
 
             header('Location: /dashboard.php');
             exit;
         } else {
-            $error = 'Email ou password incorretos.';
+            $error = 'Incorrect email or password.';
         }
     } else {
-        // Use mensagem genérica para não revelar se o email existe
-        $error = 'Email ou password incorretos.';
+        // Use generic message to avoid revealing if the email exists
+        $error = 'Incorrect email or password.';
     }
 }
 ?>
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head><meta charset="UTF-8"><title>Login</title>
 <style>
     body { font-family: sans-serif; max-width: 380px; margin: 60px auto; }
-    .erro { background: #fee; color: #c00; padding: 10px; border-radius: 4px; }
+    .error { background: #fee; color: #c00; padding: 10px; border-radius: 4px; }
     label { display: block; margin: 12px 0 4px; font-weight: 600; }
     input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
     button { margin-top: 16px; padding: 10px 24px; background: #2563eb; color: white;
@@ -537,28 +542,28 @@ $_SESSION['user'] = [
 <body>
     <h1>Login</h1>
     <?php if ($error): ?>
-        <div class="erro"><?= htmlspecialchars($error) ?></div>
+        <div class="error"><?= htmlspecialchars($error) ?></div>
     <?php endif; ?>
     <form method="post">
         <label for="email">Email</label>
         <input type="email" id="email" name="email" value="<?= htmlspecialchars($email) ?>" required>
 
-        <label for="password">Senha</label>
+        <label for="password">Password</label>
         <input type="password" id="password" name="password" required>
 
-        <button type="submit">Entrar</button>
+        <button type="submit">Login</button>
     </form>
 </body>
 ```
 
-### Página protegida (dashboard)
+### Protected page (dashboard)
 
 ```php
 <?php
 // dashboard.php
 session_start();
 
-// Verifica se está logado
+// Check if logged in
 if (!isset($_SESSION['user'])) {
     header('Location: /login.php');
     exit;
@@ -567,17 +572,17 @@ if (!isset($_SESSION['user'])) {
 $user = $_SESSION['user'];
 ?>
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head><meta charset="UTF-8"><title>Dashboard</title></head>
 <body>
-    <h1>Bem-vindo, <?= htmlspecialchars($user['name']) ?>!</h1>
+    <h1>Welcome, <?= htmlspecialchars($user['name']) ?>!</h1>
     <p>Email: <?= htmlspecialchars($user['email']) ?></p>
     <p>ID: <?= $user['id'] ?></p>
-    <a href="/logout.php">Sair</a>
+    <a href="/logout.php">Logout</a>
 </body>
 ```
 
-### Função auxiliar para proteger páginas
+### Helper function to protect pages
 
 ```php
 <?php
@@ -592,80 +597,80 @@ function requireLogin(): void {
     }
 }
 
-// Em qualquer página protegida:
+// On any protected page:
 requireLogin();
-// O usuário está logado, cont
+// User is logged in, continue...
 ```
 
 ---
 
-## 11. Segurança: Session Fixation e Session Hijacking
+## 11. Security: Session Fixation and Session Hijacking
 
 ### Session Fixation
 
-O atacante define um ID de sessão conhecido (ex: via URL `?PHPSESSID=123`) e induz a vítima a usá-lo. Após o login, o atacante usa o mesmo ID para acessar a sessão autenticada.
+The attacker sets a known session ID (e.g., via URL `?PHPSESSID=123`) and tricks the victim into using it. After login, the attacker uses the same ID to access the authenticated session.
 
-**Mitigação:**
+**Mitigation:**
 ```php
 <?php
 session_start();
 
-// 1. Habilitar strict mode (php.ini)
+// 1. Enable strict mode (php.ini)
 // session.use_strict_mode = On
 
-// 2. Regenerar ID após login
-session_regenerate_id
+// 2. Regenerate ID after login
+session_regenerate_id(true);
 ```
 
 ### Session Hijacking
 
-O atacante rouba o ID de sessão da vítima (ex: via XSS, sniffing de rede).
+The attacker steals the victim's session ID (e.g., via XSS, network sniffing).
 
-**Mitigações:**
+**Mitigations:**
 ```php
 <?php
-// 1. Vincular sessão ao IP e User-Agent
+// 1. Bind session to IP and User-Agent
 if (!isset($_SESSION['user_agent'])) {
     $_SESSION['user_agent'] = $_SERVER['HTTP_USER_AGENT'];
 } elseif ($_SESSION['user_agent'] !== $_SERVER['HTTP_USER_AGENT']) {
-    // Sessão potencialmente roubada — força logout
+    // Potentially stolen session — force logout
     session_destroy();
     header('Location: /login.php?error=session');
     exit;
 }
 
-// 2. Cookies HttpOnly (não acessível via JavaScript)
+// 2. HttpOnly cookies (inaccessible via JavaScript)
 ini_set('session.cookie_httponly', '1');
 
-// 3. Cookies Secure (apenas HTTPS)
+// 3. Secure cookies (HTTPS only)
 ini_set('session.cookie_secure', '1');
 
-// 4. SameSite=Strict para prevenir CSRF
-ini_set('session.cookie_samesite', 'St
+// 4. SameSite=Strict to prevent CSRF
+ini_set('session.cookie_samesite', 'Strict');
 ```
 
 ---
 
-## 12. Exemplo Prático: Carrinho de Compras com Sessão
+## 12. Practical Example: Shopping Cart with Session
 
 ```php
 <?php
-// carrinho.php
+// cart.php
 session_start();
 
 if (!isset($_SESSION['cart'])) {
     $_SESSION['cart'] = [];
 }
 
-// Products de exemplo
+// Sample products
 $products = [
-    1 => ['name' => 'Camiseta PHP',         'price' => 59.90],
-    2 => ['name' => 'Caneca Programador',   'price' => 39.90],
-    3 => ['name' => 'Adesivo Elefante PHP', 'price' =>  9.90],
-    4 => ['name' => 'Livro PHP Moderno',    'price' => 129.90],
+    1 => ['name' => 'PHP T-Shirt',           'price' => 59.90],
+    2 => ['name' => 'Programmer Mug',        'price' => 39.90],
+    3 => ['name' => 'PHP Elephant Sticker',  'price' =>  9.90],
+    4 => ['name' => 'Modern PHP Book',       'price' => 129.90],
 ];
 
-// Ação: adicionar
+// Action: add
 if (isset($_GET['add'])) {
     $id = (int) $_GET['add'];
     if (isset($products[$id])) {
@@ -678,22 +683,22 @@ if (isset($_GET['add'])) {
                 'qty'   => 1,
             ];
         }
-        $_SESSION['flash'] = "{$products[$id]['name']} adicionado ao carrinho!";
+        $_SESSION['flash'] = "{$products[$id]['name']} added to cart!";
     }
 }
 
-// Ação: remover
+// Action: remove
 if (isset($_GET['remove'])) {
     $id = (int) $_GET['remove'];
     unset($_SESSION['cart'][$id]);
 }
 
-// Ação: limpar carrinho
+// Action: clear cart
 if (isset($_GET['clear'])) {
     $_SESSION['cart'] = [];
 }
 
-// Calcular total
+// Calculate total
 $total = 0;
 $counter = 0;
 foreach ($_SESSION['cart'] as $item) {
@@ -705,8 +710,8 @@ $flash = $_SESSION['flash'] ?? '';
 unset($_SESSION['flash']);
 ?>
 <!DOCTYPE html>
-<html lang="pt-BR">
-<head><meta charset="UTF-8"><title>Carrinho de Compras</title>
+<html lang="en">
+<head><meta charset="UTF-8"><title>Shopping Cart</title>
 <style>
     body { font-family: sans-serif; max-width: 700px; margin: 30px auto; padding: 0 20px; }
     table { width: 100%; border-collapse: collapse; margin: 20px 0; }
@@ -718,11 +723,11 @@ unset($_SESSION['flash']);
     .btn-remove { background: #dc2626; }
     .btn-clear { background: #6b7280; }
     .products { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
-    .produto { border: 1px solid #ddd; padding: 12px; border-radius: 6px; }
+    .product { border: 1px solid #ddd; padding: 12px; border-radius: 6px; }
     .total { font-size: 1.2rem; font-weight: bold; text-align: right; }
 </style></head>
 <body>
-    <h1>Carrinho (<?= $counter ?> itens)</h1>
+    <h1>Cart (<?= $counter ?> items)</h1>
 
     <?php if ($flash): ?>
         <div class="flash"><?= htmlspecialchars($flash) ?></div>
@@ -731,68 +736,75 @@ unset($_SESSION['flash']);
     <h2>Products</h2>
     <div class="products">
         <?php foreach ($products as $id => $p): ?>
-            <div class="produto">
+            <div class="product">
                 <strong><?= htmlspecialchars($p['name']) ?></strong><br>
-                R$ <?= number_format($p['price'], 2, ',', '.') ?><br>
-                <a href="?add=<?= $id ?>" class="btn btn-add">Adicionar</a>
+                $ <?= number_format($p['price'], 2, '.', ',') ?><br>
+                <a href="?add=<?= $id ?>" class="btn btn-add">Add</a>
             </div>
         <?php endforeach; ?>
     </div>
 
     <?php if (!empty($_SESSION['cart'])): ?>
-        <h2>Seu Carrinho</h2>
+        <h2>Your Cart</h2>
         <table>
-            <tr><th>Product</th><th>Preço</th><th>Qtd</th><th>Subtotal</th><th></th></tr>
+            <tr><th>Product</th><th>Price</th><th>Qty</th><th>Subtotal</th><th></th></tr>
             <?php foreach ($_SESSION['cart'] as $id => $item): ?>
             <tr>
                 <td><?= htmlspecialchars($item['name']) ?></td>
-                <td>R$ <?= number_format($item['price'], 2, ',', '.') ?></td>
+                <td>$ <?= number_format($item['price'], 2, '.', ',') ?></td>
                 <td><?= $item['qty'] ?></td>
-                <td>R$ <?= number_format($item['price'] * $item['qty'], 2, ',', '.') ?></td>
+                <td>$ <?= number_format($item['price'] * $item['qty'], 2, '.', ',') ?></td>
                 <td><a href="?remove=<?= $id ?>" class="btn btn-remove">X</a></td>
             </tr>
             <?php endforeach; ?>
         </table>
-        <p class="total">Total: R$ <?= number_format($total, 2, ',', '.') ?></p>
-        <a href="?clear=1" class="btn btn-clear">Limpar Carrinho</a>
+        <p class="total">Total: $ <?= number_format($total, 2, '.', ',') ?></p>
+        <a href="?clear=1" class="btn btn-clear">Clear Cart</a>
     <?php else: ?>
-        <p>Seu carrinho está vazio.</p>
+        <p>Your cart is empty.</p>
     <?php endif; ?>
 </body>
 ```
 
 ---
 
-## 13. Cookies com Arrays (Serialização)
+## 13. Cookies with Arrays (Serialization)
 
 ```php
 <?php
-// Cookies armazenam strings. Para guardar arrays, serialize ou json_encode.
+// Cookies store strings. To store arrays, serialize or json_encode.
 
-// Guardar preferências como JSON
+// Store preferences as JSON
 $preferences = ['theme' => 'dark', 'font' => 'large', 'notifications' => false];
 setcookie('prefs', json_encode($preferences), time() + (86400 * 365), '/');
 
 $prefs = json_decode($_COOKIE['prefs'] ?? '{}', true);
-echo "Tema: " . ($prefs['theme'] ?? 'light') . "<br>\n";
+echo "Theme: " . ($prefs['theme'] ?? 'light') . "<br>\n";
 
 $visits = (int) ($_COOKIE['visits'] ?? 0);
 $visits++;
 setcookie('visits', (string) $visits, time() + (86400 * 365), '/');
-echo "Você visitou esta página {$visits} vez(es).<
+echo "You visited this page {$visits} time(s).<br>\n";
 ```
 
-> ⚠️ **Cuidado:** Cookies têm limite de ~4KB por cookie e ~50 cookies por domínio. Não armazene dados grandes em cookies.
+> **Warning:** Cookies have a limit of ~4KB per cookie and ~50 cookies per domain. Do not store large data in cookies.
 
 ---
 
-## 📚 Referências
+## Navigation
 
-- [PHP: Sessões](https://www.php.net/manual/pt_BR/book.session.php)
-- [PHP: session_start](https://www.php.net/manual/pt_BR/function.session-start.php)
-- [PHP: setcookie](https://www.php.net/manual/pt_BR/function.setcookie.php)
-- [PHP: session_set_cookie_params](https://www.php.net/manual/pt_BR/function.session-set-cookie-params.php)
-- [PHP: session_regenerate_id](https://www.php.net/manual/pt_BR/function.session-regenerate-id.php)
+- [← Module 12: Forms and Superglobals](./12-formularios-e-superglobais.md)
+- [→ Module 14: Database](./14-banco-de-dados.md)
+
+---
+
+## References
+
+- [PHP: Sessions](https://www.php.net/manual/en/book.session.php)
+- [PHP: session_start](https://www.php.net/manual/en/function.session-start.php)
+- [PHP: setcookie](https://www.php.net/manual/en/function.setcookie.php)
+- [PHP: session_set_cookie_params](https://www.php.net/manual/en/function.session-set-cookie-params.php)
+- [PHP: session_regenerate_id](https://www.php.net/manual/en/function.session-regenerate-id.php)
 - [OWASP: Session Management Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html)
-- [MDN: Cookies HTTP](https://developer.mozilla.org/pt-BR/docs/Web/HTTP/Cookies)
-- [MDN: Set-Cookie SameSite](https://developer.mozilla.org/pt-BR/docs/Web/HTTP/Headers/Set-Cookie/SameSite)
+- [MDN: HTTP Cookies](https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies)
+- [MDN: Set-Cookie SameSite](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie/SameSite)
