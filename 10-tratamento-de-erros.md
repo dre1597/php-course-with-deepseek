@@ -1202,8 +1202,9 @@ try {
 
 ---
 
-> **Capítulo anterior:** [09 — Programação Orientada a Objetos](./09-oop.md)
+## 🔗 Navigation
+
+- [← Module 09: OOP Part 1](./09-oop.md)
+- [→ Module 11: File Handling](./11-manipulacao-de-arquivos.md)
 
 ---
-
-**Fim do módulo intermediário de PHP!**

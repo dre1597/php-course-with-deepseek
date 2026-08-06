@@ -1642,5 +1642,7 @@ $user     = new User();              // loaded
 
 ---
 
-> **Capítulo anterior:** [08 — Strings](./08-strings.md)
-> **Próximo capítulo:** [10 — Tratamento de Erros e Exceções](./10-tratamento-de-erros.md)
+## 🔗 Navigation
+
+- [← Module 08: Strings](./08-strings.md)
+- [→ Module 10: Error Handling and Exceptions](./10-tratamento-de-erros.md)
