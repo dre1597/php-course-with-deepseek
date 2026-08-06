@@ -30,6 +30,7 @@ múltiplos conceitos.
 | 13  | Sessões e Cookies                           | [13-sessoes-e-cookies.md](13-sessoes-e-cookies.md) |
 | 14  | Banco de Dados (MySQL com PDO)              | [14-banco-de-dados.md](14-banco-de-dados.md)   |
 | 15  | Segurança em PHP                            | [15-seguranca.md](15-seguranca.md)             |
+| 16  | Testes Automatizados (PHPUnit)              | [16-testes-automatizados.md](16-testes-automatizados.md) |
 
 ## Mini Projetos
 

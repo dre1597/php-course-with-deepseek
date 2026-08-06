@@ -759,6 +759,7 @@ function requireHTTPS(): void {
 ## Navigation
 
 - [← Module 14: Database with PDO](./14-banco-de-dados.md)
+- [Module 16: Automated Testing with PHPUnit →](./16-testes-automatizados.md)
 
 ## References
 
