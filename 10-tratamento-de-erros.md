@@ -50,20 +50,20 @@ O PHP classifica erros em diferentes níveis de severidade. Conhecer cada um aju
 ```php
 <?php
 
-// E_NOTICE — variável não definida
+// E_NOTICE — undefined variable
 echo $undefinedVariable;
 // Notice: Undefined variable: undefinedVariable
 
 // E_WARNING — include de arquivo inexistente
-include 'arquivo_inexistente.php';
-// Warning: include(arquivo_inexistente.php): Failed to open stream
+include 'nonexistent_file.php';
+// Warning: include(nonexistent_file.php): Failed to open stream
 
-// E_DEPRECATED — função obsoleta
-// (exemplo hipotetico, funcoes antigas sao marcadas como deprecated)
+// E_DEPRECATED — obsolete function
+// (hypothetical example, old functions are marked as deprecated)
 // Deprecated: Function nome_da_funcao() is deprecated
 
-// E_ERROR — chamar função inexistente (em versoes antigas, hoje é Error/Throwable)
-// funcaoQueNaoExiste(); — Fatal error
+// E_ERROR — calling nonexistent function (in older versions, now it's Error/Throwable)
+// nonexistentFunction(); — Fatal error
 ```
 
 ### Exceções vs Erros
@@ -74,10 +74,10 @@ Desde o PHP 7.0, a maioria dos erros fatais foram convertidos em exceções que 
 <?php
 
 try {
-    // TypeError: funcao espera int, recebeu string
-    $result = array_sum('nao e um array');
+    // TypeError: function expects int, received string
+    $result = array_sum('not an array');
 } catch (TypeError $e) {
-    echo "TypeError capturado: " . $e->getMessage() . PHP_EOL;
+    echo "TypeError caught: " . $e->getMessage() . PHP_EOL;
 }
 ```
 
@@ -90,16 +90,16 @@ try {
 ```php
 <?php
 
-// Ambiente de desenvolvimento: show TUDO
+// Development environment: show EVERYTHING
 error_reporting(E_ALL);
 
-// Ambiente de producao: esconder notices, warnings e deprecated
+// Production environment: hide notices, warnings and deprecated
 error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING & ~E_DEPRECATED);
 
-// Apenas erros fatais
+// Only fatal errors
 error_reporting(E_ERROR);
 
-// Desligar (NAO recomendado!)
+// Turn off (NOT recommended!)
 error_reporting(0);
 ```
 
@@ -108,11 +108,11 @@ error_reporting(0);
 ```php
 <?php
 
-// MOSTRAR erros na tela (desenvolvimento)
+// SHOW errors on screen (development)
 ini_set('display_errors', '1');
 ini_set('display_startup_errors', '1');
 
-// ESCONDER erros da tela (producao) — mas logar no arquivo
+// HIDE errors from screen (production) — but log to file
 ini_set('display_errors', '0');
 ini_set('log_errors', '1');
 ini_set('error_log', '/var/log/php/php_errors.log');
@@ -124,7 +124,7 @@ ini_set('error_log', '/var/log/php/php_errors.log');
 <?php
 
 // ====================
-// DESENVOLVIMENTO
+// DEVELOPMENT
 // ====================
 function setupDevEnvironment(): void
 {
@@ -135,7 +135,7 @@ function setupDevEnvironment(): void
 }
 
 // ====================
-// PRODUCAO
+// PRODUCTION
 // ====================
 function setupProductionEnvironment(): void
 {
@@ -146,7 +146,7 @@ function setupProductionEnvironment(): void
     ini_set('error_log', __DIR__ . '/../logs/error.log');
 }
 
-// Detectar pelo hostname ou variavel de ambiente
+// Detect by hostname or environment variable
 if (getenv('APP_ENV') === 'production') {
     setupProductionEnvironment();
 } else {
@@ -157,13 +157,13 @@ if (getenv('APP_ENV') === 'production') {
 Também é possível configurar no `php.ini`:
 
 ```ini
-; php.ini — Desenvolvimento
+; php.ini — Development
 error_reporting = E_ALL
 display_errors = On
 display_startup_errors = On
 log_errors = Off
 
-; php.ini — Produção
+; php.ini — Production
 error_reporting = E_ALL & ~E_DEPRECATED & ~E_STRICT
 display_errors = Off
 display_startup_errors = Off
@@ -183,27 +183,27 @@ O bloco `try/catch/finally` é o mecanismo primário para capturar e tratar exce
 function divide(float $dividend, float $divisor): float
 {
     if ($divisor === 0.0) {
-        throw new DivisionByZeroError('Divisao por zero nao permitida');
+        throw new DivisionByZeroError('Division by zero not allowed');
     }
     return $dividend / $divisor;
 }
 
 try {
     $result = divide(10, 0);
-    echo "Resultado: {$result}";
+    echo "Result: {$result}";
 } catch (DivisionByZeroError $e) {
-    echo "Erro: " . $e->getMessage() . PHP_EOL;
-    echo "Arquivo: " . $e->getFile() . PHP_EOL;
-    echo "Linha: " . $e->getLine() . PHP_EOL;
+    echo "Error: " . $e->getMessage() . PHP_EOL;
+    echo "File: " . $e->getFile() . PHP_EOL;
+    echo "Line: " . $e->getLine() . PHP_EOL;
 } finally {
-    echo "Bloco finally: sempre executado!" . PHP_EOL;
+    echo "finally block: always executed!" . PHP_EOL;
 }
 
-// Saida:
-// Erro: Divisao por zero nao permitida
-// Arquivo: /path/to/script.php
-// Linha: 6
-// Bloco finally: sempre executado!
+// Output:
+// Error: Division by zero not allowed
+// File: /path/to/script.php
+// Line: 6
+// finally block: always executed!
 ```
 
 ### O Bloco `finally`
@@ -216,21 +216,21 @@ try {
 ```php
 <?php
 
-function readFile(string $path): string
+function readFileSafe(string $path): string
 {
     $handle = null;
     try {
         $handle = fopen($path, 'r');
         if ($handle === false) {
-            throw new RuntimeException("Nao foi possivel abrir: {$path}");
+            throw new RuntimeException("Could not open: {$path}");
         }
         $content = fread($handle, filesize($path));
         return $content;
     } finally {
-        // Garante que o arquivo sempre sera fechado
+        // Ensures the file will always be closed
         if ($handle && is_resource($handle)) {
             fclose($handle);
-            echo "[Arquivo fechado]" . PHP_EOL;
+            echo "[File closed]" . PHP_EOL;
         }
     }
 }
@@ -250,19 +250,19 @@ class ApiClient
     public function findUser(int $id): array
     {
         if ($id <= 0) {
-            throw new InvalidArgumentException('ID deve ser positivo');
+            throw new InvalidArgumentException('ID must be positive');
         }
 
         $response = @file_get_contents("https://api.exemplo.com/users/{$id}");
 
         if ($response === false) {
-            throw new RuntimeException('Falha na conexao com a API');
+            throw new RuntimeException('API connection failed');
         }
 
         $data = json_decode($response, true);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new JsonException('Resposta JSON invalida', json_last_error());
+            throw new JsonException('Invalid JSON response', json_last_error());
         }
 
         return $data;
@@ -274,22 +274,22 @@ $client = new ApiClient();
 try {
     $user = $client->findUser(-1);
 } catch (InvalidArgumentException $e) {
-    echo "Erro de validacao: " . $e->getMessage() . PHP_EOL;
-    // logica especifica para argumentos invalidos
+    echo "Validation error: " . $e->getMessage() . PHP_EOL;
+    // specific logic for invalid arguments
 } catch (RuntimeException $e) {
-    echo "Erro de runtime: " . $e->getMessage() . PHP_EOL;
-    // logica para falhas de rede/IO
+    echo "Runtime error: " . $e->getMessage() . PHP_EOL;
+    // logic for network/IO failures
 } catch (JsonException $e) {
-    echo "Erro de JSON: " . $e->getMessage() . PHP_EOL;
-    // logica para fallback ou retry
+    echo "JSON error: " . $e->getMessage() . PHP_EOL;
+    // logic for fallback or retry
 } catch (Throwable $e) {
-    // Captura qualquer outra excecao ou erro (fallback generico)
-    echo "Erro inesperado: " . $e->getMessage() . PHP_EOL;
+    // Catch any other exception or error (generic fallback)
+    echo "Unexpected error: " . $e->getMessage() . PHP_EOL;
     error_log($e->getTraceAsString());
 }
 ```
 
-⚠️ **Cuidado:** A ordem dos `catch` importa! Sempre coloque as exceções mais **específicas** primeiro e as mais **genéricas** por último. Um `catch (Throwable $e)` captura todas e deve vir por último.
+A ordem dos `catch` importa! Sempre coloque as exceções mais **específicas** primeiro e as mais **genéricas** por último. Um `catch (Throwable $e)` captura todas e deve vir por último.
 
 ### Múltiplas Exceções no Mesmo Catch (PHP 7.1+)
 
@@ -297,10 +297,10 @@ try {
 <?php
 
 try {
-    // codigo que pode lancar varias excecoes
+    // code that may throw various exceptions
 } catch (InvalidArgumentException | DivisionByZeroError | RangeException $e) {
-    // Tratamento comum para esses tres tipos
-    echo "Erro: " . $e->getMessage() . PHP_EOL;
+    // Common handling for these three types
+    echo "Error: " . $e->getMessage() . PHP_EOL;
 }
 ```
 
@@ -313,7 +313,7 @@ Criar suas próprias exceções é uma excelente prática para códigos de domí
 ```php
 <?php
 
-// Excecao base do dominio
+// Base domain exception
 class DomainException extends Exception
 {
     public function __construct(
@@ -324,30 +324,30 @@ class DomainException extends Exception
         parent::__construct($message, $code, $previous);
     }
 
-    public function getTitulo(): string
+    public function getTitle(): string
     {
-        return 'Erro de Dominio';
+        return 'Domain Error';
     }
 }
 
-// Excecoes especificas
+// Specific exceptions
 class InsufficientBalanceException extends DomainException
 {
     public function __construct(
         public readonly float $currentBalance,
         public readonly float $requestedAmount,
     ) {
-        $difference = number_format($this->requestedAmount - $this->currentBalance, 2, ',', '.');
+        $difference = number_format($this->requestedAmount - $this->currentBalance, 2, '.', ',');
         parent::__construct(
-            "Saldo insuficiente. Saldo: R$ {$this->currentBalance}, " .
-            "Solicitado: R$ {$this->requestedAmount}. " .
-            "Faltam: R$ {$difference}"
+            "Insufficient balance. Balance: $ {$this->currentBalance}, " .
+            "Requested: $ {$this->requestedAmount}. " .
+            "Shortfall: $ {$difference}"
         );
     }
 
-    public function getTitulo(): string
+    public function getTitle(): string
     {
-        return 'Saldo Insuficiente';
+        return 'Insufficient Balance';
     }
 }
 
@@ -355,11 +355,11 @@ class AccountBlockedException extends DomainException
 {
     public function __construct(string $reason)
     {
-        parent::__construct("Account bloqueada: {$reason}");
+        parent::__construct("Account blocked: {$reason}");
     }
 }
 
-// Usando as excecoes customizadas
+// Using custom exceptions
 class Account
 {
     private bool $blocked = false;
@@ -372,7 +372,7 @@ class Account
     public function withdraw(float $value): void
     {
         if ($this->blocked) {
-            throw new AccountBlockedException('Account sob investigacao');
+            throw new AccountBlockedException('Account under investigation');
         }
 
         if ($value > $this->balance) {
@@ -397,8 +397,8 @@ $account = new Account('Maria', 100.00);
 try {
     $account->withdraw(500.00);
 } catch (InsufficientBalanceException $e) {
-    echo $e->getTitulo() . ': ' . $e->getMessage() . PHP_EOL;
-    // Saldo Insuficiente: Saldo insuficiente. Saldo: R$ 100, ...
+    echo $e->getTitle() . ': ' . $e->getMessage() . PHP_EOL;
+    // Insufficient Balance: Insufficient balance. Balance: $ 100, ...
 } catch (AccountBlockedException $e) {
     echo $e->getMessage() . PHP_EOL;
 } catch (DomainException $e) {
@@ -422,9 +422,9 @@ function saveToDatabase(array $dataPayload): void
         throw new PDOException('Connection refused');
     } catch (PDOException $e) {
         throw new RepositoryException(
-            "Falha ao save usuario: {$dataPayload['name']}",
+            "Failed to save user: {$dataPayload['name']}",
             0,
-            $e, // encadeia a excecao original
+            $e, // chain the original exception
         );
     }
 }
@@ -433,10 +433,10 @@ try {
     saveToDatabase(['name' => 'Joao']);
 } catch (RepositoryException $e) {
     echo $e->getMessage() . PHP_EOL;
-    echo "Causa raiz: " . $e->getPrevious()->getMessage() . PHP_EOL;
+    echo "Root cause: " . $e->getPrevious()->getMessage() . PHP_EOL;
 }
-// Falha ao save usuario: Joao
-// Causa raiz: Connection refused
+// Failed to save user: Joao
+// Root cause: Connection refused
 ```
 
 ---
@@ -485,14 +485,14 @@ Throwable (interface)
 <?php
 
 try {
-    throw new RuntimeException('Algo deu errado', 500);
+    throw new RuntimeException('Something went wrong', 500);
 } catch (Throwable $e) {
-    echo "Mensagem: " . $e->getMessage() . PHP_EOL;
-    echo "Codigo: "   . $e->getCode() . PHP_EOL;
-    echo "Arquivo: "  . $e->getFile() . PHP_EOL;
-    echo "Linha: "    . $e->getLine() . PHP_EOL;
+    echo "Message: " . $e->getMessage() . PHP_EOL;
+    echo "Code: "   . $e->getCode() . PHP_EOL;
+    echo "File: "  . $e->getFile() . PHP_EOL;
+    echo "Line: "    . $e->getLine() . PHP_EOL;
 
-    // Stack trace resumido
+    // Summarized stack trace
     $trace = $e->getTrace();
     foreach ($trace as $i => $frame) {
         $function = $frame['function'] ?? '???';
@@ -511,27 +511,27 @@ try {
 ```php
 <?php
 
-// Ternario
-$name = $input['name'] ?? throw new InvalidArgumentException('Nome obrigatorio');
+// Ternary
+$name = $input['name'] ?? throw new InvalidArgumentException('Name required');
 
 // match
 $status = match ($code) {
-    200, 201 => 'sucesso',
-    400 => 'erro de validacao',
-    404 => 'nao encontrado',
-    default => throw new UnexpectedValueException("Codigo HTTP desconhecido: {$code}"),
+    200, 201 => 'success',
+    400 => 'validation error',
+    404 => 'not found',
+    default => throw new UnexpectedValueException("Unknown HTTP status code: {$code}"),
 };
 
 // arrow function
 $validate = fn(string $email): string => filter_var($email, FILTER_VALIDATE_EMAIL)
     ? $email
-    : throw new InvalidArgumentException("Email invalido: {$email}");
+    : throw new InvalidArgumentException("Invalid email: {$email}");
 
 echo $validate('user@domain.com');
 
-// coalescencia nula
+// null coalescing
 $config = ['host' => 'localhost'];
-$port = $config['porta'] ?? throw new RuntimeException('Configuracao porta ausente');
+$port = $config['port'] ?? throw new RuntimeException('Port configuration missing');
 ```
 
 ### Exemplo Prático — Validação em Constructor
@@ -544,7 +544,7 @@ class Email
     public function __construct(private string $value)
     {
         filter_var($this->value, FILTER_VALIDATE_EMAIL)
-            ?: throw new InvalidArgumentException("Email invalido: {$this->value}");
+            ?: throw new InvalidArgumentException("Invalid email: {$this->value}");
     }
 
     public function __toString(): string
@@ -553,12 +553,12 @@ class Email
     }
 }
 
-// $email = new Email('invalido'); // InvalidArgumentException
+// $email = new Email('invalid'); // InvalidArgumentException
 $email = new Email('user@domain.com');
 echo $email; // user@domain.com
 ```
 
-💡 **Dica:** `throw` como expressão reduz drasticamente `if`/`else` de validação, tornando o código mais declarativo.
+`throw` como expressão reduz drasticamente `if`/`else` de validação, tornando o código mais declarativo.
 
 ---
 
@@ -579,7 +579,7 @@ function exceptionHandler(Throwable $e): void
 
     $log = <<<LOG
 [{$timestamp}] {$class}: {$message}
-  Arquivo: {$file}:{$line}
+  File: {$file}:{$line}
   Trace:
 {$e->getTraceAsString()}
 ----------------------------------------
@@ -587,10 +587,10 @@ LOG;
 
     error_log($log, 3, __DIR__ . '/logs/exceptions.log');
 
-    // Retornar uma resposta amigavel ao usuario
+    // Return a friendly response to the user
     http_response_code(500);
     echo json_encode([
-        'error'  => 'Erro interno do servidor',
+        'error'  => 'Internal server error',
         'code' => $e->getCode(),
     ], JSON_UNESCAPED_UNICODE);
 
@@ -599,8 +599,8 @@ LOG;
 
 set_exception_handler('exceptionHandler');
 
-// A partir daqui, excecoes nao capturadas chamam exceptionHandler()
-// throw new RuntimeException('Teste de falha global');
+// From here on, uncaught exceptions call exceptionHandler()
+// throw new RuntimeException('Global failure test');
 ```
 
 ### Combinando com Error Handler
@@ -617,7 +617,7 @@ function errorHandler(
     int $line,
 ): bool {
     if (!(error_reporting() & $severity)) {
-        // Este nivel de erro nao esta configurado para reporte
+        // This error level is not configured for reporting
         return false;
     }
 
@@ -626,11 +626,11 @@ function errorHandler(
 
 set_error_handler('errorHandler');
 
-// Agora notices e warnings viram excecoes capturaveis:
+// Now notices and warnings become catchable exceptions:
 try {
-    echo $variavelNaoDefinida;
+    echo $undefinedVariable;
 } catch (ErrorException $e) {
-    echo "Erro convertido: " . $e->getMessage() . PHP_EOL;
+    echo "Converted error: " . $e->getMessage() . PHP_EOL;
 }
 ```
 
@@ -643,29 +643,29 @@ try {
 ```php
 <?php
 
-// Registrar um handler personalizado
+// Register a custom handler
 set_error_handler(function (int $severity, string $msg, string $file, int $line): bool {
-    echo "[CUSTOM] {$msg} em {$file}:{$line}" . PHP_EOL;
+    echo "[CUSTOM] {$msg} in {$file}:{$line}" . PHP_EOL;
     return true;
 });
 
-// PHP 8.5+: Obter o handler atual
+// PHP 8.5+: Get the current handler
 $handler = get_error_handler();
 var_dump($handler); // object(Closure)#1 (1) { ... }
 
-// Restaurar o handler padrao e depois voltar ao personalizado
+// Restore default handler and then switch back to the custom one
 $previous = get_error_handler();
-restore_error_handler(); // volta ao handler padrao do PHP
+restore_error_handler(); // back to PHP default handler
 
-trigger_error('Usando handler padrao', E_USER_NOTICE);
-// PHP Notice: Usando handler padrao in ...
+trigger_error('Using default handler', E_USER_NOTICE);
+// PHP Notice: Using default handler in ...
 
-// Reaplicar o handler anterior
+// Reapply the previous handler
 set_error_handler($previous);
-trigger_error('Usando handler personalizado novamente', E_USER_NOTICE);
-// [CUSTOM] Usando handler personalizado novamente em ...
+trigger_error('Using custom handler again', E_USER_NOTICE);
+// [CUSTOM] Using custom handler again in ...
 
-// Tambem funciona com excecoes
+// Also works with exceptions
 set_exception_handler(fn(Throwable $e) => error_log($e->getMessage()));
 $excHandler = get_exception_handler();
 var_dump($excHandler); // object(Closure)#2 (1) { ... }
@@ -676,7 +676,7 @@ var_dump($excHandler); // object(Closure)#2 (1) { ... }
 ```php
 <?php
 
-function comErrorHandlerTemporario(callable $fn, callable $tempHandler): mixed
+function withTemporaryErrorHandler(callable $fn, callable $tempHandler): mixed
 {
     $previous = get_error_handler();   // PHP 8.5+
     set_error_handler($tempHandler);
@@ -684,7 +684,7 @@ function comErrorHandlerTemporario(callable $fn, callable $tempHandler): mixed
     try {
         return $fn();
     } finally {
-        // Restaura o handler original
+        // Restore original handler
         if ($previous !== null) {
             set_error_handler($previous);
         } else {
@@ -693,12 +693,12 @@ function comErrorHandlerTemporario(callable $fn, callable $tempHandler): mixed
     }
 }
 
-// Uso: execute codigo com um handler silencioso temporario
-comErrorHandlerTemporario(
-    fn() => trigger_error('ignorar este warning', E_USER_WARNING),
-    fn() => true, // handler silencioso
+// Usage: run code with a temporary silent handler
+withTemporaryErrorHandler(
+    fn() => trigger_error('ignore this warning', E_USER_WARNING),
+    fn() => true, // silent handler
 );
-// Nenhuma saida — o warning foi suprimido
+// No output — the warning was suppressed
 ```
 
 ---
@@ -740,11 +740,11 @@ function executeTask(): void
 
 executeTask();
 
-// PHP 8.5: o erro mostrara todo o caminho:
+// PHP 8.5: the error will show the full path:
 // executeTask() -> processData() -> nonExistentFunction()
 ```
 
-💡 **Dica:** O backtrace em fatal errors é **automático** no PHP 8.5 — você não precisa ativar nenhuma configuração especial. Em produção, certifique-se de que `display_errors` esteja desligado para não expor o stack trace para o usuário final.
+O backtrace em fatal errors é **automático** no PHP 8.5 — você não precisa ativar nenhuma configuração. Em produção, certifique-se de que `display_errors` esteja desligado para não expor o stack trace.
 
 ---
 
@@ -761,7 +761,7 @@ function calculateAge(int $birthYear): int
 
     if ($birthYear > $currentYear) {
         trigger_error(
-            "Ano de nascimento ({$birthYear}) maior que o ano atual ({$currentYear})",
+            "Birth year ({$birthYear}) greater than current year ({$currentYear})",
             E_USER_WARNING,
         );
         return 0;
@@ -769,7 +769,7 @@ function calculateAge(int $birthYear): int
 
     if ($birthYear < 1900) {
         trigger_error(
-            "Ano de nascimento muito antigo: {$birthYear}",
+            "Birth year too far in the past: {$birthYear}",
             E_USER_NOTICE,
         );
     }
@@ -777,11 +777,11 @@ function calculateAge(int $birthYear): int
     return $currentYear - $birthYear;
 }
 
-$age = calculateAge(2050); // Warning: ano maior que atual
-echo "Idade: {$age}" . PHP_EOL; // 0
+$age = calculateAge(2050); // Warning: birth year greater than current
+echo "Age: {$age}" . PHP_EOL; // 0
 
-$age = calculateAge(1850); // Notice: ano muito antigo
-echo "Idade: {$age}" . PHP_EOL; // 176
+$age = calculateAge(1850); // Notice: birth year too far in the past
+echo "Age: {$age}" . PHP_EOL; // 176
 ```
 
 ### Níveis de Erro de Usuário
@@ -809,20 +809,20 @@ function myErrorHandler(int $severity, string $msg, string $file, int $line): bo
 
     $level = $levels[$severity] ?? 'UNKNOWN';
 
-    error_log("[{$level}] {$msg} em {$file}:{$line}");
+    error_log("[{$level}] {$msg} in {$file}:{$line}");
 
     if ($severity === E_USER_ERROR) {
-        echo json_encode(['erro_fatal' => $msg]);
+        echo json_encode(['fatal_error' => $msg]);
         exit(1);
     }
 
-    return true; // nao executa o handler padrao do PHP
+    return true; // don't run PHP's default handler
 }
 
 set_error_handler('myErrorHandler');
 
-trigger_error('Configuracao obsoleta detectada', E_USER_DEPRECATED);
-trigger_error('Funcionalidade X sera removida em v3.0', E_USER_DEPRECATED);
+trigger_error('Outdated configuration detected', E_USER_DEPRECATED);
+trigger_error('Feature X will be removed in v3.0', E_USER_DEPRECATED);
 ```
 
 ---
@@ -837,18 +837,18 @@ trigger_error('Funcionalidade X sera removida em v3.0', E_USER_DEPRECATED);
 class LegacyLibrary
 {
     #[\Deprecated(
-        message: 'Use getUserPorId() em vez disso',
+        message: 'Use getUserById() instead',
         since: '2.0.0',
     )]
     public function findUser(int $id): ?array
     {
-        // implementacao antiga
+        // old implementation
         return null;
     }
 
-    public function getUserPorId(int $id): ?array
+    public function getUserById(int $id): ?array
     {
-        // nova implementacao
+        // new implementation
         return null;
     }
 }
@@ -856,20 +856,20 @@ class LegacyLibrary
 class Formatter
 {
     #[\Deprecated(
-        message: 'Use Metodo::format() no lugar',
+        message: 'Use Method::format() instead',
         since: '3.5',
     )]
-    public const FORMATO_ANTIGO = 'Y-m-d';
+    public const OLD_FORMAT = 'Y-m-d';
 
-    public const FORMATO_NOVO = 'd/m/Y';
+    public const NEW_FORMAT = 'd/m/Y';
 }
 
 $lib = new LegacyLibrary();
 
-// Chamar metodo depreciado emite E_USER_DEPRECATED:
+// Calling deprecated method emits E_USER_DEPRECATED:
 // $lib->findUser(1);
 // Deprecated: LegacyLibrary::findUser() is deprecated,
-// Use getUserPorId() em vez disso
+// Use getUserById() instead
 ```
 
 ### Funcionamento do `#[\Deprecated]`
@@ -885,7 +885,7 @@ $lib = new LegacyLibrary();
 ```php
 <?php
 
-// Em desenvolvimento, convert deprecated em excecao
+// In development, convert deprecated into exception
 set_error_handler(function (int $severity, string $msg): bool {
     if ($severity === E_USER_DEPRECATED || $severity === E_DEPRECATED) {
         throw new ErrorException($msg, 0, $severity);
@@ -895,22 +895,22 @@ set_error_handler(function (int $severity, string $msg): bool {
 
 class Service
 {
-    #[\Deprecated(message: 'Use ServiceNovo', since: '3.0')]
+    #[\Deprecated(message: 'Use NewService', since: '3.0')]
     public function execute(): string
     {
-        return 'OK (antigo)';
+        return 'OK (old)';
     }
 }
 
 try {
     $s = new Service();
-    $s->execute(); // Lanca ErrorException em dev — voce nao esquecera de migrar!
+    $s->execute(); // Throws ErrorException in dev — you won't forget to migrate!
 } catch (ErrorException $e) {
-    echo "Migracao pendente: " . $e->getMessage() . PHP_EOL;
+    echo "Pending migration: " . $e->getMessage() . PHP_EOL;
 }
 ```
 
-💡 **Dica:** Configure seu ambiente de desenvolvimento ou pipeline de CI para converter `E_USER_DEPRECATED` em exceções. Isso garante que sua equipe encontre e migre código depreciado antes do deploy.
+Configure seu ambiente de desenvolvimento ou pipeline de CI para converter `E_USER_DEPRECATED` em exceções. Isso garante que código depreciado seja migrado antes do deploy.
 
 ---
 
@@ -933,14 +933,14 @@ try {
 ```php
 <?php
 
-// Modo 0: log padrao do sistema
-error_log('Sistema iniciado com sucesso');
+// Mode 0: default system log
+error_log('System started successfully');
 
-// Modo 3: gravar em arquivo especifico
-error_log('Erro ao connect ao banco de dados' . PHP_EOL, 3, __DIR__ . '/logs/banco.log');
+// Mode 3: write to specific file
+error_log('Database connection error' . PHP_EOL, 3, __DIR__ . '/logs/database.log');
 
-// Modo 1: enviar por email (use com cautela em producao!)
-// error_log('Erro critico detectado', 1, 'admin@exemplo.com');
+// Mode 1: send by email (use cautiously in production!)
+// error_log('Critical error detected', 1, 'admin@example.com');
 ```
 
 ### Logger Simples para Aplicações
@@ -989,19 +989,19 @@ class Logger
     }
 }
 
-// Uso:
+// Usage:
 $logger = new Logger(__DIR__ . '/logs/app.log');
 
-$logger->info('User autenticado', ['user_id' => 42]);
-$logger->warning('Tentativa de login falhou', ['ip' => '192.168.1.1']);
-$logger->error('Falha ao process pagamento', ['pedido_id' => 789]);
-$logger->debug('Query executada', ['sql' => 'SELECT ...', 'tempo_ms' => 12.5]);
+$logger->info('User authenticated', ['user_id' => 42]);
+$logger->warning('Login attempt failed', ['ip' => '192.168.1.1']);
+$logger->error('Payment processing failed', ['order_id' => 789]);
+$logger->debug('Query executed', ['sql' => 'SELECT ...', 'time_ms' => 12.5]);
 
-// Conteudo do log:
-// [2026-08-04 10:30:00.123] [INFO] User autenticado {"user_id":42}
-// [2026-08-04 10:30:05.456] [WARNING] Tentativa de login falhou {"ip":"192.168.1.1"}
-// [2026-08-04 10:30:10.789] [ERROR] Falha ao process pagamento {"pedido_id":789}
-// [2026-08-04 10:30:15.012] [DEBUG] Query executada {"sql":"SELECT ...","tempo_ms":12.5}
+// Log contents:
+// [2026-08-04 10:30:00.123] [INFO] User authenticated {"user_id":42}
+// [2026-08-04 10:30:05.456] [WARNING] Login attempt failed {"ip":"192.168.1.1"}
+// [2026-08-04 10:30:10.789] [ERROR] Payment processing failed {"order_id":789}
+// [2026-08-04 10:30:15.012] [DEBUG] Query executed {"sql":"SELECT ...","time_ms":12.5}
 ```
 
 ---
@@ -1013,11 +1013,11 @@ $logger->debug('Query executada', ['sql' => 'SELECT ...', 'tempo_ms' => 12.5]);
 ```php
 <?php
 
-// CORRETO: Ambiente de producao
+// CORRECT: Production environment
 ini_set('display_errors', '0');
 ini_set('log_errors', '1');
 
-// INCORRETO: expoe stack trace para usuarios
+// INCORRECT: exposes stack trace to users
 // ini_set('display_errors', '1');
 ```
 
@@ -1026,10 +1026,10 @@ ini_set('log_errors', '1');
 ```php
 <?php
 
-// RUIM:
-throw new Exception('Saldo insuficiente');
+// BAD:
+throw new Exception('Insufficient balance');
 
-// BOM:
+// GOOD:
 throw new InsufficientBalanceException(currentBalance: 100.0, requestedAmount: 500.0);
 ```
 
@@ -1040,20 +1040,20 @@ O operador `@` suprime erros, mas torna a depuração impossível. Prefira verif
 ```php
 <?php
 
-// RUIM:
-$content = @file_get_contents('arquivo_que_pode_nao_existir.txt');
+// BAD:
+$content = @file_get_contents('file_that_may_not_exist.txt');
 
-// BOM:
-if (file_exists('arquivo.txt') && is_readable('arquivo.txt')) {
-    $content = file_get_contents('arquivo.txt');
+// GOOD:
+if (file_exists('file.txt') && is_readable('file.txt')) {
+    $content = file_get_contents('file.txt');
 } else {
-    // tratar ausencia do arquivo
+    // handle missing file
 }
 
-// ALTERNATIVA BOM: try/catch com throw expression
-$content = file_exists('arquivo.txt')
-    ? file_get_contents('arquivo.txt')
-    : throw new RuntimeException('Arquivo nao encontrado');
+// GOOD ALTERNATIVE: try/catch with throw expression
+$content = file_exists('file.txt')
+    ? file_get_contents('file.txt')
+    : throw new RuntimeException('File not found');
 ```
 
 ### 4. Sempre Capture com `Throwable` como Fallback
@@ -1062,15 +1062,15 @@ $content = file_exists('arquivo.txt')
 <?php
 
 try {
-    // codigo que pode lancar qualquer coisa
+    // code that may throw anything
 } catch (InvalidArgumentException $e) {
-    // especifico
+    // specific
 } catch (RuntimeException $e) {
-    // especifico
+    // specific
 } catch (Throwable $e) {
-    // fallback generico — nao deixe nenhum erro escapar
+    // generic fallback — don't let any error escape
     error_log($e);
-    echo 'Erro interno. Tente novamente mais tarde.';
+    echo 'Internal error. Please try again later.';
 }
 ```
 
@@ -1084,14 +1084,14 @@ function processFile(string $path): array
     $handle = fopen($path, 'r');
 
     try {
-        // processamento que pode lancar excecao
+        // processing that may throw exception
         $data = [];
         while (($line = fgetcsv($handle)) !== false) {
             $data[] = $line;
         }
         return $data;
     } finally {
-        // Garante fechamento mesmo com excecao
+        // Ensures closing even on exception
         if (is_resource($handle)) {
             fclose($handle);
         }
@@ -1116,16 +1116,16 @@ class Appointment
     private function validate(): void
     {
         if (mb_strlen($this->description) < 3) {
-            throw new InvalidArgumentException('Descricao deve ter ao menos 3 caracteres');
+            throw new InvalidArgumentException('Description must be at least 3 characters');
         }
 
         if ($this->date < new DateTimeImmutable('today')) {
-            throw new InvalidArgumentException('Data deve ser futura');
+            throw new InvalidArgumentException('Date must be in the future');
         }
     }
 }
 
-// Validacao no momento da criacao — falha rapido, sem estados invalidos
+// Validation at creation time — fail fast, no invalid states
 try {
     $appointment = new Appointment(new DateTimeImmutable('2020-01-01'), 'A');
 } catch (InvalidArgumentException $e) {
@@ -1140,13 +1140,13 @@ Prefira logs com contexto estruturado (JSON) em vez de strings soltas — isso f
 ```php
 <?php
 
-// RUIM:
-error_log("Erro no pedido 789: pagamento recusado");
+// BAD:
+error_log("Error in order 789: payment declined");
 
-// BOM:
+// GOOD:
 error_log(json_encode([
     'level'      => 'ERROR',
-    'message'    => 'Payment recusado',
+    'message'    => 'Payment declined',
     'order_id'   => 789,
     'timestamp'  => date('c'),
     'gateway'    => 'stripe',
@@ -1161,48 +1161,48 @@ Não capture exceções muito cedo se não puder tratá-las de forma significati
 ```php
 <?php
 
-// RUIM: captura e engole
+// BAD: catch and swallow
 try {
     saveOrder($orderData);
 } catch (Exception $e) {
-    // silencioso — ninguem sabe que falhou
+    // silent — no one knows it failed
 }
 
-// BOM: capture onde pode tomar uma acao
+// GOOD: catch where you can take action
 try {
     saveOrder($orderData);
     notifyClient($orderData);
 } catch (RepositoryException $e) {
-    // Log e compensacao
-    $logger->error('Falha ao save pedido', ['order' => $orderData]);
-    throw $e; // relancar se nao puder recuperar
+    // Log and compensation
+    $logger->error('Failed to save order', ['order' => $orderData]);
+    throw $e; // rethrow if cannot recover
 }
 ```
 
 ---
 
-## 📚 Referências
+## Referências
 
-- [Documentação oficial: Tratamento de Erros](https://www.php.net/manual/pt_BR/book.errorfunc.php)
-- [Exceções — PHP Manual](https://www.php.net/manual/pt_BR/language.exceptions.php)
-- [Constantes de Erro Predefinidas](https://www.php.net/manual/pt_BR/errorfunc.constants.php)
-- [set_error_handler()](https://www.php.net/manual/pt_BR/function.set-error-handler.php)
-- [set_exception_handler()](https://www.php.net/manual/pt_BR/function.set-exception-handler.php)
-- [get_error_handler() — PHP 8.5](https://www.php.net/manual/pt_BR/function.get-error-handler.php)
-- [get_exception_handler() — PHP 8.5](https://www.php.net/manual/pt_BR/function.get-exception-handler.php)
-- [trigger_error()](https://www.php.net/manual/pt_BR/function.trigger-error.php)
-- [error_log()](https://www.php.net/manual/pt_BR/function.error-log.php)
-- [Interface Throwable](https://www.php.net/manual/pt_BR/class.throwable.php)
-- [Atributo #[\Deprecated] — PHP 8.4](https://www.php.net/manual/pt_BR/class.deprecated.php)
-- [Throw como Expressão — PHP 8.0](https://www.php.net/manual/pt_BR/migration80.new-features.php#migration80.new-features.core.throw-expr)
+- [Documentação oficial: Tratamento de Erros](https://www.php.net/manual/en/book.errorfunc.php)
+- [Exceções — PHP Manual](https://www.php.net/manual/en/language.exceptions.php)
+- [Constantes de Erro Predefinidas](https://www.php.net/manual/en/errorfunc.constants.php)
+- [set_error_handler()](https://www.php.net/manual/en/function.set-error-handler.php)
+- [set_exception_handler()](https://www.php.net/manual/en/function.set-exception-handler.php)
+- [get_error_handler() — PHP 8.5](https://www.php.net/manual/en/function.get-error-handler.php)
+- [get_exception_handler() — PHP 8.5](https://www.php.net/manual/en/function.get-exception-handler.php)
+- [trigger_error()](https://www.php.net/manual/en/function.trigger-error.php)
+- [error_log()](https://www.php.net/manual/en/function.error-log.php)
+- [Interface Throwable](https://www.php.net/manual/en/class.throwable.php)
+- [Atributo #[\Deprecated] — PHP 8.4](https://www.php.net/manual/en/class.deprecated.php)
+- [Throw como Expressão — PHP 8.0](https://www.php.net/manual/en/migration80.new-features.php#migration80.new-features.core.throw-expr)
 - [Backtraces em Fatal Errors — PHP 8.5](https://wiki.php.net/rfc/fatal_error_backtraces)
-- [Hierarquia de Exceções SPL](https://www.php.net/manual/pt_BR/spl.exceptions.php)
-- [ErrorException](https://www.php.net/manual/pt_BR/class.errorexception.php)
-- [ini_set() — Runtime Configuration](https://www.php.net/manual/pt_BR/function.ini-set.php)
+- [Hierarquia de Exceções SPL](https://www.php.net/manual/en/spl.exceptions.php)
+- [ErrorException](https://www.php.net/manual/en/class.errorexception.php)
+- [ini_set() — Runtime Configuration](https://www.php.net/manual/en/function.ini-set.php)
 
 ---
 
-> **Capítulo anterior:** [09 — Programação Orientada a Objetos](09-oop.md)
+> **Capítulo anterior:** [09 — Programação Orientada a Objetos](./09-oop.md)
 
 ---
 
