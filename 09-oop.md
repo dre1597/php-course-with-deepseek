@@ -45,7 +45,7 @@ $product2 = new Product();
 $product2->name  = 'Mouse';
 $product2->price = 89.90;
 
-echo "{$product1->name}: R$ {$product1->price}"; // Notebook: R$ 3500
+echo "{$product1->name}: $ {$product1->price}"; // Notebook: $ 3500
 ```
 
 ### `$this` — Referência ao Objeto Atual
@@ -66,8 +66,8 @@ class Message
 }
 
 $message = new Message();
-$message->text = 'Olá, mundo!';
-$message->display(); // Olá, mundo!
+$message->text = 'Hello, world!';
+$message->display(); // Hello, world!
 ```
 
 ---
@@ -89,7 +89,7 @@ class BankAccount
 {
     private string $holder;
     private float $balance = 0.0;
-    protected string $type = 'corrente';
+    protected string $type = 'checking';
 
     public function __construct(string $holder)
     {
@@ -114,12 +114,12 @@ class BankAccount
     }
 }
 
-$account = new BankAccount('João Silva');
+$account = new BankAccount('John Doe');
 $account->deposit(1000);
 echo $account->getBalance();   // 1000
 
-// $account->balance = 9999;   // Erro: propriedade private
-// $account->type = 'poupanca'; // Erro: propriedade protected
+// $account->balance = 9999;   // Error: private property
+// $account->type = 'savings'; // Error: protected property
 ```
 
 ### Typed Properties (PHP 7.4+)
@@ -138,7 +138,7 @@ class User
 }
 
 $user = new User();
-$user->name  = 'Maria';
+$user->name  = 'Mary';
 $user->age = 28;
 
 // $u->name = 123; // TypeError — esperava string
@@ -148,7 +148,7 @@ $user->age = 28;
 // echo $u2->name; // Erro: propriedade nao inicializada
 ```
 
-💡 **Dica:** Sempre inicialize propriedades tipadas no constructor ou com valores default. Propriedades não inicializadas de tipos não-nullable causam `Error` fatal quando acessadas.
+Sempre inicialize propriedades tipadas no constructor ou com valores default. Propriedades não inicializadas de tipos não-nullable causam `Error` fatal quando acessadas.
 
 ---
 
@@ -179,10 +179,10 @@ class Calculator
     public function execute(string $operation, int $first, int $second): int|float
     {
         if (!$this->validateOperation($operation)) {
-            throw new InvalidArgumentException("Operacao invalida: {$operation}");
+            throw new InvalidArgumentException("Invalid operation: {$operation}");
         }
 
-        $this->log("Executando {$first} {$operation} {$second}");
+        $this->log("Executing {$first} {$operation} {$second}");
 
         return match ($operation) {
             '+' => $first + $second,
@@ -195,8 +195,8 @@ class Calculator
 
 $calc = new Calculator();
 echo $calc->execute('*', 6, 7); // 42
-// $calc->validateOperation('*');   // Erro: metodo protected
-// $calc->log('teste');           // Erro: metodo private
+// $calc->validateOperation('*');   // Error: protected method
+// $calc->log('test');             // Error: private method
 ```
 
 ---
@@ -225,12 +225,12 @@ class Book
 
     public function getDescription(): string
     {
-        return "{$this->title}, por {$this->author} ({$this->year})";
+        return "{$this->title}, by {$this->author} ({$this->year})";
     }
 }
 
-$book = new Book('PHP Moderno', 'Ana Costa', 2026);
-echo $book->getDescription(); // PHP Moderno, por Ana Costa (2026)
+$book = new Book('Modern PHP', 'Jane Doe', 2026);
+echo $book->getDescription(); // Modern PHP, by Jane Doe (2026)
 ```
 
 ### Constructor Promotion (PHP 8.0+)
@@ -266,12 +266,12 @@ class Book
 
     public function getDescription(): string
     {
-        return "{$this->title}, por {$this->author} ({$this->year})";
+        return "{$this->title}, by {$this->author} ({$this->year})";
     }
 }
 
-$book = new Book('PHP Moderno', 'Ana Costa', 2026);
-echo $book->getDescription(); // PHP Moderno, por Ana Costa (2026)
+$book = new Book('Modern PHP', 'Jane Doe', 2026);
+echo $book->getDescription(); // Modern PHP, by Jane Doe (2026)
 
 ### Constructor Promotion com Valores Default
 
@@ -293,8 +293,8 @@ class Configuration
     }
 }
 
-$config = new Configuration(host: 'db.producao', debug: true);
-echo $config->getDsn(); // mysql:host=db.producao;port=3306
+$config = new Configuration(host: 'db.production', debug: true);
+echo $config->getDsn(); // mysql:host=db.production;port=3306
 ```
 
 ### Corpo do Constructor com Promotion
@@ -320,7 +320,7 @@ class Order
     private function validate(): void
     {
         if (empty($this->items)) {
-            throw new InvalidArgumentException('Order deve ter ao menos um item');
+            throw new InvalidArgumentException('Order must have at least one item');
         }
     }
 }
@@ -350,7 +350,7 @@ class Vehicle
 
     public function start(): string
     {
-        return 'Vehicle ligado';
+        return 'Vehicle started';
     }
 }
 
@@ -368,12 +368,12 @@ class Car extends Vehicle
     #[\Override]
     public function start(): string
     {
-        return 'Car ligado — vrum vrum!';
+        return 'Car started — vroom vroom!';
     }
 
-    public function getInfoCompleta(): string
+    public function getFullInfo(): string
     {
-        return parent::getDescription() . " — {$this->doors} portas";
+        return parent::getDescription() . " — {$this->doors} doors";
     }
 }
 
@@ -382,16 +382,16 @@ class Motorcycle extends Vehicle
     #[\Override]
     public function start(): string
     {
-        return 'Motorcycle ligada — randandandan!';
+        return 'Motorcycle started — vroom!';
     }
 }
 
 $car = new Car('Toyota', 'Corolla', 2026, 4);
-echo $car->getInfoCompleta() . PHP_EOL; // Toyota Corolla (2026) — 4 portas
-echo $car->start() . PHP_EOL;           // Car ligado — vrum vrum!
+echo $car->getFullInfo() . PHP_EOL; // Toyota Corolla (2026) — 4 doors
+echo $car->start() . PHP_EOL;       // Car started — vroom vroom!
 
 $motorcycle = new Motorcycle('Honda', 'CB500', 2025);
-echo $motorcycle->start();                       // Motorcycle ligada — randandandan!
+echo $motorcycle->start();                   // Motorcycle started — vroom!
 ```
 
 ### `parent::`
@@ -409,12 +409,12 @@ class LoggerBase
     }
 }
 
-class LoggerArquivo extends LoggerBase
+class FileLogger extends LoggerBase
 {
     #[\Override]
     protected function format(string $message): string
     {
-        return parent::format($message) . ' [ARQUIVO]';
+        return parent::format($message) . ' [FILE]';
     }
 
     public function log(string $msg): void
@@ -423,9 +423,9 @@ class LoggerArquivo extends LoggerBase
     }
 }
 
-$logger = new LoggerArquivo();
-$logger->log('Sistema iniciado');
-// [2026-08-04 10:30:00] Sistema iniciado [ARQUIVO]
+$logger = new FileLogger();
+$logger->log('System started');
+// [2026-08-04 10:30:00] System started [FILE]
 ```
 
 ---
@@ -437,7 +437,7 @@ Interfaces definem **contratos** — especificam quais métodos uma classe deve 
 ```php
 <?php
 
-interface Logavel
+interface Loggable
 {
     public function getLogMessage(): string;
     public function getLogLevel(): string;
@@ -448,16 +448,16 @@ interface JsonSerializableCustom
     public function toJson(): string;
 }
 
-class Evento implements Logavel, JsonSerializableCustom
+class Event implements Loggable, JsonSerializableCustom
 {
     public function __construct(
         private string $name,
-        private array $dataPayload,
+        private array $payload,
     ) {}
 
     public function getLogMessage(): string
     {
-        return "Evento: {$this->name} — " . json_encode($this->dataPayload);
+        return "Event: {$this->name} — " . json_encode($this->payload);
     }
 
     public function getLogLevel(): string
@@ -468,20 +468,20 @@ class Evento implements Logavel, JsonSerializableCustom
     public function toJson(): string
     {
         return json_encode([
-            'evento' => $this->name,
-            'dados'  => $this->dataPayload,
+            'event'  => $this->name,
+            'data'   => $this->payload,
         ], JSON_UNESCAPED_UNICODE);
     }
 }
 
-function registrar(Logavel $item): void
+function register(Loggable $item): void
 {
     echo "[{$item->getLogLevel()}] {$item->getLogMessage()}" . PHP_EOL;
 }
 
-$evento = new Evento('usuario.login', ['user_id' => 42, 'ip' => '192.168.1.1']);
-registrar($evento); // [info] Evento: usuario.login — {"user_id":42,"ip":"192.168.1.1"}
-echo $evento->toJson();
+$event = new Event('user.login', ['user_id' => 42, 'ip' => '192.168.1.1']);
+register($event); // [info] Event: user.login — {"user_id":42,"ip":"192.168.1.1"}
+echo $event->toJson();
 ```
 
 ### Interface com Constantes (PHP 8.1+)
@@ -489,7 +489,7 @@ echo $evento->toJson();
 ```php
 <?php
 
-interface Taxas
+interface Rates
 {
     public const float ICMS   = 0.18;
     public const float ISS    = 0.05;
@@ -497,17 +497,17 @@ interface Taxas
     public const float COFINS = 0.076;
 }
 
-class NotaFiscal implements Taxas
+class Invoice implements Rates
 {
-    public function calculateImpostos(float $value): float
+    public function calculateTaxes(float $value): float
     {
-        return $value * (Taxas::ICMS + Taxas::ISS + Taxas::PIS + Taxas::COFINS);
+        return $value * (Rates::ICMS + Rates::ISS + Rates::PIS + Rates::COFINS);
     }
 }
 
-$invoice = new NotaFiscal();
-echo "Impostos: R$ " . $invoice->calculateImpostos(1000);
-// Impostos: R$ 322.5
+$invoice = new Invoice();
+echo "Taxes: $ " . $invoice->calculateTaxes(1000);
+// Taxes: $ 322.5
 ```
 
 ### Herança de Interfaces
@@ -515,26 +515,26 @@ echo "Impostos: R$ " . $invoice->calculateImpostos(1000);
 ```php
 <?php
 
-interface Contratual
+interface Contractable
 {
-    public function assinar(): void;
+    public function sign(): void;
 }
 
-interface Renovavel extends Contratual
+interface Renewable extends Contractable
 {
-    public function renovar(): void;
+    public function renew(): void;
 }
 
-class ContratoServico implements Renovavel
+class ServiceContract implements Renewable
 {
-    public function assinar(): void
+    public function sign(): void
     {
-        echo "Contrato assinado.\n";
+        echo "Contract signed.\n";
     }
 
-    public function renovar(): void
+    public function renew(): void
     {
-        echo "Contrato renovado.\n";
+        echo "Contract renewed.\n";
     }
 }
 ```
@@ -558,7 +558,7 @@ trait Timestamps
         $this->createdAt = new DateTimeImmutable();
     }
 
-    public function getCriadoEm(): DateTimeImmutable
+    public function getCreatedAt(): DateTimeImmutable
     {
         return $this->createdAt;
     }
@@ -603,9 +603,9 @@ class Post
     }
 }
 
-$post = new Post('PHP 8.5', 'Novas features...');
-echo $post->getUuid() . PHP_EOL;          // ex: a1b2c3d4...
-echo $post->getCriadoEm()->format('c');    // 2026-08-04T10:30:00+00:00
+$post = new Post('PHP 8.5', 'New features...');
+echo $post->getUuid() . PHP_EOL;            // ex: a1b2c3d4...
+echo $post->getCreatedAt()->format('c');      // 2026-08-04T10:30:00+00:00
 ```
 
 ### Resolução de Conflitos em Traits
@@ -619,11 +619,11 @@ trait LoggerJson
 {
     public function formatLog(string $msg): string
     {
-        return json_encode(['mensagem' => $msg]);
+        return json_encode(['message' => $msg]);
     }
 }
 
-trait LoggerTexto
+trait TextLogger
 {
     public function formatLog(string $msg): string
     {
@@ -631,17 +631,17 @@ trait LoggerTexto
     }
 }
 
-class MeuLogger
+class MyLogger
 {
-    use LoggerJson, LoggerTexto {
-        LoggerJson::formatLog insteadof LoggerTexto;  // usa o da LoggerJson
-        LoggerTexto::formatLog as formatLogTexto;   // alias
+    use LoggerJson, TextLogger {
+        LoggerJson::formatLog insteadof TextLogger;  // use LoggerJson's version
+        TextLogger::formatLog as formatLogText;      // alias
     }
 }
 
-$logger = new MeuLogger();
-echo $logger->formatLog('teste');      // {"mensagem":"teste"}
-echo $logger->formatLogTexto('teste');  // [LOG] teste
+$logger = new MyLogger();
+echo $logger->formatLog('test');      // {"message":"test"}
+echo $logger->formatLogText('test');  // [LOG] test
 ```
 
 ### Traits com Métodos Abstratos
@@ -671,7 +671,7 @@ class Category
     }
 }
 
-echo (new Category('eletronicos'))->getDisplayName(); // ELETRONICOS
+echo (new Category('electronics'))->getDisplayName(); // ELECTRONICS
 ```
 
 ---
@@ -719,13 +719,13 @@ class Manager extends Employee
     }
 }
 
-$dev = new Developer('Joao', 10000);
-$manager = new Manager('Maria', 15000);
+$dev = new Developer('John', 10000);
+$manager = new Manager('Mary', 15000);
 
-echo "{$dev->getName()}: R$ {$dev->getTotalSalary()}" . PHP_EOL; // Joao: R$ 12000
-echo "{$manager->getName()}: R$ {$manager->getTotalSalary()}" . PHP_EOL; // Maria: R$ 22500
+echo "{$dev->getName()}: $ {$dev->getTotalSalary()}" . PHP_EOL; // John: $ 12000
+echo "{$manager->getName()}: $ {$manager->getTotalSalary()}" . PHP_EOL; // Mary: $ 22500
 
-// $employee = new Employee('Teste', 1000); // Erro: classe abstrata
+// $employee = new Employee('Test', 1000); // Error: abstract class
 ```
 
 ---
@@ -805,11 +805,11 @@ Constantes de classe são declaradas com `const` e acessadas via `Classe::CONSTA
 
 class StatusOrder
 {
-    public const string PENDING     = 'pendente';
-    public const string PROCESSING  = 'processando';
-    public const string SHIPPED     = 'enviado';
-    public const string DELIVERED   = 'entregue';
-    public const string CANCELLED   = 'cancelado';
+    public const string PENDING     = 'pending';
+    public const string PROCESSING  = 'processing';
+    public const string SHIPPED     = 'shipped';
+    public const string DELIVERED   = 'delivered';
+    public const string CANCELLED   = 'cancelled';
 
     private const array FINAL_STATUSES = [
         self::DELIVERED,
@@ -836,14 +836,14 @@ Constantes `final` não podem ser sobrescritas em subclasses:
 
 class ConfigBase
 {
-    final public const string VERSAO = '1.0.0';
-    public const string AMBIENTE = 'dev';
+    final public const string VERSION = '1.0.0';
+    public const string ENVIRONMENT = 'dev';
 }
 
-class ConfigProducao extends ConfigBase
+class ProductionConfig extends ConfigBase
 {
-    // public const string VERSAO = '2.0.0'; // Erro: nao pode sobrescrever final const
-    public const string AMBIENTE = 'producao'; // OK
+    // public const string VERSION = '2.0.0'; // Error: cannot override final const
+    public const string ENVIRONMENT = 'production'; // OK
 }
 ```
 
@@ -866,20 +866,20 @@ class Client
         public readonly DateTimeImmutable $registrationDate = new DateTimeImmutable(),
     ) {}
 
-    public function getAno(): int
+    public function getYear(): int
     {
         return (int) $this->registrationDate->format('Y');
     }
 }
 
-$client = new Client('123.456.789-00', 'Maria Silva');
-echo $client->name;      // Maria Silva
-echo $client->getAno();  // 2026
+$client = new Client('123.456.789-00', 'Mary Silva');
+echo $client->name;      // Mary Silva
+echo $client->getYear();  // 2026
 
-// $client->name = 'Outra'; // Erro: propriedade readonly
+// $client->name = 'Other'; // Error: readonly property
 ```
 
-Propriedades `readonly` podem ser inicializadas **apenas** no constructor ou na declaração. Após isso, tornam-se imutáveis.
+Propriedades `readonly` podem ser inicializadas apenas no constructor ou na declaração. Após isso, são imutáveis.
 
 ### Readonly Classes (PHP 8.2+)
 
@@ -888,7 +888,7 @@ Se **todas** as propriedades de uma classe forem `readonly`, você pode marcar a
 ```php
 <?php
 
-readonly class Endereco
+readonly class Address
 {
     public function __construct(
         public string $street,
@@ -898,11 +898,11 @@ readonly class Endereco
     ) {}
 }
 
-$end = new Endereco('Av. Paulista', 'Sao Paulo', 'SP', '01310-100');
+$end = new Address('Paulista Ave', 'Sao Paulo', 'SP', '01310-100');
 echo "{$end->street}, {$end->city} - {$end->state}, {$end->zipCode}";
-// Av. Paulista, Sao Paulo - SP, 01310-100
+// Paulista Ave, Sao Paulo - SP, 01310-100
 
-// $end->cidade = 'Rio'; // Erro: classe readonly
+// $end->city = 'Rio'; // Error: readonly class
 ```
 
 Classes `readonly`:
@@ -911,7 +911,7 @@ Classes `readonly`:
 - Não podem ter propriedades não tipadas
 - Herança: uma classe `readonly` só pode ser herdada por outra classe `readonly`
 
-⚠️ **Cuidado:** Propriedades `readonly` em classes normais não podem ser modificadas nem mesmo internamente após a inicialização. Classes `readonly` estendem essa restrição a todas as propriedades.
+Propriedades `readonly` em classes normais não podem ser modificadas nem mesmo internamente após a inicialização. Classes `readonly` estendem essa restrição a todas as propriedades.
 
 ---
 
@@ -1013,7 +1013,7 @@ $newProduct = clone $product with [
 ];
 ```
 
-Isso funciona bem com propriedades `readonly`, onde você **não poderia** reatribuir após a criação. A sintaxe `clone ... with` resolve este problema de forma elegante e segura, pois não modifica o objeto original:
+A sintaxe é especialmente útil com propriedades `readonly` — você não poderia reatribuí-las após a criação. `clone ... with` resolve isso sem modificar o original:
 
 ```php
 <?php
@@ -1028,13 +1028,13 @@ readonly class Configuration
 }
 
 $dev = new Configuration('localhost', 3306, debug: true);
-$prod = clone $dev with ['host' => 'db.producao', 'debug' => false];
+$prod = clone $dev with ['host' => 'db.production', 'debug' => false];
 
-echo $dev->debug;  // true (inalterado)
+echo $dev->debug;  // true (unchanged)
 echo $prod->debug; // false
 ```
 
-💡 **Dica:** `clone ... with` substitui o padrão "wither" (métodos `withXxx()`) comum em objetos imutáveis. Em vez de escrever `withPreco()`, `withEstoque()`, etc., use `clone $obj with ['preco' => X]`.
+`clone ... with` substitui o padrão "wither" (métodos `withXxx()`) comum em objetos imutáveis. Em vez de escrever `withPreco()`, `withEstoque()`, etc., use `clone $obj with ['preco' => X]`.
 
 ---
 
@@ -1059,8 +1059,8 @@ class User
     }
 }
 
-$user = new User('joao da silva');
-echo $user->fullName; // Joao Da Silva
+$user = new User('john doe');
+echo $user->fullName; // John Doe
 ```
 
 ### Hook `set`
@@ -1076,7 +1076,7 @@ class Product
         get => $this->rawPrice;
         set (float $value) {
             if ($value < 0) {
-                throw new InvalidArgumentException('Preco nao pode ser negativo');
+                throw new InvalidArgumentException('Price cannot be negative');
             }
             $this->rawPrice = round($value, 2);
         }
@@ -1139,13 +1139,13 @@ class Logger
 }
 
 $logger = new Logger();
-$logger->message = 'Sistema iniciado';
-$logger->message = 'Processamento concluido';
+$logger->message = 'System started';
+$logger->message = 'Processing completed';
 
 print_r($logger->getMessages());
-// [[10:30:00] Sistema iniciado, [10:30:05] Processamento concluido]
+// [[10:30:00] System started, [10:30:05] Processing completed]
 
-// echo $logger->message; // Erro: propriedade nao tem get hook
+// echo $logger->message; // Error: property has no get hook
 ```
 
 ### Property Hooks em Interfaces
@@ -1171,7 +1171,7 @@ class Person implements Nameable
 }
 ```
 
-💡 **Dica:** Property hooks substituem de forma limpa o que antes exigia métodos mágicos `__get()`/`__set()` ou propriedades privadas com getters/setters. Use-os para validação, transformação e propriedades computadas.
+Property hooks substituem de forma limpa o que antes exigia métodos mágicos `__get()`/`__set()` ou getters/setters manuais. Use-os para validação, transformação e propriedades computadas.
 
 ---
 
@@ -1206,15 +1206,15 @@ class ReportPremium extends Report
     public function resetViews(): void
     {
         $this->views = 0; // OK — protected(set)
-        // $this->title = 'novo';     // Erro — private(set) nao acessivel em subclasse
+        // $this->title = 'new';        // Error — private(set) not accessible in subclass
     }
 }
 
-$report = new Report('Vendas Q3');
-echo $report->title;              // Vendas Q3 — public get
+$report = new Report('Q3 Sales');
+echo $report->title;              // Q3 Sales — public get
 
-// $report->title = 'Q4';          // Erro — private(set)
-// $report->views = 100;    // Erro — protected(set)
+// $report->title = 'Q4';          // Error — private(set)
+// $report->views = 100;    // Error — protected(set)
 ```
 
 ### Sintaxes Suportadas
@@ -1231,8 +1231,8 @@ echo $report->title;              // Vendas Q3 — public get
 ```php
 <?php
 
-// Exemplo 1: UUID gerado uma vez, visivel externamente
-class Entidade
+// Exemplo 1: UUID generated once, externally visible
+class Entity
 {
     public private(set) string $id;
 
@@ -1242,19 +1242,19 @@ class Entidade
     }
 }
 
-// Exemplo 2: Counter somente incrementavel internamente
-class Visitante
+// Exemplo 2: Counter only incrementable internally
+class Visitor
 {
     public protected(set) int $accessCount = 0;
 
-    public function registrarAcesso(): void
+    public function registerAccess(): void
     {
         $this->accessCount++;
     }
 }
 
-// Exemplo 3: Configuration que so pode ser alterada via metodo
-class Conexao
+// Exemplo 3: Configuration only changeable via method
+class Connection
 {
     public private(set) string $host;
     public private(set) int $port;
@@ -1265,18 +1265,18 @@ class Conexao
         $this->port = $port;
     }
 
-    public function reconectar(string $host, int $port): void
+    public function reconnect(string $host, int $port): void
     {
-        $this->fechar();
+        $this->close();
         $this->host  = $host;
         $this->port = $port;
     }
 
-    private function fechar(): void { /* ... */ }
+    private function close(): void { /* ... */ }
 }
 ```
 
-💡 **Dica:** Asymmetric visibility reduz boilerplate — você não precisa mais de propriedades `private` + métodos `get()` públicos só para expor um valor sem permitir escrita externa.
+Asymmetric visibility reduz boilerplate — você não precisa mais de propriedades `private` + métodos públicos de leitura só pra expor um valor sem permitir escrita externa.
 
 ---
 
@@ -1287,16 +1287,16 @@ class Conexao
 ```php
 <?php
 
-class Modelo
+class Model
 {
     public function __construct(
-        final public string $tabela,
+        final public string $table,
     ) {}
 }
 
-class User extends Modelo
+class User extends Model
 {
-    // public string $tabela = 'usuarios'; // Erro: propriedade final nao pode ser sobrescrita
+    // public string $table = 'users'; // Error: final property cannot be overridden
 }
 ```
 
@@ -1305,15 +1305,15 @@ Também funciona com `readonly`:
 ```php
 <?php
 
-abstract class EventoDominio
+abstract class DomainEvent
 {
     public function __construct(
         final public readonly string $id,
-        final public readonly DateTimeImmutable $ocorridoEm = new DateTimeImmutable(),
+        final public readonly DateTimeImmutable $occurredAt = new DateTimeImmutable(),
     ) {}
 }
 
-class UserCriado extends EventoDominio
+class UserCreated extends DomainEvent
 {
     public function __construct(
         string $id,
@@ -1322,7 +1322,7 @@ class UserCriado extends EventoDominio
         parent::__construct($id);
     }
 
-    // Nao pode sobrescrever $id nem $ocorridoEm
+    // Cannot override $id or $occurredAt
 }
 ```
 
@@ -1350,7 +1350,7 @@ class Container
 }
 
 $container = new Container();
-echo $container->qualquer_chave; // null (sem erro!)
+echo $container->any_key; // null (no error!)
 ```
 
 ### `__set($name, $valor)` — Escrita em Propriedade Inacessível
@@ -1358,7 +1358,7 @@ echo $container->qualquer_chave; // null (sem erro!)
 ```php
 <?php
 
-class ConfigDinamica
+class DynamicConfig
 {
     private array $values = [];
 
@@ -1378,7 +1378,7 @@ class ConfigDinamica
     }
 }
 
-$config = new ConfigDinamica();
+$config = new DynamicConfig();
 $config->debug = true;
 $config->host  = 'localhost';
 $config->port = 3306;
@@ -1389,7 +1389,7 @@ Array
 (
     [debug] => 1
     [host] => localhost
-    [porta] => 3306
+    [port] => 3306
 )
 */
 ```
@@ -1408,20 +1408,20 @@ class MicroOrm
             return $this->findBy($column, $args[0]);
         }
 
-        throw new BadMethodCallException("Metodo {$method} nao existe");
+        throw new BadMethodCallException("Method {$method} does not exist");
     }
 
     private function findBy(string $column, mixed $value): ?array
     {
-        // simulacao de consulta
-        echo "SELECT * FROM tabela WHERE {$column} = {$value}\n";
+        // simulated query
+        echo "SELECT * FROM table WHERE {$column} = {$value}\n";
         return null;
     }
 }
 
 $orm = new MicroOrm();
-$orm->findByNome('Maria');   // SELECT * FROM tabela WHERE nome = Maria
-$orm->findByEmail('a@b.com'); // SELECT * FROM tabela WHERE email = a@b.com
+$orm->findByName('Mary');   // SELECT * FROM table WHERE name = Mary
+$orm->findByEmail('a@b.com'); // SELECT * FROM table WHERE email = a@b.com
 ```
 
 ### `__toString()` — Representação como String
@@ -1429,22 +1429,22 @@ $orm->findByEmail('a@b.com'); // SELECT * FROM tabela WHERE email = a@b.com
 ```php
 <?php
 
-class Dinheiro
+class Money
 {
     public function __construct(
         private float $value,
-        private string $currency = 'BRL',
+        private string $currency = 'USD',
     ) {}
 
     public function __toString(): string
     {
-        return 'R$ ' . number_format($this->value, 2, ',', '.');
+        return '$ ' . number_format($this->value, 2, '.', ',');
     }
 }
 
-$price = new Dinheiro(199.9);
-echo $price;              // R$ 199,90
-echo "Preco: {$price}";  // Preco: R$ 199,90
+$price = new Money(199.9);
+echo $price;              // $ 199.90
+echo "Price: {$price}";  // Price: $ 199.90
 ```
 
 ### `__invoke()` — Objeto como Função
@@ -1454,7 +1454,7 @@ Faz com que um objeto possa ser chamado como se fosse uma função:
 ```php
 <?php
 
-class ValidadorEmail
+class EmailValidator
 {
     public function __invoke(string $email): bool
     {
@@ -1462,15 +1462,15 @@ class ValidadorEmail
     }
 }
 
-$validator = new ValidadorEmail();
+$validator = new EmailValidator();
 
 var_dump($validator('user@domain.com')); // bool(true)
 var_dump($validator('invalid'));         // bool(false)
 
-// Uso como callback:
-$emails = ['a@b.com', 'invalido', 'c@d.com'];
-$validos = array_filter($emails, $validator);
-print_r($validos); // ['a@b.com', 'c@d.com']
+// Usage as callback:
+$emails = ['a@b.com', 'invalid', 'c@d.com'];
+$valid = array_filter($emails, $validator);
+print_r($valid); // ['a@b.com', 'c@d.com']
 ```
 
 ### `__debugInfo()` — Controlar Saída do `var_dump()`
@@ -1489,25 +1489,25 @@ class User
     public function __debugInfo(): array
     {
         return [
-            'nome'  => $this->name,
-            'email' => $this->email,
-            'senha' => '***REDACTED***',
+            'name'     => $this->name,
+            'email'    => $this->email,
+            'password' => '***REDACTED***',
         ];
     }
 }
 
-$u = new User('Maria', 'senha123', 'maria@email.com');
+$u = new User('Mary', 'pass123', 'mary@email.com');
 var_dump($u);
 /*
 object(User)#1 (3) {
-  ["nome"]=> string(5) "Maria"
-  ["email"]=> string(16) "maria@email.com"
-  ["senha"]=> string(13) "***REDACTED***"
+  ["name"]=> string(4) "Mary"
+  ["email"]=> string(14) "mary@email.com"
+  ["password"]=> string(13) "***REDACTED***"
 }
 */
 ```
 
-💡 **Dica:** Use `__debugInfo()` para ocultar dados sensíveis (senhas, tokens) ao fazer debugging.
+Use `__debugInfo()` para ocultar dados sensíveis (senhas, tokens) no `var_dump()` durante debugging.
 
 ---
 
@@ -1537,22 +1537,22 @@ abstract class Repository
 
 class UserRepository extends Repository
 {
-    protected static string $table = 'usuarios';
+    protected static string $table = 'users';
 }
 
 class OrderRepository extends Repository
 {
-    protected static string $table = 'pedidos';
+    protected static string $table = 'orders';
 }
 
 $user = UserRepository::find(1);
-// SELECT * FROM usuarios WHERE id = 1
+// SELECT * FROM users WHERE id = 1
 
 $order = OrderRepository::find(42);
-// SELECT * FROM pedidos WHERE id = 42
+// SELECT * FROM orders WHERE id = 42
 
-echo UserRepository::table(); // usuarios
-echo OrderRepository::table();  // pedidos
+echo UserRepository::table(); // users
+echo OrderRepository::table();  // orders
 ```
 
 Sem `static::`, `self::$table` sempre retornaria o valor da classe `Repository` (que não está definido).
@@ -1568,9 +1568,9 @@ Autoloading carrega classes quando são referenciadas pela primeira vez, elimina
 ```php
 <?php
 
-// Configuration basica de autoloading
+// Basic autoloading configuration
 spl_autoload_register(function (string $classe): void {
-    // Converte namespace em caminho de arquivo
+    // Converts namespace to file path
     // Ex: App\Models\User -> src/Models/User.php
     $file = __DIR__ . '/src/' . str_replace('\\', '/', $classe) . '.php';
 
@@ -1579,7 +1579,7 @@ spl_autoload_register(function (string $classe): void {
     }
 });
 
-// Agora qualquer classe no namespace App sera carregada:
+// Now any class in the App namespace will be loaded:
 // use App\Models\User;
 // use App\Services\EmailService;
 ```
@@ -1603,44 +1603,44 @@ Após rodar `composer dump-autoload`, todas as classes no diretório `src/` com 
 ```php
 <?php
 
-// No entry point da aplicacao:
+// At the application entry point:
 require_once __DIR__ . '/vendor/autoload.php';
 
 use App\Controllers\HomeController;
 use App\Models\User;
 
-$controller = new HomeController();  // carregado
-$user     = new User();        // carregado
+$controller = new HomeController();  // loaded
+$user     = new User();              // loaded
 ```
 
 ---
 
-## 📚 Referências
+## Referências
 
-- [Documentação oficial: Classes e Objetos](https://www.php.net/manual/pt_BR/language.oop5.php)
-- [Visibilidade](https://www.php.net/manual/pt_BR/language.oop5.visibility.php)
-- [Construtores e Destrutores](https://www.php.net/manual/pt_BR/language.oop5.decon.php)
-- [Constructor Promotion (PHP 8.0)](https://www.php.net/manual/pt_BR/language.oop5.decon.php#language.oop5.decon.constructor.promotion)
-- [Herança](https://www.php.net/manual/pt_BR/language.oop5.inheritance.php)
-- [Interfaces](https://www.php.net/manual/pt_BR/language.oop5.interfaces.php)
-- [Traits](https://www.php.net/manual/pt_BR/language.oop5.traits.php)
-- [Classes Abstratas](https://www.php.net/manual/pt_BR/language.oop5.abstract.php)
-- [Métodos e Propriedades Estáticas](https://www.php.net/manual/pt_BR/language.oop5.static.php)
-- [Constantes de Classe](https://www.php.net/manual/pt_BR/language.oop5.constants.php)
-- [Readonly Properties (PHP 8.1)](https://www.php.net/manual/pt_BR/language.oop5.properties.php#language.oop5.properties.readonly-properties)
-- [Readonly Classes (PHP 8.2)](https://www.php.net/manual/pt_BR/language.oop5.basic.php#language.oop5.basic.class.readonly)
-- [Clonagem de Objetos](https://www.php.net/manual/pt_BR/language.oop5.cloning.php)
+- [Documentação oficial: Classes e Objetos](https://www.php.net/manual/en/language.oop5.php)
+- [Visibilidade](https://www.php.net/manual/en/language.oop5.visibility.php)
+- [Construtores e Destrutores](https://www.php.net/manual/en/language.oop5.decon.php)
+- [Constructor Promotion (PHP 8.0)](https://www.php.net/manual/en/language.oop5.decon.php#language.oop5.decon.constructor.promotion)
+- [Herança](https://www.php.net/manual/en/language.oop5.inheritance.php)
+- [Interfaces](https://www.php.net/manual/en/language.oop5.interfaces.php)
+- [Traits](https://www.php.net/manual/en/language.oop5.traits.php)
+- [Classes Abstratas](https://www.php.net/manual/en/language.oop5.abstract.php)
+- [Métodos e Propriedades Estáticas](https://www.php.net/manual/en/language.oop5.static.php)
+- [Constantes de Classe](https://www.php.net/manual/en/language.oop5.constants.php)
+- [Readonly Properties (PHP 8.1)](https://www.php.net/manual/en/language.oop5.properties.php#language.oop5.properties.readonly-properties)
+- [Readonly Classes (PHP 8.2)](https://www.php.net/manual/en/language.oop5.basic.php#language.oop5.basic.class.readonly)
+- [Clonagem de Objetos](https://www.php.net/manual/en/language.oop5.cloning.php)
 - [Clone with — PHP 8.5](https://wiki.php.net/rfc/clone_with)
-- [Property Hooks (PHP 8.4)](https://www.php.net/manual/pt_BR/language.oop5.property-hooks.php)
-- [Asymmetric Visibility (PHP 8.4)](https://www.php.net/manual/pt_BR/language.oop5.visibility.php#language.oop5.visibility.asymmetric)
+- [Property Hooks (PHP 8.4)](https://www.php.net/manual/en/language.oop5.property-hooks.php)
+- [Asymmetric Visibility (PHP 8.4)](https://www.php.net/manual/en/language.oop5.visibility.php#language.oop5.visibility.asymmetric)
 - [Final Property com Constructor Promotion — PHP 8.5](https://wiki.php.net/rfc/final_properties)
-- [Métodos Mágicos](https://www.php.net/manual/pt_BR/language.oop5.magic.php)
-- [Late Static Binding](https://www.php.net/manual/pt_BR/language.oop5.late-static-bindings.php)
-- [Autoloading com spl_autoload_register](https://www.php.net/manual/pt_BR/function.spl-autoload-register.php)
+- [Métodos Mágicos](https://www.php.net/manual/en/language.oop5.magic.php)
+- [Late Static Binding](https://www.php.net/manual/en/language.oop5.late-static-bindings.php)
+- [Autoloading com spl_autoload_register](https://www.php.net/manual/en/function.spl-autoload-register.php)
 - [PSR-4: Autoloading Standard](https://www.php-fig.org/psr/psr-4/)
-- [Atributo #[\Override]](https://www.php.net/manual/pt_BR/language.attributes.php#language.attributes.override)
+- [Atributo #[\Override]](https://www.php.net/manual/en/language.attributes.php#language.attributes.override)
 
 ---
 
-> **Capítulo anterior:** [08 — Strings](08-strings.md)
-> **Próximo capítulo:** [10 — Tratamento de Erros e Exceções](10-tratamento-de-erros.md)
+> **Capítulo anterior:** [08 — Strings](./08-strings.md)
+> **Próximo capítulo:** [10 — Tratamento de Erros e Exceções](./10-tratamento-de-erros.md)
