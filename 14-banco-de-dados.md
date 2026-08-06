@@ -1,19 +1,19 @@
-# Módulo 14: Banco de Dados com PDO
+# Module 14: Database with PDO
 
-## Visão Geral
+## Overview
 
-PDO (PHP Data Objects) é a interface recomendada para acesso a bancos de dados em PHP. Ela oferece uma camada de abstração que permite trabalhar com MySQL, PostgreSQL, SQLite, entre outros, usando a mesma API, além de **prepared statements** que protegem contra SQL injection.
+PDO (PHP Data Objects) is the recommended interface for database access in PHP. It provides an abstraction layer that lets you work with MySQL, PostgreSQL, SQLite, and others using the same API, plus **prepared statements** that protect against SQL injection.
 
-> ⚠️ **Cuidado:** As funções `mysql_*` foram removidas no PHP 7. `mysqli_*` existe, mas **sempre prefira PDO** por sua flexibilidade e segurança.
+> **Warning:** The `mysql_*` functions were removed in PHP 7. `mysqli_*` still exists, but **always prefer PDO** for its flexibility and security.
 
 ---
 
-## 1. Conexão com PDO
+## 1. Connecting with PDO
 
 ```php
 <?php
 // MySQL
-$dsn = 'mysql:host=localhost;port=3306;dbname=curso_php;charset=utf8mb4';
+$dsn = 'mysql:host=localhost;port=3306;dbname=php_course;charset=utf8mb4';
 $user = 'root';
 $password = '';
 $options = [
@@ -24,32 +24,33 @@ $options = [
 
 try {
     $pdo = new PDO($dsn, $user, $password, $options);
-    echo "Conectado ao MySQL com sucesso!<br>\n";
+    echo "Connected to MySQL successfully!<br>\n";
 } catch (PDOException $e) {
-    die("Erro de conexão: " . $e->getMessage());
+    die("Connection error: " . $e->getMessage());
 }
 
-// SQLite (não precisa de servidor — arquivo único)
-$dsnSqlite = 'sqlite:' . __DIR__ . '/banco.sqlite';
+// SQLite (no server needed — single file)
+$dsnSqlite = 'sqlite:' . __DIR__ . '/database.sqlite';
 $pdoSqlite = new PDO($dsnSqlite, null, null, [
     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
 ]);
-echo "Conectado ao SQLite!<br>\n";
+echo "Connected to SQLite!<br>\n";
 
 // PostgreSQL
-$dsnPg = 'pgsql:host=localhost;port=5432;dbname=curso_php';
+$dsnPg = 'pgsql:host=localhost;port=5432;dbname=php_course';
 $pdoPg = new PDO($dsnPg, 'postgres', 'password', [
-    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+]);
 ```
 
-### Opções Importantes do PDO
+### Important PDO Options
 
-| Opção | Valor | Descrição |
+| Option | Value | Description |
 |-------|-------|-----------|
-| `ATTR_ERRMODE` | `ERRMODE_EXCEPTION` | Lança exceção em erros |
-| `ATTR_DEFAULT_FETCH_MODE` | `FETCH_ASSOC` | Retorna arrays associativos por padrão |
-| `ATTR_EMULATE_PREPARES` | `false` | Usa prepared statements nativos do SGBD |
-| `MYSQL_ATTR_INIT_COMMAND` | `SET NAMES utf8mb4` | Define charset na conexão MySQL |
+| `ATTR_ERRMODE` | `ERRMODE_EXCEPTION` | Throws exceptions on errors |
+| `ATTR_DEFAULT_FETCH_MODE` | `FETCH_ASSOC` | Returns associative arrays by default |
+| `ATTR_EMULATE_PREPARES` | `false` | Uses native DBMS prepared statements |
+| `MYSQL_ATTR_INIT_COMMAND` | `SET NAMES utf8mb4` | Sets charset on MySQL connection |
 
 ---
 
@@ -57,28 +58,28 @@ $pdoPg = new PDO($dsnPg, 'postgres', 'password', [
 
 > **PHP 8.4+**
 
-O PHP 8.4 introduziu subclasses específicas para cada driver, permitindo tipagem mais precisa:
+PHP 8.4 introduced driver-specific subclasses, enabling more precise typing:
 
 ```php
 <?php
-// PHP 8.4+: subclasses específicas de driver
+// PHP 8.4+: driver-specific subclasses
 $pdoMysql  = new Pdo\Mysql('host=localhost;dbname=app;charset=utf8mb4', 'root', '');
 $pdoSqlite = new Pdo\Sqlite('sqlite:' . __DIR__ . '/app.sqlite');
 $pdoPgsql  = new Pdo\Pgsql('host=localhost;dbname=app', 'postgres', 'password');
 
-// Agora você pode tipar funções com o driver específico
+// Now you can type-hint functions with the specific driver
 function findUsersMySQL(Pdo\Mysql $pdo): array {
     return $pdo->query('SELECT * FROM users')->fetchAll();
 }
 
-// $pdoMysql é do tipo Pdo\Mysql (que herda de PDO)
+// $pdoMysql is of type Pdo\Mysql (which inherits from PDO)
 findUsersMySQL($pdoMysql); // OK
-// findUsersMySQL($pdoSqlite); // Erro de 
+// findUsersMySQL($pdoSqlite); // Type error
 ```
 
 ---
 
-## 3. Criando Tabelas com PDO
+## 3. Creating Tables with PDO
 
 ```php
 <?php
@@ -86,147 +87,157 @@ $pdo = new PDO('sqlite:' . __DIR__ . '/app.sqlite', null, null, [
     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
 ]);
 
-// SQL para criar tabelas
+// SQL to create tables
 $sql = "
     CREATE TABLE IF NOT EXISTS users (
         id         INTEGER PRIMARY KEY AUTOINCREMENT,
         name       TEXT    NOT NULL,
         email      TEXT    NOT NULL UNIQUE,
-        password      TEXT    NOT NULL,
-        ativo      INTEGER DEFAULT 1,
-        created_at  TEXT    DEFAULT (datetime('now'))
+        password   TEXT    NOT NULL,
+        active     INTEGER DEFAULT 1,
+        created_at TEXT    DEFAULT (datetime('now'))
     );
 
     CREATE TABLE IF NOT EXISTS posts (
         id         INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER NOT NULL,
-        titulo     TEXT    NOT NULL,
-        conteudo   TEXT    NOT NULL,
-        created_at  TEXT    DEFAULT (datetime('now')),
+        user_id    INTEGER NOT NULL,
+        title      TEXT    NOT NULL,
+        content    TEXT    NOT NULL,
+        created_at TEXT    DEFAULT (datetime('now')),
         FOREIGN KEY (user_id) REFERENCES users(id)
     );
 ";
 
 $pdo->exec($sql);
-echo "Tabelas criadas com sucesso!<br
+echo "Tables created successfully!<br>\n";
 ```
 
-> 💡 **Dica:** Use `exec()` para comandos SQL que **não retornam resultados** (CREATE, INSERT sem prepared statement, etc.). Retorna o número de linhas afetadas.
+> **Tip:** Use `exec()` for SQL commands that **do not return results** (CREATE, INSERT without prepared statement, etc.). It returns the number of affected rows.
 
 ---
 
-## 4. Prepared Statements (OBRIGATÓRIO!)
+## 4. Prepared Statements (MANDATORY!)
 
-**NUNCA** concatene variáveis no SQL. Use sempre prepared statements.
+**NEVER** concatenate variables into SQL. Always use prepared statements.
 
 ```php
 <?php
-// ❌ NUNCA FAÇA ISSO!
+// ❌ NEVER DO THIS!
 $id = $_GET['id'];
 $sql = "SELECT * FROM users WHERE id = {$id}";
-// Um atacante pode injetar: 1; DROP TABLE users; --
+// An attacker can inject: 1; DROP TABLE users; --
 
-// ✅ SEMPRE use prepared statements
+// ✅ ALWAYS use prepared statements
 $id = $_GET['id'];
 $stmt = $pdo->prepare('SELECT * FROM users WHERE id = :id');
 $stmt->bindParam(':id', $id, PDO::PARAM_INT);
 $stmt->execute();
-$user = $stmt->fet
+$user = $stmt->fetch();
 ```
 
-### Placeholders Nomeados vs Interrogação
+### Named vs Question Mark Placeholders
 
 ```php
 <?php
-// Nomeados (recomendado)
-$stmt = $pdo->prepare('SELECT * FROM users WHERE email = :email AND ativo = :ativo');
+// Named (recommended)
+$stmt = $pdo->prepare('SELECT * FROM users WHERE email = :email AND active = :active');
 $stmt->execute([
-    ':email' => 'joao@email.com',
-    ':ativo' => 1,
+    ':email'  => 'john@email.com',
+    ':active' => 1,
 ]);
 
-// Interrogação (posicional)
-$stmt = $pdo->prepare('SELECT * FROM users WHERE email = ? AND ativo = ?');
-$stmt->execute(['joao@email.com', 1]);
+// Question mark (positional)
+$stmt = $pdo->prepare('SELECT * FROM users WHERE email = ? AND active = ?');
+$stmt->execute(['john@email.com', 1]);
 
-// Misturar não funciona!
-// ❌ $stmt->prepare('SELECT * FROM users WHERE email = :email AND ativo =
+// Mixing them won't work!
+// ❌ $stmt->prepare('SELECT * FROM users WHERE email = :email AND active = ?');
 ```
 
 ### `bindParam()` vs `bindValue()`
 
 ```php
 <?php
-// bindParam — vincula por REFERÊNCIA. A variável é lida no momento do execute().
-$name = 'João';
+// bindParam — binds by REFERENCE. The variable is read at execute() time.
+$name = 'John';
 $stmt = $pdo->prepare('INSERT INTO users (name, email) VALUES (:name, :email)');
 $stmt->bindParam(':name', $name);
-$stmt->bindValue(':email', 'joao@email.com');
+$stmt->bindValue(':email', 'john@email.com');
 
-$name = 'Maria'; // altera a referência
-$stmt->execute(); // Maria é inserida! (bindParam usou o valor atualizado)
-// email continua 'joao@email.com' (bindValue fixou o valor no momento da chamada)
+$name = 'Mary'; // changes the reference
+$stmt->execute(); // Mary is inserted! (bindParam used the updated value)
+// email remains 'john@email.com' (bindValue fixed the value at call time)
 
-// bindParam com tipo
+// bindParam with type
 $stmt->bindParam(':id', $id, PDO::PARAM_INT);
 $stmt->bindParam(':name', $name, PDO::PARAM_STR);
-$stmt->bindParam(':ativo', $ativo, PDO::PARAM_BOOL);
-$stmt->bindParam(':nulo', $nulo, PDO::PARAM_N
+$stmt->bindParam(':active', $active, PDO::PARAM_BOOL);
+$stmt->bindParam(':nullable', $nullable, PDO::PARAM_NULL);
 ```
 
-### Tipos de Parâmetro PDO
+### PDO Parameter Types
 
-| Constante | Descrição |
+| Constant | Description |
 |-----------|-----------|
-| `PDO::PARAM_INT` | Inteiro |
-| `PDO::PARAM_STR` | String (padrão) |
-| `PDO::PARAM_BOOL` | Booleano |
+| `PDO::PARAM_INT` | Integer |
+| `PDO::PARAM_STR` | String (default) |
+| `PDO::PARAM_BOOL` | Boolean |
 | `PDO::PARAM_NULL` | NULL |
-| `PDO::PARAM_LOB` | Large Object (arquivos binários) |
+| `PDO::PARAM_LOB` | Large Object (binary files) |
 
 ---
 
-## 5. Fetch Modes (Modos de Recuperação)
+## 5. Fetch Modes
 
 ```php
 <?php
 $stmt = $pdo->prepare('SELECT id, name, email FROM users LIMIT 3');
 $stmt->execute();
 
-// FETCH_ASSOC — array associativo (RECOMENDADO)
+// FETCH_ASSOC — associative array (RECOMMENDED)
 while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
     echo "{$row['id']}: {$row['name']} — {$row['email']}<br>\n";
 }
 
-// FETCH_OBJ — objeto stdClass
+// FETCH_OBJ — stdClass object
 while ($obj = $stmt->fetch(PDO::FETCH_OBJ)) {
     echo "{$obj->id}: {$obj->name}<br>\n";
 }
 
-// FETCH_NUM — array indexado numericamente
+// FETCH_NUM — numerically indexed array
 while ($row = $stmt->fetch(PDO::FETCH_NUM)) {
     echo "{$row[0]}: {$row[1]}<br>\n";
 }
 
-// FETCH_BOTH — ambos (padrão, EVITE — duplica dados)
+// FETCH_BOTH — both (default, AVOID — duplicates data)
 while ($row = $stmt->fetch(PDO::FETCH_BOTH)) {
-    // $row[0] e $row['id'] apontam pro mesmo valor
+    // $row[0] and $row['id'] point to the same value
 }
 
-// fetchAll — todas as linhas de uma vez
+// fetchAll — all rows at once
 $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 foreach ($users as $u) {
     echo "{$u['name']}<br>\n";
 }
 
-// fetchColumn — valor de uma única coluna
+// fetchColumn — value from a single column
 $stmt = $pdo->prepare('SELECT COUNT(*) FROM users');
 $stmt->execute();
 $total = $stmt->fetchColumn();
-echo "Total de usuários: {$total}<br
+echo "Total users: {$total}<br>\n";
 ```
 
-### FETCH_CLASS — Hidrata em objeto de classe
+**`FETCH_ASSOC`** returns `['id' => 1, 'name' => 'John']` — you access columns by name (`$row['name']`). It's the recommended default: predictable, performant (no duplicated data), and doesn't break if the column order changes.
+
+**`FETCH_OBJ`** returns a generic `stdClass` — `$row->name`. Clean syntax but no type safety from the IDE.
+
+**`FETCH_NUM`** returns `[0 => 1, 1 => 'John']` — `$row[0]`. Brittle: if the query column order changes, your code silently breaks.
+
+**`FETCH_BOTH`** returns both numeric and associative keys — `$row[0]` AND `$row['id']` for the same value. It's the PDO default but wastes memory. Always override it with `FETCH_ASSOC`.
+
+**`FETCH_CLASS`** hydrates into YOUR typed class (see below) — real objects with `int $id`, `string $name`, etc. Best for type safety.
+
+### FETCH_CLASS — Hydrate into a class instance
 
 ```php
 <?php
@@ -241,87 +252,89 @@ $stmt->execute();
 
 $users = $stmt->fetchAll(PDO::FETCH_CLASS, User::class);
 foreach ($users as $u) {
-    echo "{$u->name} <{$u->email}><br>\
+    echo "{$u->name} <{$u->email}><br>\n";
+}
 ```
 
-### Modo de Fetch Padrão
+### Default Fetch Mode
 
 ```php
 <?php
-// Define globalmente na conexão
+// Set globally on the connection
 $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 
-// Agora todos os fetch() padrão retornam array associativo
+// Now all default fetch() calls return associative arrays
 $stmt = $pdo->query('SELECT * FROM users');
-$users = $stmt->fetchA
+$users = $stmt->fetchAll();
 ```
 
 ---
 
-## 6. CRUD Completo
+## 6. Full CRUD
 
 ### CREATE (INSERT)
 
 ```php
 <?php
-// Inserção simples
+// Simple insert
 $stmt = $pdo->prepare('INSERT INTO users (name, email, password) VALUES (:name, :email, :password)');
 $stmt->execute([
-    ':name'  => 'João Silva',
-    ':email' => 'joao@email.com',
-    ':password' => password_hash('senha123', PASSWORD_DEFAULT),
+    ':name'     => 'John Doe',
+    ':email'    => 'john@email.com',
+    ':password' => password_hash('pass123', PASSWORD_DEFAULT),
 ]);
 
 $id = $pdo->lastInsertId();
-echo "Usuário inserido com ID: {$id}<br>\n";
+echo "User inserted with ID: {$id}<br>\n";
 
-// Inserção múltipla (transação recomendada)
+// Multiple insert (transaction recommended)
 $users = [
-    ['name' => 'Maria', 'email' => 'maria@email.com', 'password' => password_hash('123456', PASSWORD_DEFAULT)],
-    ['name' => 'Pedro', 'email' => 'pedro@email.com', 'password' => password_hash('abc123', PASSWORD_DEFAULT)],
+    ['name' => 'Mary', 'email' => 'mary@email.com', 'password' => password_hash('123456', PASSWORD_DEFAULT)],
+    ['name' => 'Peter', 'email' => 'peter@email.com', 'password' => password_hash('abc123', PASSWORD_DEFAULT)],
 ];
 
 $stmt = $pdo->prepare('INSERT INTO users (name, email, password) VALUES (:name, :email, :password)');
 
 foreach ($users as $u) {
     $stmt->execute([
-        ':name'  => $u['name'],
-        ':email' => $u['email'],
+        ':name'     => $u['name'],
+        ':email'    => $u['email'],
         ':password' => $u['password'],
     ]);
-    echo "Inserido ID: " . $pdo->lastInsertId() . "<br>\
+    echo "Inserted ID: " . $pdo->lastInsertId() . "<br>\n";
+}
 ```
 
 ### READ (SELECT)
 
 ```php
 <?php
-// Busca por ID
+// Find by ID
 $stmt = $pdo->prepare('SELECT * FROM users WHERE id = :id');
 $stmt->execute([':id' => 1]);
 $user = $stmt->fetch();
 
 if ($user) {
-    echo "Nome: {$user['name']}<br>\n";
+    echo "Name: {$user['name']}<br>\n";
     echo "Email: {$user['email']}<br>\n";
 } else {
-    echo "Usuário não encontrado.<br>\n";
+    echo "User not found.<br>\n";
 }
 
-// Busca com LIKE
-$term = '%joão%';
+// Search with LIKE
+$term = '%john%';
 $stmt = $pdo->prepare('SELECT * FROM users WHERE name LIKE :term OR email LIKE :term2');
 $stmt->execute([':term' => $term, ':term2' => $term]);
 
-// Busca com ORDER BY e LIMIT
-$stmt = $pdo->prepare('SELECT * FROM users ORDER BY name ASC LIMIT :limite');
-$stmt->bindValue(':limite', 10, PDO::PARAM_INT);
+// Query with ORDER BY and LIMIT
+$stmt = $pdo->prepare('SELECT * FROM users ORDER BY name ASC LIMIT :limit');
+$stmt->bindValue(':limit', 10, PDO::PARAM_INT);
 $stmt->execute();
 
-// Busca condicional
-$stmt = $pdo->prepare('SELECT * FROM users WHERE ativo = :ativo');
-$stmt->bindValue(':ativo', 1, PDO::PARAM_BOOL);
-$stmt->execu
+// Conditional query
+$stmt = $pdo->prepare('SELECT * FROM users WHERE active = :active');
+$stmt->bindValue(':active', 1, PDO::PARAM_BOOL);
+$stmt->execute();
 ```
 
 ### UPDATE
@@ -330,13 +343,13 @@ $stmt->execu
 <?php
 $stmt = $pdo->prepare('UPDATE users SET name = :name, email = :email WHERE id = :id');
 $stmt->execute([
-    ':name'  => 'João Silva Atualizado',
-    ':email' => 'joao.novo@email.com',
+    ':name'  => 'John Doe Updated',
+    ':email' => 'john.new@email.com',
     ':id'    => 1,
 ]);
 
 $affected = $stmt->rowCount();
-echo "{$affected} linha(s) atualizada(s).<br
+echo "{$affected} row(s) updated.<br>\n";
 ```
 
 ### DELETE
@@ -347,40 +360,41 @@ $stmt = $pdo->prepare('DELETE FROM users WHERE id = :id');
 $stmt->execute([':id' => 3]);
 
 $affected = $stmt->rowCount();
-echo "{$affected} linha(s) removida(s).<br
+echo "{$affected} row(s) deleted.<br>\n";
 ```
 
 ---
 
-## 7. Transações
+## 7. Transactions
 
-Transações garantem que um conjunto de operações seja executado **atomicamente**: todas com sucesso, ou tudo é desfeito.
+Transactions ensure a set of operations executes **atomically**: all succeed, or everything is rolled back.
 
 ```php
 <?php
 try {
     $pdo->beginTransaction();
 
-    // Insere o usuário
+    // Insert the user
     $stmt = $pdo->prepare('INSERT INTO users (name, email, password) VALUES (?, ?, ?)');
-    $stmt->execute(['Carlos', 'carlos@email.com', password_hash('password', PASSWORD_DEFAULT)]);
+    $stmt->execute(['Charles', 'charles@email.com', password_hash('password', PASSWORD_DEFAULT)]);
     $userId = $pdo->lastInsertId();
 
-    // Cria um post para o usuário
-    $stmt = $pdo->prepare('INSERT INTO posts (user_id, titulo, conteudo) VALUES (?, ?, ?)');
-    $stmt->execute([$userId, 'Primeiro Post', 'Conteúdo do primeiro post.']);
+    // Create a post for the user
+    $stmt = $pdo->prepare('INSERT INTO posts (user_id, title, content) VALUES (?, ?, ?)');
+    $stmt->execute([$userId, 'First Post', 'Content of the first post.']);
 
-    // Se tudo deu certo, confirma (commit)
+    // If everything went well, commit
     $pdo->commit();
-    echo "Usuário e post criados com sucesso!<br>\n";
+    echo "User and post created successfully!<br>\n";
 
 } catch (Exception $e) {
-    // Se algo deu errado, desfaz tudo (rollback)
+    // If something went wrong, roll back everything
     $pdo->rollBack();
-    echo "Erro: " . $e->getMessage() . " — Transação revertida.<br>\
+    echo "Error: " . $e->getMessage() . " — Transaction reverted.<br>\n";
+}
 ```
 
-### Exemplo real: Transferência entre contas
+### Real-world example: Transfer between accounts
 
 ```php
 <?php
@@ -388,24 +402,24 @@ function transfer(PDO $pdo, int $sourceAccount, int $destAccount, float $amount)
     try {
         $pdo->beginTransaction();
 
-        // Verifica balance da origem
-        $stmt = $pdo->prepare('SELECT balance FROM contas WHERE id = ? FOR UPDATE');
+        // Check source balance
+        $stmt = $pdo->prepare('SELECT balance FROM accounts WHERE id = ? FOR UPDATE');
         $stmt->execute([$sourceAccount]);
         $balance = $stmt->fetchColumn();
 
         if ($balance === false) {
-            throw new RuntimeException('Conta origem não encontrada.');
+            throw new RuntimeException('Source account not found.');
         }
         if ($balance < $amount) {
-            throw new RuntimeException('Saldo insuficiente.');
+            throw new RuntimeException('Insufficient balance.');
         }
 
-        // Debita da origem
-        $stmt = $pdo->prepare('UPDATE contas SET balance = balance - ? WHERE id = ?');
+        // Debit from source
+        $stmt = $pdo->prepare('UPDATE accounts SET balance = balance - ? WHERE id = ?');
         $stmt->execute([$amount, $sourceAccount]);
 
-        // Credita no destino
-        $stmt = $pdo->prepare('UPDATE contas SET balance = balance + ? WHERE id = ?');
+        // Credit to destination
+        $stmt = $pdo->prepare('UPDATE accounts SET balance = balance + ? WHERE id = ?');
         $stmt->execute([$amount, $destAccount]);
 
         $pdo->commit();
@@ -413,89 +427,90 @@ function transfer(PDO $pdo, int $sourceAccount, int $destAccount, float $amount)
 
     } catch (Exception $e) {
         $pdo->rollBack();
-        error_log("Transferência falhou: " . $e->getMessage());
+        error_log("Transfer failed: " . $e->getMessage());
         return false;
-  
+    }
+}
 ```
 
 ---
 
-## 8. Paginação com LIMIT + OFFSET
+## 8. Pagination with LIMIT + OFFSET
 
 ```php
 <?php
-// Configuração
-$currentPage = max(1, (int) ($_GET['pagina'] ?? 1));
+// Configuration
+$currentPage = max(1, (int) ($_GET['page'] ?? 1));
 $perPage = 10;
 $offset = ($currentPage - 1) * $perPage;
 
-// Contar total de registros
+// Count total records
 $stmt = $pdo->query('SELECT COUNT(*) FROM posts');
 $totalRecords = $stmt->fetchColumn();
 $totalPages = (int) ceil($totalRecords / $perPage);
 
-// Buscar registros da página atual
-$stmt = $pdo->prepare('SELECT * FROM posts ORDER BY created_at DESC LIMIT :limite OFFSET :offset');
-$stmt->bindValue(':limite', $perPage, PDO::PARAM_INT);
+// Fetch records for the current page
+$stmt = $pdo->prepare('SELECT * FROM posts ORDER BY created_at DESC LIMIT :limit OFFSET :offset');
+$stmt->bindValue(':limit', $perPage, PDO::PARAM_INT);
 $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
 $stmt->execute();
 
 $posts = $stmt->fetchAll();
 
-// Exibir resultados
+// Display results
 foreach ($posts as $post) {
     echo "<h3>" . htmlspecialchars($post['title']) . "</h3>\n";
 }
 
-// Links de navegação
+// Navigation links
 echo "<nav>\n";
 for ($i = 1; $i <= $totalPages; $i++) {
-    $class = ($i === $currentPage) ? 'class="ativo"' : '';
-    echo "<a href='?pagina={$i}' {$class}>{$i}</a> ";
+    $class = ($i === $currentPage) ? 'class="active"' : '';
+    echo "<a href='?page={$i}' {$class}>{$i}</a> ";
 }
 echo "</nav>\n";
-echo "<p>Mostrando página {$currentPage} de {$totalPages}</p
+echo "<p>Showing page {$currentPage} of {$totalPages}</p>\n";
 ```
 
 ---
 
-## 9. SQL Injection: Como Prepared Statements Protegem
+## 9. SQL Injection: How Prepared Statements Protect You
 
 ```php
 <?php
-// VULNERÁVEL — NUNCA faça:
+// VULNERABLE — NEVER do this:
 $email = $_POST['email'];
 $password = $_POST['password'];
 $sql = "SELECT * FROM users WHERE email = '{$email}' AND password = '{$password}'";
 
-// Se o atacante digitar no campo email:
+// If the attacker types into the email field:
 // ' OR 1=1 --
-// O SQL se torna:
-// SELECT * FROM users WHERE email = '' OR 1=1 --' AND password = 'qualquer'
-// Isso retorna TODOS os usuários!
+// The SQL becomes:
+// SELECT * FROM users WHERE email = '' OR 1=1 --' AND password = 'whatever'
+// This returns ALL users!
 
-// Se o atacante digitar no campo email:
+// If the attacker types into the email field:
 // '; DROP TABLE users; --
-// O SQL se torna:
+// The SQL becomes:
 // SELECT * FROM users WHERE email = ''; DROP TABLE users; --' AND password = ''
-// A tabela é DELETADA!
+// The table is DELETED!
 
-// PROTEGIDO — Prepared Statement:
+// PROTECTED — Prepared Statement:
 $stmt = $pdo->prepare('SELECT * FROM users WHERE email = :email AND password = :password');
 $stmt->execute([':email' => $email, ':password' => $password]);
 
-// O SGBD trata email e password como VALORES LITERAIS, nunca como código SQL.
-// Mesmo que o atacante digite ' OR 1=1 --, isso será tratado como uma
-// string literal e não como SQL execut
+// The DBMS treats email and password as LITERAL VALUES, never as SQL code.
+// Even if the attacker types ' OR 1=1 --, it will be treated as a
+// string literal and not as executable SQL.
 ```
 
-> 💡 **Dica:** Prepared statements enviam a estrutura da query e os dados separadamente ao SGBD. O banco compila a query primeiro, depois insere os parâmetros como valores literais. Isso torna a injeção impossível.
+> **Tip:** Prepared statements send the query structure and the data separately to the DBMS. The database compiles the query first, then inserts the parameters as literal values. This makes injection impossible.
 
 ---
 
-## 10. Conexão com SQLite para Projetos Pequenos
+## 10. SQLite Connection for Small Projects
 
-SQLite é perfeito para protótipos, aplicações de usuário único e estudos — não requer servidor de banco de dados, é um arquivo só.
+SQLite is perfect for prototypes, single-user applications, and study projects — it doesn't require a database server, just a single file.
 
 ```php
 <?php
@@ -509,29 +524,29 @@ class SQLiteConnection {
                 PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
             ]);
-            // Habilita foreign keys no SQLite
+            // Enable foreign keys on SQLite
             self::$instance->exec('PRAGMA foreign_keys = ON');
         }
         return self::$instance;
     }
 
-    public static function inicializar(): void {
+    public static function initialize(): void {
         $pdo = self::get();
         $pdo->exec("
             CREATE TABLE IF NOT EXISTS users (
-                id        INTEGER PRIMARY KEY AUTOINCREMENT,
-                name      TEXT NOT NULL,
-                email     TEXT NOT NULL UNIQUE,
-                password     TEXT NOT NULL,
+                id         INTEGER PRIMARY KEY AUTOINCREMENT,
+                name       TEXT NOT NULL,
+                email      TEXT NOT NULL UNIQUE,
+                password   TEXT NOT NULL,
                 created_at TEXT DEFAULT (datetime('now', 'localtime'))
             );
         ");
     }
 }
 
-// Uso
+// Usage
 $pdo = SQLiteConnection::get();
-SQLiteConnection::inicializ
+SQLiteConnection::initialize();
 ```
 
 ---
@@ -542,37 +557,37 @@ SQLiteConnection::inicializ
 
 ```php
 <?php
-// Básico
+// Basic
 'mysql:host=localhost;dbname=app;charset=utf8mb4'
 
-// Com porta
+// With port
 'mysql:host=localhost;port=3307;dbname=app;charset=utf8mb4'
 
 // Unix socket
-'mysql:unix_socket=/var/run/mysqld/mysqld.sock;dbname=app;charset=utf
+'mysql:unix_socket=/var/run/mysqld/mysqld.sock;dbname=app;charset=utf8mb4'
 ```
 
 ### SQLite
 
 ```php
 <?php
-// Arquivo (cria se não existir)
-'sqlite:/caminho/para/banco.sqlite'
+// File (creates if it doesn't exist)
+'sqlite:/path/to/database.sqlite'
 
-// Em memória (some ao final da execução)
-'sqlite::mem
+// In-memory (gone at end of execution)
+'sqlite::memory:'
 ```
 
 ### PostgreSQL
 
 ```php
 <?php
-'pgsql:host=localhost;port=5432;dbname=app;user=postgres;password=s
+'pgsql:host=localhost;port=5432;dbname=app;user=postgres;password=secret'
 ```
 
 ---
 
-## 12. Exemplo Prático: Repositório Genérico
+## 12. Practical Example: Generic Repository
 
 ```php
 <?php
@@ -591,9 +606,9 @@ abstract class Repository {
 
     public function findAll(string $order = 'id ASC', int $limit = 100): array {
         $stmt = $this->pdo->prepare(
-            "SELECT * FROM {$this->table} ORDER BY {$order} LIMIT :limite"
+            "SELECT * FROM {$this->table} ORDER BY {$order} LIMIT :limit"
         );
-        $stmt->bindValue(':limite', $limit, PDO::PARAM_INT);
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetchAll();
     }
@@ -635,7 +650,7 @@ abstract class Repository {
     }
 }
 
-// Repositório de Usuários
+// User Repository
 class UserRepository extends Repository {
     public function __construct(PDO $pdo) {
         parent::__construct($pdo, 'users');
@@ -649,33 +664,41 @@ class UserRepository extends Repository {
     }
 
     public function findActive(): array {
-        $stmt = $this->pdo->prepare('SELECT * FROM users WHERE ativo = 1 ORDER BY name');
+        $stmt = $this->pdo->prepare('SELECT * FROM users WHERE active = 1 ORDER BY name');
         $stmt->execute();
         return $stmt->fetchAll();
     }
 }
 
-// Uso
+// Usage
 $pdo = new PDO('sqlite:' . __DIR__ . '/app.sqlite', null, null, [
     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
 ]);
 
 $repo = new UserRepository($pdo);
-$repo->insert(['name' => 'Ana', 'email' => 'ana@email.com', 'password' => password_hash('123', PASSWORD_DEFAULT)]);
-$user = $repo->findByEmail('ana@email.com');
+$repo->insert(['name' => 'Anne', 'email' => 'anne@email.com', 'password' => password_hash('123', PASSWORD_DEFAULT)]);
+$user = $repo->findByEmail('anne@email.com');
 print_r($user);
 
 $all = $repo->findActive();
-echo "Usuários ativos: " . count($all) . "<br
+echo "Active users: " . count($all) . "<br>\n";
 ```
 
 ---
 
-## 📚 Referências
+---
+## Navigation
 
-- [PHP: PDO Manual](https://www.php.net/manual/pt_BR/book.pdo.php)
-- [PHP: PDOStatement](https://www.php.net/manual/pt_BR/class.pdostatement.php)
+- [← Module 13: Sessions and Cookies](./13-sessoes-e-cookies.md)
+- [→ Module 15: Security](./15-seguranca.md)
+
+---
+
+## References
+
+- [PHP: PDO Manual](https://www.php.net/manual/en/book.pdo.php)
+- [PHP: PDOStatement](https://www.php.net/manual/en/class.pdostatement.php)
 - [phpdelusions.net/pdo — The only proper PDO tutorial](https://phpdelusions.net/pdo)
-- [PHP: PDO drivers — MySQL, SQLite, PostgreSQL](https://www.php.net/manual/pt_BR/pdo.drivers.php)
-- [PHP 8.4: PDO driver-specific subclasses](https://www.php.net/manual/pt_BR/migration84.new-features.php)
+- [PHP: PDO drivers — MySQL, SQLite, PostgreSQL](https://www.php.net/manual/en/pdo.drivers.php)
+- [PHP 8.4: PDO driver-specific subclasses](https://www.php.net/manual/en/migration84.new-features.php)
 - [OWASP: SQL Injection Prevention](https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html)
