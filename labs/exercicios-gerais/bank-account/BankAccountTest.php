@@ -203,18 +203,18 @@ class BankAccountTest extends TestCase
         $this->assertSame(66.66, $account->getBalance());
     }
 
-    public function testGetOwnerReturnsCorrectName(): void
+    public function testOwnerPropertyIsSetCorrectly(): void
     {
         $account = new BankAccount('Alice', '00001-0', 250.00);
 
-        $this->assertSame('Alice', $account->getOwner());
+        $this->assertSame('Alice', $account->owner);
     }
 
-    public function testGetAccountNumberReturnsCorrectAccountNumber(): void
+    public function testAccountNumberPropertyIsSetCorrectly(): void
     {
         $account = new BankAccount('Bob', '98765-4', 1000.00);
 
-        $this->assertSame('98765-4', $account->getAccountNumber());
+        $this->assertSame('98765-4', $account->accountNumber);
     }
 
     public function testNegativeInitialBalanceThrowsException(): void

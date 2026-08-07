@@ -8,9 +8,9 @@ use RuntimeException;
 class BankAccount
 {
     public function __construct(
-        private readonly string $owner,
-        private readonly string $accountNumber,
-        private float           $balance = 0
+        public readonly string $owner,
+        public readonly string $accountNumber,
+        private float $balance = 0
     )
     {
         if ($owner === '') {
@@ -29,16 +29,6 @@ class BankAccount
     public function getBalance(): float
     {
         return $this->balance;
-    }
-
-    public function getOwner(): string
-    {
-        return $this->owner;
-    }
-
-    public function getAccountNumber(): string
-    {
-        return $this->accountNumber;
     }
 
     public function deposit(float $value): void
