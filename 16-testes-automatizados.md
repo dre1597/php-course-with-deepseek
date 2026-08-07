@@ -68,6 +68,30 @@ PHPUnit conventions:
 - Test methods are `public` and prefixed with `test`.
 - The test file mirrors the source: `src/Calculator.php` → `tests/CalculatorTest.php`.
 
+### A Note on `#[Test]` (PHP 8 Attributes)
+
+PHPUnit 10+ also supports marking test methods with the `#[Test]` attribute instead of the `test` prefix:
+
+```php
+<?php
+
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\TestCase;
+
+class CalculatorTest extends TestCase
+{
+    #[Test]
+    public function adds_two_numbers(): void
+    {
+        $this->assertEquals(5, add(2, 3));
+    }
+}
+```
+
+With `#[Test]`, method names don't need the `test` prefix — PHPUnit knows it's a test because of the attribute. Same for setup/teardown with `#[Before]` / `#[After]`.
+
+That said, **this course sticks to the `test` prefix convention**. It's simpler, works on any PHP version, and you'll see it in 99% of documentation, blog posts, and real-world codebases. The attribute syntax is just syntactic sugar — both do exactly the same thing.
+
 Run it:
 
 ```bash
@@ -888,9 +912,11 @@ Run from `labs/class16/`:
 | 13 | `13-tdd-cpf/` | TDD: CPF validator |
 | 14 | `14-slugify/` | Data providers: slugify |
 | 15 | `15-skipping/` | Skipping/incomplete tests |
+| 16 | `16-test-attribute/` | `#[Test]` attribute syntax |
 
 ```bash
 ./vendor/bin/phpunit 01-calculator    # single lab
+./vendor/bin/phpunit 16-test-attribute
 ./vendor/bin/phpunit */               # all labs
 ```
 
