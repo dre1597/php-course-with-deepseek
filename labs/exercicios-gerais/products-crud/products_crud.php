@@ -11,7 +11,7 @@ class Product
 
 class ProductsCrud
 {
-    public function __construct(private PDO $pdo)
+    public function __construct(private readonly PDO $pdo)
     {
 
         $this->pdo->exec("
