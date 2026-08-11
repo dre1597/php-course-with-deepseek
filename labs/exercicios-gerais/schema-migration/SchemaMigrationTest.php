@@ -57,9 +57,9 @@ class SchemaMigrationTest extends TestCase
     private function assertTableExists(string $tableName): void
     {
         $stmt = $this->pdo->query(
-            "SELECT name FROM sqlite_master WHERE type='table' AND name='{$tableName}'"
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='$tableName'"
         );
-        $this->assertNotFalse($stmt->fetch(), "Table '{$tableName}' should exist.");
+        $this->assertNotFalse($stmt->fetch(), "Table '$tableName' should exist.");
     }
 
     public function testMigrateWithNoMigrationsReturnsEmptyArray(): void
@@ -203,14 +203,14 @@ class SchemaMigrationTest extends TestCase
         ];
 
         foreach ($files as $num) {
-            $this->createMigrationFile("{$num}_migration.sql", "CREATE TABLE t{$num} (id INTEGER PRIMARY KEY);");
+            $this->createMigrationFile("{$num}_migration.sql", "CREATE TABLE t$num (id INTEGER PRIMARY KEY);");
         }
 
         $migration = $this->makeSchemaMigration();
         $migration->migrate();
 
         foreach ($files as $num) {
-            $this->assertTableExists("t{$num}");
+            $this->assertTableExists("t$num");
         }
     }
 
@@ -264,7 +264,7 @@ class SchemaMigrationTest extends TestCase
     private function tableExistsAfterFailure(string $tableName): bool
     {
         $stmt = $this->pdo->query(
-            "SELECT name FROM sqlite_master WHERE type='table' AND name='{$tableName}'"
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='$tableName'"
         );
         return $stmt->fetch() !== false;
     }
@@ -349,8 +349,8 @@ class SchemaMigrationTest extends TestCase
         for ($i = 1; $i <= $count; $i++) {
             $number = str_pad((string)$i, 3, '0', STR_PAD_LEFT);
             $this->createMigrationFile(
-                "{$number}_create_t{$i}.sql",
-                "CREATE TABLE t{$i} (id INTEGER PRIMARY KEY);"
+                "{$number}_create_t$i.sql",
+                "CREATE TABLE t$i (id INTEGER PRIMARY KEY);"
             );
         }
 
@@ -359,7 +359,7 @@ class SchemaMigrationTest extends TestCase
 
         $this->assertCount($count, $result);
         $this->assertTableExists('t1');
-        $this->assertTableExists("t{$count}");
+        $this->assertTableExists("t$count");
     }
 
     public function testMigrationsTableIsCreatedOnConstruct(): void
@@ -430,7 +430,7 @@ class SchemaMigrationTest extends TestCase
         $migration->migrate();
 
         $stmt = $this->pdo->query("SELECT COUNT(*) FROM migrations WHERE name = '001_users.sql'");
-        $count = (int) $stmt->fetchColumn();
+        $count = (int)$stmt->fetchColumn();
 
         $this->assertSame(1, $count);
     }
