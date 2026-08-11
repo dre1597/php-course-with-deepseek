@@ -791,6 +791,107 @@ echo "You visited this page {$visits} time(s).<br>\n";
 
 ---
 
+## 14. `__serialize()` and `__unserialize()` — Objects in Sessions
+
+When you store an object in `$_SESSION`, PHP serializes it. On the next request, it's unserialized back into an object. **The constructor does NOT run on unserialization.** This means typed properties may be left uninitialized, causing a fatal error:
+
+> `Typed property Class::$prop must not be accessed before initialization`
+
+### The Problem
+
+```php
+<?php
+class Cart
+{
+    private array $items;
+
+    public function __construct()
+    {
+        $this->items = [];
+    }
+
+    public function getItems(): array
+    {
+        return $this->items; // ERROR after deserialization!
+    }
+}
+
+// Request 1
+$_SESSION['cart'] = new Cart();
+
+// Request 2 — PHP unserializes $_SESSION['cart']
+// Constructor is skipped → $items is uninitialized → BOOM
+$cart = $_SESSION['cart'];
+$cart->getItems(); // Fatal error
+```
+
+### The Solution
+
+Implement `__serialize()` to control what gets saved, and `__unserialize()` to properly restore the object:
+
+```php
+<?php
+class Cart
+{
+    private array $items = [];
+
+    public function add(string $name): void
+    {
+        $this->items[] = $name;
+    }
+
+    public function getItems(): array
+    {
+        return $this->items;
+    }
+
+    public function __serialize(): array
+    {
+        return ['items' => $this->items];
+    }
+
+    public function __unserialize(array $data): void
+    {
+        $this->items = $data['items'];
+    }
+}
+
+// Request 1
+$_SESSION['cart'] = new Cart();
+
+// Request 2 — __unserialize runs, all properties initialized
+$cart = $_SESSION['cart'];
+$cart->getItems(); // works!
+```
+
+### Handling Legacy Sessions
+
+If you add `__serialize`/`__unserialize` to an existing class, old session data won't have the new keys:
+
+```php
+<?php
+public function __unserialize(array $data): void
+{
+    $this->items = $data['items'] ?? [];   // fallback
+    $this->total = $data['total'] ?? 0;
+}
+```
+
+### `__serialize` vs `__sleep` (Legacy)
+
+`__sleep()` and `__wakeup()` are the older counterparts. Prefer `__serialize()` / `__unserialize()`:
+
+```php
+<?php
+// Legacy — avoid for new code
+public function __sleep(): array { return ['items']; }
+public function __wakeup(): void  { $this->items = []; }
+```
+
+> **Rule of thumb:** Any class with typed properties stored in `$_SESSION` needs `__serialize()` / `__unserialize()`.
+
+---
+
 ## Navigation
 
 - [← Module 12: Forms and Superglobals](./12-formularios-e-superglobais.md)
